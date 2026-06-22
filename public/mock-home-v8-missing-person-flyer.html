@@ -1,0 +1,1092 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PLUGGED AUDIO — BULLETIN BOARD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&family=Permanent+Marker&family=Special+Elite&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --cork: #b7804e;
+        --cork-2: #9c6a3c;
+        --paper: #f0e7cf;
+        --paper-2: #e6dbbc;
+        --ink: #171310;
+        --ink-soft: #4a4538;
+        --red: #c52a2a;
+        --black: #1a1714;
+        --yellow: #f0c419;
+        --blue: #2a6fb0;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        color: var(--ink);
+        line-height: 1.5;
+        overflow-x: hidden;
+        position: relative;
+        background:
+          radial-gradient(circle at 12% 18%, rgba(0, 0, 0, 0.12), transparent 40%),
+          radial-gradient(circle at 88% 72%, rgba(0, 0, 0, 0.14), transparent 45%),
+          radial-gradient(circle at 50% 50%, var(--cork), var(--cork-2));
+        background-attachment: fixed;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        pointer-events: none;
+        opacity: 0.22;
+        mix-blend-mode: multiply;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='6' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+      .poster {
+        font-family: "Anton", Impact, sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.01em;
+      }
+      .mono {
+        font-family: "JetBrains Mono", monospace;
+      }
+      .marker {
+        font-family: "Permanent Marker", cursive;
+      }
+      .type {
+        font-family: "Special Elite", monospace;
+      }
+      .micro {
+        font-size: 0.66rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+      }
+      .wrap {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 clamp(1rem, 4vw, 2.5rem);
+      }
+
+      /* NAV — manila envelope tab */
+      .nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+      .nav-bar {
+        background: var(--black);
+        color: var(--paper);
+        border-bottom: 3px solid var(--red);
+      }
+      .nav-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 62px;
+        gap: 1rem;
+      }
+      .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        text-decoration: none;
+        color: var(--paper);
+      }
+      .nav-logo img {
+        height: 28px;
+        width: 28px;
+        object-fit: contain;
+        filter: invert(1) grayscale(1) contrast(1.2);
+        border: 2px solid var(--paper);
+        padding: 2px;
+      }
+      .nav-logo b {
+        font-family: "Anton";
+        font-size: 1.1rem;
+        letter-spacing: 0.05em;
+      }
+      .nav-links {
+        display: none;
+        gap: 1.6rem;
+        list-style: none;
+      }
+      @media (min-width: 860px) {
+        .nav-links {
+          display: flex;
+        }
+      }
+      .nav-links a {
+        color: #cfc6ad;
+        text-decoration: none;
+        font-size: 0.76rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+      }
+      .nav-links a:hover {
+        color: var(--yellow);
+      }
+      .nav-cart {
+        font-family: "Anton";
+        font-size: 0.85rem;
+        letter-spacing: 0.06em;
+        text-decoration: none;
+        color: var(--black);
+        background: var(--yellow);
+        padding: 0.35rem 0.7rem;
+        border: 2px solid var(--paper);
+        transform: rotate(-1.5deg);
+      }
+
+      /* shared paper flyer base + pin */
+      .flyer {
+        position: relative;
+        background: var(--paper);
+        border: 2px solid var(--ink);
+        box-shadow: 5px 6px 0 rgba(0, 0, 0, 0.3);
+      }
+      .pin {
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        top: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: radial-gradient(circle at 35% 30%, #ff5a5a, #9c1414);
+        box-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
+        z-index: 5;
+      }
+      .pin.b {
+        background: radial-gradient(circle at 35% 30%, #5ab1ff, #143a6b);
+      }
+      .pin.y {
+        background: radial-gradient(circle at 35% 30%, #ffe05a, #9c7c14);
+      }
+      .tape {
+        position: absolute;
+        background: rgba(240, 196, 25, 0.7);
+        border: 1px dashed rgba(0, 0, 0, 0.18);
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+      }
+
+      /* ---------- HERO: missing-earbuds master flyer + side notes ---------- */
+      .hero {
+        padding: clamp(2.4rem, 5vw, 3.4rem) 0 1rem;
+      }
+      .hero-board {
+        display: grid;
+        grid-template-columns: 1.4fr 1fr;
+        gap: 2.2rem;
+        align-items: start;
+      }
+      @media (max-width: 860px) {
+        .hero-board {
+          grid-template-columns: 1fr;
+        }
+      }
+      .hero-main {
+        padding: 1.6rem 1.7rem 1.8rem;
+        transform: rotate(-1deg);
+      }
+      .hero-main .pin {
+        left: 18%;
+      }
+      .hero-main .tape {
+        top: -12px;
+        right: 10%;
+        width: 90px;
+        height: 26px;
+        transform: rotate(6deg);
+      }
+      .hero-main .stamp {
+        position: absolute;
+        bottom: 18px;
+        right: 22px;
+        border: 3px solid var(--red);
+        color: var(--red);
+        font-family: "Anton";
+        text-align: center;
+        line-height: 0.9;
+        transform: rotate(-13deg);
+        opacity: 0.85;
+        width: 108px;
+        height: 108px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background: radial-gradient(circle, rgba(197, 42, 42, 0.06), transparent 70%);
+        mix-blend-mode: multiply;
+      }
+      .hero-main .stamp small {
+        font-size: 0.58rem;
+        letter-spacing: 0.1em;
+      }
+      .hero-main .stamp b {
+        font-size: 1.4rem;
+        display: block;
+      }
+      .hero-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid var(--ink);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+        font-family: "Special Elite";
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+      .hero-top b {
+        color: var(--red);
+      }
+      .hero-main h1 {
+        font-family: "Anton";
+        text-transform: uppercase;
+        font-size: clamp(2.6rem, 9vw, 5.4rem);
+        line-height: 0.82;
+        margin-bottom: 0.4rem;
+      }
+      .hero-main h1 .red {
+        color: var(--red);
+      }
+      .hero-main h1 .out {
+        color: transparent;
+        -webkit-text-stroke: 2px var(--ink);
+      }
+      .hero-main .mug {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        margin: 0.9rem 0 1rem;
+      }
+      .hero-main .mug .shot {
+        width: 120px;
+        height: 140px;
+        border: 3px solid var(--ink);
+        background: var(--paper-2);
+        position: relative;
+        overflow: hidden;
+        flex: none;
+      }
+      .hero-main .mug .shot img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: grayscale(1) contrast(1.6) brightness(1.05);
+      }
+      .hero-main .mug .shot::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle, #000 1px, transparent 1.3px);
+        background-size: 4px 4px;
+        opacity: 0.3;
+        mix-blend-mode: multiply;
+      }
+      .hero-main .mug .shot .h {
+        position: absolute;
+        bottom: 6px;
+        left: 6px;
+        font-family: "JetBrains Mono";
+        font-size: 0.6rem;
+        background: var(--ink);
+        color: var(--paper);
+        padding: 1px 4px;
+      }
+      .hero-main .mug .desc {
+        font-family: "Special Elite";
+        font-size: 0.86rem;
+        color: var(--ink-soft);
+      }
+      .hero-main .mug .desc b {
+        color: var(--ink);
+      }
+      .hero-main .lede {
+        max-width: 42ch;
+        font-size: 1rem;
+        color: var(--ink-soft);
+        margin-bottom: 1.2rem;
+      }
+      .hero-main .artist {
+        font-family: "Permanent Marker";
+        color: var(--blue);
+        font-size: 1.25rem;
+        line-height: 1.25;
+        transform: rotate(-1deg);
+        max-width: 26ch;
+        margin-bottom: 1.4rem;
+        border-left: 3px solid var(--red);
+        padding-left: 0.7rem;
+      }
+      .hero-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .btn {
+        font-family: "Anton";
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        text-decoration: none;
+        font-size: 0.95rem;
+        padding: 0.8rem 1.4rem;
+        border: 3px solid var(--ink);
+        background: var(--black);
+        color: var(--paper);
+        transition:
+          transform 0.12s ease,
+          box-shadow 0.12s ease;
+      }
+      .btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 5px 5px 0 var(--red);
+      }
+      .btn-alt {
+        background: var(--paper);
+        color: var(--ink);
+      }
+      .btn-alt:hover {
+        box-shadow: 5px 5px 0 var(--blue);
+      }
+
+      /* side column of small pinned notes */
+      .hero-side {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        padding-top: 1.2rem;
+      }
+      .note {
+        padding: 1rem 1.1rem;
+      }
+      .note .pin {
+        left: 80%;
+      }
+      .note .marker {
+        font-size: 1.4rem;
+        color: var(--red);
+        line-height: 1.2;
+        transform: rotate(-2deg);
+        display: block;
+      }
+      .note small {
+        display: block;
+        margin-top: 0.5rem;
+        font-family: "Inter";
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.62rem;
+        letter-spacing: 0.1em;
+        color: var(--ink-soft);
+      }
+      .note.cyan .marker {
+        color: var(--blue);
+      }
+      .note.cyan .pin {
+        background: radial-gradient(circle at 35% 30%, #5ab1ff, #143a6b);
+      }
+      .reward {
+        padding: 0.9rem 1rem;
+        transform: rotate(2deg);
+      }
+      .reward .pin.y {
+        left: 30%;
+      }
+      .reward b {
+        font-family: "Anton";
+        font-size: 1.3rem;
+        display: block;
+        color: var(--ink);
+      }
+      .reward .amt {
+        font-family: "Anton";
+        font-size: 2rem;
+        color: var(--red);
+      }
+      .reward p {
+        font-family: "Special Elite";
+        font-size: 0.78rem;
+        color: var(--ink-soft);
+        margin-top: 0.4rem;
+      }
+
+      /* ---------- WHY: three posted memos ---------- */
+      .why {
+        padding: clamp(3rem, 6vw, 5rem) 0;
+      }
+      .why-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 2.4rem;
+      }
+      .memo {
+        padding: 1.5rem 1.3rem 1.4rem;
+        transform: rotate(var(--r, -1deg));
+        transition: transform 0.15s ease;
+      }
+      .memo:hover {
+        transform: rotate(0) translateY(-6px);
+      }
+      .memo:nth-child(1) {
+        --r: -2.2deg;
+      }
+      .memo:nth-child(2) {
+        --r: 1.6deg;
+      }
+      .memo:nth-child(3) {
+        --r: -0.8deg;
+      }
+      .memo .num {
+        font-family: "Anton";
+        font-size: 2.4rem;
+        line-height: 1;
+        color: var(--red);
+      }
+      .memo h3 {
+        font-family: "Anton";
+        text-transform: uppercase;
+        font-size: 1.35rem;
+        margin: 0.4rem 0 0.5rem;
+        line-height: 0.95;
+      }
+      .memo p {
+        font-size: 0.9rem;
+        color: var(--ink-soft);
+        font-family: "Special Elite";
+      }
+      .memo .mk {
+        position: absolute;
+        bottom: -20px;
+        right: 8px;
+        font-family: "Permanent Marker";
+        color: var(--blue);
+        font-size: 0.95rem;
+        transform: rotate(-3deg);
+      }
+
+      /* ---------- PRODUCTS: wanted posters row ---------- */
+      .products {
+        padding: clamp(3rem, 6vw, 5rem) 0;
+        position: relative;
+      }
+      .products-head {
+        margin-bottom: 2.4rem;
+        text-align: center;
+      }
+      .products-head h2 {
+        font-family: "Anton";
+        text-transform: uppercase;
+        font-size: clamp(2.2rem, 8vw, 5rem);
+        line-height: 0.84;
+      }
+      .products-head h2 .red {
+        color: var(--red);
+      }
+      .products-head .sub {
+        font-family: "Permanent Marker";
+        color: var(--blue);
+        transform: rotate(-2deg);
+        font-size: 1.15rem;
+        display: inline-block;
+        margin-top: 0.4rem;
+      }
+      .wanted-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 2.6rem 2rem;
+      }
+      .wanted {
+        position: relative;
+        text-decoration: none;
+        color: var(--ink);
+        background: var(--paper);
+        border: 3px solid var(--ink);
+        padding: 0.6rem 0.6rem 1rem;
+        box-shadow: 6px 7px 0 rgba(0, 0, 0, 0.3);
+        transform: rotate(var(--r, 0deg));
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.15s ease;
+      }
+      .wanted:hover {
+        transform: rotate(0) translateY(-10px) scale(1.02);
+        box-shadow: 8px 9px 0 var(--red);
+        z-index: 5;
+      }
+      .wanted:nth-child(1) {
+        --r: -2deg;
+      }
+      .wanted:nth-child(2) {
+        --r: 1.6deg;
+      }
+      .wanted:nth-child(3) {
+        --r: -1deg;
+      }
+      .wanted:nth-child(4) {
+        --r: 2.2deg;
+      }
+      .wanted .pin {
+        left: 50%;
+        top: -9px;
+      }
+      .wanted:nth-child(2) .pin {
+        left: 32%;
+      }
+      .wanted:nth-child(4) .pin {
+        left: 70%;
+      }
+      .wanted-banner {
+        background: var(--black);
+        color: var(--yellow);
+        font-family: "Anton";
+        text-transform: uppercase;
+        text-align: center;
+        font-size: 1.05rem;
+        letter-spacing: 0.08em;
+        padding: 0.3rem 0.2rem;
+        margin: -0.6rem -0.6rem 0.5rem;
+        border-bottom: 2px solid var(--ink);
+      }
+      .wanted-img {
+        position: relative;
+        aspect-ratio: 1/1;
+        overflow: hidden;
+        background: var(--paper-2);
+        border: 2px solid var(--ink);
+        margin-bottom: 0.6rem;
+      }
+      .wanted-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: grayscale(1) contrast(1.6) brightness(1.05);
+        transition: filter 0.25s ease;
+      }
+      .wanted:hover .wanted-img img {
+        filter: grayscale(0) contrast(1.1);
+      }
+      .wanted-img::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle, #000 1px, transparent 1.3px);
+        background-size: 4px 4px;
+        opacity: 0.28;
+        mix-blend-mode: multiply;
+        pointer-events: none;
+      }
+      .wanted-img .h {
+        position: absolute;
+        bottom: 6px;
+        left: 6px;
+        font-family: "JetBrains Mono";
+        font-size: 0.6rem;
+        background: var(--ink);
+        color: var(--paper);
+        padding: 1px 4px;
+        z-index: 2;
+      }
+      .wanted-img .price {
+        position: absolute;
+        top: 8px;
+        right: -8px;
+        background: var(--yellow);
+        color: var(--ink);
+        font-family: "Anton";
+        font-size: 1.15rem;
+        padding: 0.3rem 0.55rem;
+        transform: rotate(5deg);
+        border: 2px solid var(--ink);
+        z-index: 3;
+      }
+      .wanted-img .dead {
+        position: absolute;
+        top: 8px;
+        left: -10px;
+        background: var(--red);
+        color: var(--paper);
+        font-family: "Anton";
+        font-size: 0.62rem;
+        letter-spacing: 0.08em;
+        padding: 0.3rem 0.5rem;
+        transform: rotate(-6deg);
+        border: 2px solid var(--ink);
+        z-index: 3;
+      }
+      .wanted-name {
+        font-family: "Anton";
+        text-transform: uppercase;
+        font-size: 1.4rem;
+        line-height: 0.92;
+        text-align: center;
+      }
+      .wanted-aka {
+        font-family: "Permanent Marker";
+        color: var(--red);
+        font-size: 0.95rem;
+        text-align: center;
+        transform: rotate(-1deg);
+        margin: 0.2rem 0;
+      }
+      .wanted-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        justify-content: center;
+        margin-top: 0.55rem;
+      }
+      .tag {
+        font-family: "Anton";
+        text-transform: uppercase;
+        font-size: 0.58rem;
+        letter-spacing: 0.08em;
+        padding: 0.2rem 0.45rem;
+        border: 2px solid var(--ink);
+        background: var(--paper);
+      }
+      .tag.red {
+        background: var(--red);
+        color: var(--paper);
+        border-color: var(--red);
+      }
+      .tag.yl {
+        background: var(--yellow);
+      }
+      .tag.bl {
+        background: var(--blue);
+        color: var(--paper);
+        border-color: var(--blue);
+      }
+      .wanted-note {
+        position: absolute;
+        bottom: -26px;
+        left: -14px;
+        font-family: "Permanent Marker";
+        color: var(--blue);
+        font-size: 0.95rem;
+        transform: rotate(-7deg);
+        z-index: 4;
+      }
+
+      /* ---------- BUNDLE: posted ransom note ---------- */
+      .bundle {
+        padding: clamp(3.5rem, 7vw, 6rem) 0;
+        position: relative;
+      }
+      .ransom {
+        position: relative;
+        background: var(--black);
+        color: var(--paper);
+        border: 3px solid var(--ink);
+        padding: clamp(2rem, 5vw, 3.4rem);
+        box-shadow: 8px 9px 0 rgba(0, 0, 0, 0.35);
+        transform: rotate(-0.6deg);
+      }
+      .ransom .pin.y {
+        left: 12%;
+        top: -9px;
+      }
+      .ransom .pin.b {
+        left: 86%;
+        top: -9px;
+      }
+      .ransom::before {
+        content: "BUNDLE BUNDLE BUNDLE";
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        font-family: "Anton";
+        font-size: clamp(4rem, 16vw, 14rem);
+        color: rgba(240, 231, 207, 0.05);
+        white-space: nowrap;
+        overflow: hidden;
+        pointer-events: none;
+      }
+      .bundle-inner {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 2.4rem;
+        align-items: center;
+      }
+      @media (max-width: 780px) {
+        .bundle-inner {
+          grid-template-columns: 1fr;
+        }
+      }
+      .bundle-label {
+        display: inline-block;
+        background: var(--yellow);
+        color: var(--ink);
+        font-family: "Anton";
+        padding: 0.3rem 0.7rem;
+        transform: rotate(-3deg);
+        margin-bottom: 1rem;
+        font-size: 0.85rem;
+        letter-spacing: 0.08em;
+      }
+      .bundle h2 {
+        font-family: "Anton";
+        text-transform: uppercase;
+        font-size: clamp(2.2rem, 7vw, 5rem);
+        line-height: 0.84;
+        margin-bottom: 1rem;
+        text-shadow: 5px 5px 0 var(--red);
+      }
+      .bundle h2 em {
+        font-style: normal;
+        color: var(--yellow);
+      }
+      .bundle p {
+        color: #c9c0a8;
+        max-width: 46ch;
+        margin-bottom: 1.6rem;
+      }
+      .bundle .mk {
+        font-family: "Permanent Marker";
+        color: var(--yellow);
+        font-size: 1.2rem;
+        transform: rotate(-2deg);
+        margin-bottom: 1rem;
+        display: block;
+      }
+      .bundle .btn {
+        background: var(--red);
+        border-color: var(--red);
+        color: var(--paper);
+      }
+      .bundle .btn:hover {
+        box-shadow: 5px 5px 0 var(--yellow);
+      }
+      .bundle-vis {
+        aspect-ratio: 1/1;
+        border: 4px solid var(--yellow);
+        display: grid;
+        place-items: center;
+        transform: rotate(3deg);
+        position: relative;
+        background:
+          repeating-linear-gradient(90deg, transparent 0 16px, rgba(240, 196, 25, 0.14) 16px 32px),
+          var(--black);
+      }
+      .bundle-vis span {
+        font-family: "Anton";
+        color: var(--yellow);
+        font-size: clamp(1.3rem, 3vw, 2rem);
+        text-align: center;
+        border: 3px dashed var(--yellow);
+        padding: 1rem;
+        transform: rotate(-5deg);
+        line-height: 1;
+      }
+      .bundle-vis small {
+        display: block;
+        font-size: 0.7rem;
+        color: #c9c0a8;
+        margin-top: 0.5rem;
+        letter-spacing: 0.1em;
+      }
+
+      /* ---------- FOOTER ---------- */
+      .footer {
+        padding: 3.4rem 0 2.4rem;
+        position: relative;
+        margin-top: 1.5rem;
+      }
+      .footer-strip {
+        background: var(--paper);
+        border-top: 4px solid var(--ink);
+        border-bottom: 4px solid var(--ink);
+        padding: 2.2rem 0;
+      }
+      .footer-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.4rem;
+        justify-content: space-between;
+        align-items: flex-end;
+      }
+      .footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.4rem;
+        list-style: none;
+      }
+      .footer-links a {
+        font-family: "Anton";
+        text-transform: uppercase;
+        font-size: 0.82rem;
+        letter-spacing: 0.06em;
+        text-decoration: none;
+        color: var(--ink);
+        border-bottom: 3px solid transparent;
+      }
+      .footer-links a:hover {
+        border-bottom-color: var(--red);
+      }
+      .footer-copy {
+        font-size: 0.82rem;
+        color: var(--ink-soft);
+      }
+      .footer-mark {
+        font-family: "Permanent Marker";
+        color: var(--red);
+        font-size: 1.2rem;
+        transform: rotate(-2deg);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+          animation: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="nav-bar">
+        <div class="wrap nav-inner">
+          <a href="#" class="nav-logo"
+            ><img src="logo.png" alt="Plugged Audio logo" /><b>PLUGGED AUDIO</b></a
+          >
+          <ul class="nav-links">
+            <li><a href="#products">IEMs</a></li>
+            <li><a href="#bundle">Bundles</a></li>
+            <li><a href="#">Compare</a></li>
+            <li><a href="#">About</a></li>
+          </ul>
+          <a href="#" class="nav-cart">CART (0)</a>
+        </div>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div class="wrap hero-board">
+        <div class="flyer hero-main">
+          <span class="pin"></span>
+          <span class="tape"></span>
+          <div class="stamp"><small>YOU DESERVE</small><b>BETTER</b><small>EARPHONES</small></div>
+          <div class="hero-top">
+            <span>Case File №26 &middot; Est. 2026</span><b>★ MISSING ★</b>
+          </div>
+          <h1>Have you<br />seen these<br /><span class="red">earbuds?</span></h1>
+          <div class="mug">
+            <div class="shot">
+              <img
+                src="https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?auto=format&fit=crop&w=300&q=80"
+                alt="mugshot of bad earbuds"
+              />
+              <span class="h">EXHIBIT A</span>
+            </div>
+            <p class="desc">
+              <b>WANTED:</b> the sad, muddy, free earbuds that came with your phone. Last seen
+              rattling in your pocket. Considered dangerous to your music. <b>Status:</b> guilty.
+            </p>
+          </div>
+          <p class="lede">
+            You don't need to spend a fortune for IEMs that actually sound good. We curate the best
+            affordable gear so you can retire the criminals.
+          </p>
+          <p class="artist">→ listen to music<br />the way the artist<br />actually intended.</p>
+          <div class="hero-actions">
+            <a href="#products" class="btn">Shop IEMs →</a>
+            <a href="#" class="btn btn-alt">How to choose</a>
+          </div>
+        </div>
+
+        <aside class="hero-side">
+          <div class="flyer note">
+            <span class="pin"></span><span class="marker">throw away<br />the free ones.</span
+            ><small>do it tonight</small>
+          </div>
+          <div class="flyer note cyan">
+            <span class="pin"></span><span class="marker">your ears<br />deserve better.</span
+            ><small>no gatekeeping</small>
+          </div>
+          <div class="flyer reward">
+            <span class="pin y"></span><b>REWARD</b><span class="amt">€19</span>
+            <p>
+              starting price for a real IEM that doesn't make your music sound like it's in a tin
+              can.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </header>
+
+    <section class="why">
+      <div class="wrap">
+        <div class="why-grid">
+          <article class="flyer memo">
+            <span class="pin"></span>
+            <div class="num mono">01</div>
+            <h3>Only the good stuff</h3>
+            <p>
+              No endless catalog. Every IEM on here is picked because it punches above its price.
+            </p>
+            <span class="mk">no filler</span>
+          </article>
+          <article class="flyer memo">
+            <span class="pin b"></span>
+            <div class="num mono">02</div>
+            <h3>Sound, not specs</h3>
+            <p>
+              Signatures in plain English — bass-forward, warm, detailed. Pick what fits your ears.
+            </p>
+            <span class="mk">plain english</span>
+          </article>
+          <article class="flyer memo">
+            <span class="pin y"></span>
+            <div class="num mono">03</div>
+            <h3>Plug &amp; play</h3>
+            <p>IEM + DAC bundles that level up your setup, on the train or mid-match.</p>
+            <span class="mk">level up</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="products" id="products">
+      <div class="wrap">
+        <div class="products-head">
+          <h2>The <span class="red">lineup</span></h2>
+          <span class="sub">↑ four suspects worth turning in for</span>
+        </div>
+        <div class="wanted-row">
+          <a href="#" class="wanted">
+            <span class="pin"></span>
+            <div class="wanted-banner">WANTED: GOOD SOUND</div>
+            <div class="wanted-img">
+              <span class="price">€19</span>
+              <img
+                src="https://images.unsplash.com/photo-1612444530582-fc66183b16f7?auto=format&fit=crop&w=700&q=80"
+                alt="Tanchjim Zero IEM"
+              />
+              <span class="h">№ 01</span>
+            </div>
+            <div class="wanted-name">Tanchjim Zero</div>
+            <div class="wanted-aka">aka "the gateway"</div>
+            <div class="wanted-tags">
+              <span class="tag">Warm</span><span class="tag">Vocal-forward</span>
+            </div>
+          </a>
+
+          <a href="#" class="wanted">
+            <span class="pin b"></span>
+            <div class="wanted-banner">WANTED: GOOD SOUND</div>
+            <div class="wanted-img">
+              <span class="price">€79</span>
+              <img
+                src="https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=700&q=80"
+                alt="Truthear Hexa IEM"
+              />
+              <span class="h">№ 02</span>
+            </div>
+            <div class="wanted-name">Truthear Hexa</div>
+            <div class="wanted-aka">aka "honest detail"</div>
+            <div class="wanted-tags">
+              <span class="tag bl">Detailed</span><span class="tag">Balanced</span>
+            </div>
+          </a>
+
+          <a href="#" class="wanted">
+            <span class="pin y"></span>
+            <div class="wanted-banner">WANTED: GOOD SOUND</div>
+            <div class="wanted-img">
+              <span class="price">€89</span>
+              <span class="dead">DEADLY BASS</span>
+              <img
+                src="https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=700&q=80"
+                alt="Moondrop Aria IEM"
+              />
+              <span class="h">№ 03</span>
+            </div>
+            <div class="wanted-name">Moondrop Aria</div>
+            <div class="wanted-aka">aka "the crowd favourite"</div>
+            <div class="wanted-tags">
+              <span class="tag red">Bass-forward</span><span class="tag yl">Best seller</span>
+            </div>
+            <span class="wanted-note">most wanted ↘</span>
+          </a>
+
+          <a href="#bundle" class="wanted">
+            <span class="pin"></span>
+            <div class="wanted-banner">WANTED: GOOD SOUND</div>
+            <div class="wanted-img">
+              <span class="price">€129</span>
+              <img
+                src="https://images.unsplash.com/photo-1505740420928-5e560c06d28e?auto=format&fit=crop&w=700&q=80"
+                alt="IEM and DAC bundle"
+              />
+              <span class="h">№ 04</span>
+            </div>
+            <div class="wanted-name">IEM + DAC</div>
+            <div class="wanted-aka">aka "the bundle"</div>
+            <div class="wanted-tags">
+              <span class="tag bl">Bundle</span><span class="tag yl">Save more</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="bundle" id="bundle">
+      <div class="wrap">
+        <div class="ransom">
+          <span class="pin y"></span><span class="pin b"></span>
+          <div class="bundle-inner">
+            <div>
+              <span class="bundle-label">BUNDLE / 03</span>
+              <h2 class="poster">Level up<br />with a <em>DAC</em></h2>
+              <span class="mk">↳ unlock the detail you've been missing</span>
+              <p>
+                Your phone's dongle is fine. A small DAC is better. Pair an IEM with a portable DAC
+                and hear what you've been missing — starting at €129.
+              </p>
+              <a href="#" class="btn">See bundles →</a>
+            </div>
+            <div class="bundle-vis">
+              <span>IEM<br />+ DAC<br />€129<small>plug &amp; play</small></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer-strip">
+      <footer class="footer">
+        <div class="wrap footer-grid">
+          <ul class="footer-links">
+            <li><a href="#">Shipping</a></li>
+            <li><a href="#">Returns</a></li>
+            <li><a href="#">Terms</a></li>
+            <li><a href="#">Privacy</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+          <div>
+            <div class="footer-mark">stay plugged.</div>
+            <p class="footer-copy">© 2026 Plugged Audio. You deserve better earphones.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
