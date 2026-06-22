@@ -7,13 +7,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
     <style>
       :root {
         --paper: #f5f1ea;
-        --paper-dark: #e6e0d5;
+        --paper-2: #ebe5da;
+        --paper-dark: #ddd6c9;
         --ink: #1a1917;
         --ink-muted: #6b675f;
         --orange: #e85d1c;
@@ -42,23 +43,106 @@
           sans-serif;
         background-color: var(--paper);
         color: var(--ink);
-        line-height: 1.6;
+        line-height: 1.55;
         position: relative;
+        overflow-x: hidden;
       }
 
-      /* Grain texture overlay */
+      /* Layered grunge texture */
       body::before {
         content: "";
         position: fixed;
         inset: 0;
         pointer-events: none;
         z-index: 1000;
-        opacity: 0.05;
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        opacity: 0.12;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         mix-blend-mode: multiply;
       }
 
-      /* Utilities */
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 1001;
+        opacity: 0.04;
+        background: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          var(--ink) 2px,
+          var(--ink) 3px
+        );
+        mix-blend-mode: multiply;
+      }
+
+      /* Rough torn-edge helper */
+      .torn {
+        clip-path: polygon(
+          0% 1%,
+          3% 0%,
+          8% 1%,
+          12% 0%,
+          18% 1%,
+          23% 0%,
+          29% 1%,
+          35% 0%,
+          41% 1%,
+          47% 0%,
+          52% 1%,
+          58% 0%,
+          64% 1%,
+          70% 0%,
+          76% 1%,
+          82% 0%,
+          88% 1%,
+          94% 0%,
+          100% 1%,
+          100% 99%,
+          96% 100%,
+          91% 99%,
+          86% 100%,
+          80% 99%,
+          74% 100%,
+          68% 99%,
+          62% 100%,
+          56% 99%,
+          50% 100%,
+          44% 99%,
+          38% 100%,
+          32% 99%,
+          26% 100%,
+          20% 99%,
+          14% 100%,
+          8% 99%,
+          2% 100%,
+          0% 99%
+        );
+      }
+
+      /* Sticker / tape look */
+      .sticker {
+        display: inline-block;
+        padding: 0.35rem 0.9rem;
+        background: var(--paper-2);
+        border: 2px solid var(--ink);
+        transform: rotate(-2deg);
+        box-shadow: 3px 3px 0 rgba(26, 25, 23, 0.15);
+      }
+
+      .tape {
+        position: absolute;
+        width: 90px;
+        height: 28px;
+        background: rgba(245, 241, 234, 0.85);
+        border: 1px solid rgba(26, 25, 23, 0.2);
+        transform: rotate(-35deg);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        z-index: 5;
+      }
+
+      /* Container */
       .container {
         width: 100%;
         max-width: 1440px;
@@ -71,10 +155,10 @@
       }
 
       .micro {
-        font-size: 0.75rem;
-        font-weight: 600;
+        font-size: 0.6875rem;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.08em;
       }
 
       /* Navigation */
@@ -82,16 +166,16 @@
         position: sticky;
         top: 0;
         z-index: 100;
-        background-color: rgba(245, 241, 234, 0.92);
-        border-bottom: 1px solid rgba(26, 25, 23, 0.08);
-        backdrop-filter: blur(8px);
+        background-color: rgba(245, 241, 234, 0.95);
+        border-bottom: 2px solid var(--ink);
+        backdrop-filter: blur(4px);
       }
 
       .nav-inner {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        height: 72px;
+        height: 68px;
       }
 
       .nav-logo {
@@ -99,17 +183,19 @@
         align-items: center;
         gap: 0.75rem;
         font-family: "Inter Tight", sans-serif;
-        font-weight: 800;
-        font-size: 1.25rem;
-        letter-spacing: -0.02em;
+        font-weight: 900;
+        font-size: 1.15rem;
+        letter-spacing: -0.03em;
         color: var(--ink);
         text-decoration: none;
+        text-transform: uppercase;
       }
 
       .nav-logo img {
-        width: 36px;
-        height: 36px;
+        width: 38px;
+        height: 38px;
         object-fit: contain;
+        filter: contrast(1.2);
       }
 
       .nav-links {
@@ -126,21 +212,25 @@
       }
 
       .nav-links a {
-        font-size: 0.875rem;
-        font-weight: 500;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
         color: var(--ink);
         text-decoration: none;
-        transition: color 0.2s ease;
+        border-bottom: 2px solid transparent;
+        padding-bottom: 0.1rem;
+        transition: border-color 0.2s ease;
       }
 
       .nav-links a:hover {
-        color: var(--orange);
+        border-bottom-color: var(--orange);
       }
 
       .nav-actions {
         display: flex;
         align-items: center;
-        gap: 1.25rem;
+        gap: 1rem;
       }
 
       .nav-actions button {
@@ -148,76 +238,86 @@
         border: none;
         cursor: pointer;
         color: var(--ink);
-        transition:
-          color 0.2s ease,
-          transform 0.2s ease;
+        transition: transform 0.15s ease;
       }
 
       .nav-actions button:hover {
-        color: var(--orange);
-        transform: translateY(-1px);
-      }
-
-      .cart-dot {
-        position: absolute;
-        top: -2px;
-        right: -2px;
-        width: 8px;
-        height: 8px;
-        background-color: var(--orange);
-        border-radius: 0;
+        transform: scale(1.1) rotate(-4deg);
       }
 
       .cart-btn {
         position: relative;
       }
 
+      .cart-dot {
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        width: 9px;
+        height: 9px;
+        background-color: var(--orange);
+        border: 1px solid var(--paper);
+      }
+
       /* Hero */
       .hero {
-        padding: clamp(4rem, 10vw, 8rem) 0 clamp(3rem, 8vw, 6rem);
+        padding: clamp(4rem, 12vw, 9rem) 0 clamp(3rem, 8vw, 6rem);
+        position: relative;
       }
 
       .hero-label {
         display: inline-block;
         margin-bottom: 1.5rem;
-        padding: 0.35rem 0.75rem;
-        border: 1px solid var(--ink);
-        color: var(--ink);
+        padding: 0.4rem 0.9rem;
+        background: var(--ink);
+        color: var(--paper);
+        transform: rotate(-1.5deg);
       }
 
       .hero h1 {
         font-family: "Inter Tight", sans-serif;
-        font-weight: 800;
-        font-size: clamp(3rem, 8vw, 7rem);
-        line-height: 0.9;
-        letter-spacing: -0.04em;
-        max-width: 14ch;
+        font-weight: 900;
+        font-size: clamp(3.5rem, 11vw, 9rem);
+        line-height: 0.85;
+        letter-spacing: -0.05em;
+        max-width: 13ch;
         margin-bottom: 1.5rem;
+        text-transform: uppercase;
+        color: var(--ink);
+        text-shadow: 3px 3px 0 rgba(232, 93, 28, 0.25);
+      }
+
+      .hero h1 span {
+        display: block;
+        color: var(--orange);
+        transform: translateX(0.5rem) rotate(-1deg);
       }
 
       .hero p {
         font-size: clamp(1.125rem, 2vw, 1.375rem);
         color: var(--ink-muted);
-        max-width: 55ch;
+        max-width: 52ch;
         margin-bottom: 2.5rem;
+        padding-left: 1rem;
+        border-left: 4px solid var(--orange);
       }
 
       .btn {
         display: inline-flex;
         align-items: center;
         gap: 0.75rem;
-        padding: 1rem 1.75rem;
+        padding: 1.1rem 2rem;
         font-family: "Inter Tight", sans-serif;
-        font-weight: 700;
-        font-size: 0.875rem;
+        font-weight: 800;
+        font-size: 0.8rem;
         text-transform: uppercase;
-        letter-spacing: 0.02em;
+        letter-spacing: 0.04em;
         text-decoration: none;
-        border: none;
+        border: 2px solid var(--ink);
         cursor: pointer;
         transition:
-          transform 0.2s cubic-bezier(0.165, 0.84, 0.44, 1),
-          background-color 0.2s ease;
+          transform 0.15s cubic-bezier(0.165, 0.84, 0.44, 1),
+          background-color 0.15s ease;
       }
 
       .btn-primary {
@@ -227,18 +327,20 @@
 
       .btn-primary:hover {
         background-color: var(--orange);
-        transform: scale(1.02);
+        border-color: var(--orange);
+        color: var(--ink);
+        transform: scale(1.03) rotate(-1deg);
       }
 
       .btn-secondary {
         background-color: transparent;
         color: var(--ink);
-        border: 1px solid var(--ink);
       }
 
       .btn-secondary:hover {
         background-color: var(--ink);
         color: var(--paper);
+        transform: scale(1.03) rotate(1deg);
       }
 
       .hero-actions {
@@ -247,34 +349,72 @@
         gap: 1rem;
       }
 
+      .hero-stamp {
+        position: absolute;
+        right: clamp(1rem, 6vw, 6rem);
+        top: 30%;
+        width: clamp(100px, 18vw, 220px);
+        height: clamp(100px, 18vw, 220px);
+        border: 4px solid var(--orange);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-family: "Inter Tight", sans-serif;
+        font-weight: 900;
+        font-size: clamp(0.65rem, 1.5vw, 1rem);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--orange);
+        transform: rotate(18deg);
+        opacity: 0.85;
+        mix-blend-mode: multiply;
+        pointer-events: none;
+      }
+
       /* Why section */
       .why {
         padding: clamp(3rem, 6vw, 5rem) 0;
-        border-top: 1px solid rgba(26, 25, 23, 0.12);
+        background-color: var(--paper-2);
+        border-top: 3px solid var(--ink);
+        border-bottom: 3px solid var(--ink);
+        position: relative;
       }
 
       .why-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 2rem;
+        gap: 1.5rem;
       }
 
       .why-block {
-        padding: 1.5rem;
-        border: 1px solid rgba(26, 25, 23, 0.12);
+        position: relative;
+        padding: 1.75rem;
         background-color: var(--paper);
-        transition: transform 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+        border: 2px solid var(--ink);
+        transform: rotate(var(--rot, -1deg));
+        box-shadow: 5px 5px 0 rgba(26, 25, 23, 0.12);
+      }
+
+      .why-block:nth-child(2) {
+        --rot: 1.2deg;
+      }
+      .why-block:nth-child(3) {
+        --rot: -0.8deg;
       }
 
       .why-block:hover {
-        transform: translateY(-4px);
+        transform: rotate(0deg) translateY(-6px);
       }
 
       .why-block h3 {
         font-family: "Inter Tight", sans-serif;
-        font-weight: 700;
-        font-size: 1.25rem;
+        font-weight: 800;
+        font-size: 1.35rem;
+        letter-spacing: -0.02em;
         margin-bottom: 0.75rem;
+        text-transform: uppercase;
       }
 
       .why-block p {
@@ -286,36 +426,42 @@
         display: inline-block;
         margin-bottom: 1rem;
         color: var(--orange);
+        border-bottom: 2px solid var(--orange);
       }
 
       /* Products */
       .products {
-        padding: clamp(3rem, 6vw, 5rem) 0;
+        padding: clamp(4rem, 7vw, 6rem) 0;
+        position: relative;
       }
 
       .section-header {
         display: flex;
         justify-content: space-between;
         align-items: baseline;
-        margin-bottom: 2rem;
+        margin-bottom: 2.5rem;
         flex-wrap: wrap;
         gap: 1rem;
       }
 
       .section-header h2 {
         font-family: "Inter Tight", sans-serif;
-        font-weight: 700;
-        font-size: clamp(1.75rem, 3vw, 2.5rem);
-        letter-spacing: -0.02em;
+        font-weight: 900;
+        font-size: clamp(2rem, 4vw, 3.5rem);
+        letter-spacing: -0.04em;
+        text-transform: uppercase;
       }
 
       .section-header a {
-        font-size: 0.875rem;
-        font-weight: 600;
+        font-size: 0.8rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
         color: var(--ink);
         text-decoration: none;
-        border-bottom: 1px solid var(--orange);
+        border-bottom: 3px solid var(--orange);
         padding-bottom: 0.15rem;
+        transition: color 0.15s ease;
       }
 
       .section-header a:hover {
@@ -325,7 +471,7 @@
       .product-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
+        gap: 2rem;
       }
 
       .product-tile {
@@ -337,17 +483,14 @@
       }
 
       .product-tile:hover {
-        transform: translateY(-4px);
-      }
-
-      .product-tile:hover .product-img::after {
-        opacity: 1;
+        transform: translateY(-8px) rotate(-0.5deg);
       }
 
       .product-img {
         position: relative;
         aspect-ratio: 1 / 1;
-        background-color: var(--paper-dark);
+        background-color: var(--paper-2);
+        border: 3px solid var(--ink);
         margin-bottom: 1rem;
         overflow: hidden;
       }
@@ -356,21 +499,20 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
-        filter: grayscale(20%) contrast(1.05);
+        filter: grayscale(100%) contrast(1.25);
         transition: filter 0.3s ease;
       }
 
       .product-tile:hover .product-img img {
-        filter: grayscale(0%) contrast(1);
+        filter: grayscale(0%) contrast(1.1);
       }
 
       .product-img::after {
         content: "";
         position: absolute;
         inset: 0;
-        border: 2px solid var(--orange);
-        opacity: 0;
-        transition: opacity 0.2s ease;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.15'/%3E%3C/svg%3E");
+        mix-blend-mode: overlay;
         pointer-events: none;
       }
 
@@ -383,31 +525,36 @@
 
       .product-name {
         font-family: "Inter Tight", sans-serif;
-        font-weight: 600;
-        font-size: 1.125rem;
+        font-weight: 800;
+        font-size: 1.15rem;
+        text-transform: uppercase;
+        letter-spacing: -0.01em;
       }
 
       .product-price {
         font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.875rem;
-        color: var(--ink-muted);
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--ink);
         flex-shrink: 0;
       }
 
       .product-tags {
         display: flex;
+        flex-wrap: wrap;
         gap: 0.5rem;
-        margin-top: 0.5rem;
+        margin-top: 0.75rem;
       }
 
       .tag {
-        padding: 0.25rem 0.5rem;
-        border: 1px solid rgba(26, 25, 23, 0.2);
-        font-size: 0.6875rem;
-        font-weight: 600;
+        padding: 0.3rem 0.6rem;
+        border: 1.5px solid var(--ink);
+        font-size: 0.625rem;
+        font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
-        color: var(--ink-muted);
+        letter-spacing: 0.06em;
+        color: var(--ink);
+        background: var(--paper);
       }
 
       .tag-orange {
@@ -418,10 +565,20 @@
 
       /* Bundle */
       .bundle {
-        padding: clamp(3rem, 6vw, 5rem) 0;
-        background-color: var(--paper-dark);
-        border-top: 1px solid rgba(26, 25, 23, 0.12);
-        border-bottom: 1px solid rgba(26, 25, 23, 0.12);
+        padding: clamp(4rem, 7vw, 6rem) 0;
+        background-color: var(--ink);
+        color: var(--paper);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .bundle::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E");
+        mix-blend-mode: overlay;
+        pointer-events: none;
       }
 
       .bundle-inner {
@@ -429,6 +586,8 @@
         grid-template-columns: 1fr 1fr;
         gap: 3rem;
         align-items: center;
+        position: relative;
+        z-index: 1;
       }
 
       @media (max-width: 768px) {
@@ -440,59 +599,76 @@
       .bundle-label {
         display: inline-block;
         margin-bottom: 1rem;
-        color: var(--cyan);
+        padding: 0.35rem 0.75rem;
+        background: var(--cyan);
+        color: var(--ink);
+        transform: rotate(-2deg);
       }
 
       .bundle h2 {
         font-family: "Inter Tight", sans-serif;
-        font-weight: 800;
-        font-size: clamp(2rem, 4vw, 3.5rem);
-        line-height: 0.95;
-        letter-spacing: -0.03em;
+        font-weight: 900;
+        font-size: clamp(2.5rem, 5vw, 4.5rem);
+        line-height: 0.9;
+        letter-spacing: -0.04em;
         margin-bottom: 1rem;
+        text-transform: uppercase;
       }
 
       .bundle p {
-        color: var(--ink-muted);
+        color: var(--paper-dark);
         max-width: 45ch;
         margin-bottom: 2rem;
       }
 
+      .bundle .btn-primary {
+        background-color: var(--cyan);
+        border-color: var(--cyan);
+        color: var(--ink);
+      }
+
+      .bundle .btn-primary:hover {
+        background-color: var(--paper);
+        border-color: var(--paper);
+        color: var(--ink);
+      }
+
       .bundle-visual {
-        aspect-ratio: 4 / 3;
-        background: linear-gradient(135deg, var(--ink) 0%, #2a2927 100%);
+        aspect-ratio: 1 / 1;
+        border: 3px solid var(--cyan);
         display: flex;
         align-items: center;
         justify-content: center;
         position: relative;
         overflow: hidden;
-      }
-
-      .bundle-visual::before {
-        content: "";
-        position: absolute;
-        width: 200%;
-        height: 200%;
-        background: repeating-linear-gradient(
-          45deg,
-          transparent,
-          transparent 10px,
-          rgba(42, 157, 204, 0.08) 10px,
-          rgba(42, 157, 204, 0.08) 20px
-        );
+        transform: rotate(2deg);
+        background:
+          repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 12px,
+            rgba(42, 157, 204, 0.12) 12px,
+            rgba(42, 157, 204, 0.12) 24px
+          ),
+          var(--ink);
       }
 
       .bundle-visual span {
         font-family: "JetBrains Mono", monospace;
         color: var(--cyan);
-        font-size: 1.25rem;
-        z-index: 1;
+        font-size: clamp(1rem, 2vw, 1.5rem);
+        font-weight: 700;
+        text-align: center;
+        padding: 1rem;
+        border: 2px dashed var(--cyan);
+        transform: rotate(-5deg);
       }
 
       /* Footer */
       .footer {
         padding: 3rem 0;
-        border-top: 1px solid rgba(26, 25, 23, 0.12);
+        border-top: 3px solid var(--ink);
+        background: var(--paper-2);
       }
 
       .footer-inner {
@@ -509,13 +685,17 @@
       }
 
       .footer-links a {
-        font-size: 0.875rem;
-        color: var(--ink-muted);
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--ink);
         text-decoration: none;
+        border-bottom: 2px solid transparent;
       }
 
       .footer-links a:hover {
-        color: var(--orange);
+        border-bottom-color: var(--orange);
       }
 
       .footer-copy {
@@ -539,7 +719,7 @@
     <nav class="nav">
       <div class="container nav-inner">
         <a href="#" class="nav-logo">
-          <img src="logo.png" alt="Plugged Audio" />
+          <img src="logo.png" alt="" />
           Plugged Audio
         </a>
         <ul class="nav-links">
@@ -556,7 +736,7 @@
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              stroke-width="2"
+              stroke-width="2.5"
               stroke-linecap="square"
             >
               <circle cx="11" cy="11" r="7" />
@@ -570,7 +750,7 @@
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              stroke-width="2"
+              stroke-width="2.5"
               stroke-linecap="square"
             >
               <path d="M6 6h15l-1.5 9h-12z" />
@@ -587,7 +767,7 @@
     <header class="hero">
       <div class="container">
         <span class="micro hero-label">Curated affordable audio</span>
-        <h1>Audio doesn't have to suck.</h1>
+        <h1>Audio doesn't have to <span>suck.</span></h1>
         <p>
           You don't need to spend a lot to get IEMs that actually sound good. We curate the best
           affordable gear so you can stop using shitty earphones.
@@ -597,6 +777,7 @@
           <a href="#" class="btn btn-secondary">How to choose</a>
         </div>
       </div>
+      <div class="hero-stamp">You<br />deserve<br />better</div>
     </header>
 
     <section class="why">
@@ -703,7 +884,7 @@
           <a href="#" class="btn btn-primary">See bundles</a>
         </div>
         <div class="bundle-visual">
-          <span>IEM + DAC / €129</span>
+          <span>IEM + DAC<br />€129</span>
         </div>
       </div>
     </section>
