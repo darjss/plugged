@@ -1,0 +1,2585 @@
+{
+  "captured_at": "2026-06-22T10:40:49.713Z",
+  "source_file": "./iem-list.md",
+  "results": [
+    {
+      "query": "Tangzu waner 2 red lion",
+      "category": "IEM",
+      "status": "ok",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=Tangzu%20waner%202%20red%20lion",
+      "search_results": [
+        {
+          "title": "唐族上官婉儿二代低音版赤狮新升级HIFI入门级别入耳式有线耳机",
+          "price_yuan": "153"
+        },
+        {
+          "title": "送礼TANGZU唐族上官婉儿二代全新升级HIFI进阶入耳式耳机",
+          "price_yuan": "142"
+        },
+        {
+          "title": "送礼TANGZU唐族上官婉儿二代全新升级HIFI进阶入耳式耳机",
+          "price_yuan": "138"
+        },
+        {
+          "title": "TANGZU唐族上官婉儿 HIFI入门发烧可换线入耳式学生耳机 新品SE版",
+          "price_yuan": "124"
+        },
+        {
+          "title": "TANGZU唐族 杜甫下阕 圈铁有线入耳HiFi发烧流行人声低频摇滚耳机",
+          "price_yuan": "494"
+        }
+      ],
+      "matched_search_result": {
+        "title": "唐族上官婉儿二代低音版赤狮新升级HIFI入门级别入耳式有线耳机",
+        "price_yuan": "153",
+        "audit": {
+          "score": 4,
+          "hits": ["唐族", "上官婉儿", "赤狮", "低音版"],
+          "terms": [
+            "tangzu",
+            "waner",
+            "red",
+            "lion",
+            "唐族",
+            "上官婉儿",
+            "red lion",
+            "赤狮",
+            "低音版"
+          ]
+        }
+      },
+      "product_title": "150****1237 性价比爆棚的耳机，140多，又是长河吟又是唐三彩，听感不输ie200，氛围感挺好，还要啥自行车…… 禄侯成 跟婉儿二代联名版比较调音好很多，分析力有提升，真神奇",
+      "product_url": "https://mobile.yangkeduo.com/goods.html?goods_id=901772861028",
+      "base_price_yuan": "153",
+      "variations": [
+        {
+          "selected": "上官婉儿二代低音版赤狮【3.5插口不带麦】",
+          "price_yuan": "153",
+          "promo_price_before_coupon_yuan": "163",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "上官婉儿二代低音版赤狮【3.5插口不带麦】",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "上官婉儿二代低音版赤狮【3.5插口带麦】",
+          "price_yuan": "160",
+          "promo_price_before_coupon_yuan": "170",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "上官婉儿二代低音版赤狮【3.5插口带麦】",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "上官婉儿二代低音版赤狮【Type-C插口带麦】",
+          "price_yuan": "167",
+          "promo_price_before_coupon_yuan": "177",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "上官婉儿二代低音版赤狮【Type-C插口带麦】",
+              "clicked": true
+            }
+          ]
+        }
+      ],
+      "notes": [],
+      "product_audit": {
+        "score": 4,
+        "hits": ["唐族", "上官婉儿", "赤狮", "低音版"],
+        "terms": [
+          "tangzu",
+          "waner",
+          "red",
+          "lion",
+          "唐族",
+          "上官婉儿",
+          "red lion",
+          "赤狮",
+          "低音版"
+        ]
+      }
+    },
+    {
+      "query": "Tangzu wanger sg 2",
+      "category": "IEM",
+      "status": "ok",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=Tangzu%20wanger%20sg%202",
+      "search_results": [
+        {
+          "title": "唐族上官婉儿二代低音版赤狮新升级HIFI入门级别入耳式有线耳机",
+          "price_yuan": "153"
+        },
+        {
+          "title": "送礼TANGZU唐族上官婉儿二代全新升级HIFI进阶入耳式耳机",
+          "price_yuan": "142"
+        },
+        {
+          "title": "唐族上官婉儿二代全新升级HIFI进阶入耳式耳机",
+          "price_yuan": "139"
+        },
+        {
+          "title": "送礼TANGZU唐族上官婉儿二代全新升级HIFI进阶入耳式耳机",
+          "price_yuan": "138"
+        },
+        {
+          "title": "唐族上官婉儿一代HIFI发烧入门式单动圈入耳式可换线耳机",
+          "price_yuan": "99"
+        }
+      ],
+      "matched_search_result": {
+        "title": "送礼TANGZU唐族上官婉儿二代全新升级HIFI进阶入耳式耳机",
+        "price_yuan": "142",
+        "audit": {
+          "score": 3,
+          "hits": ["tangzu", "唐族", "上官婉儿"],
+          "terms": ["tangzu", "wanger", "sg", "唐族", "上官婉儿"]
+        }
+      },
+      "product_title": "【送礼】TANGZU唐族上官婉儿二代全新升级HIFI进阶入耳式耳机 24小时发货",
+      "product_url": "https://mobile.yangkeduo.com/goods.html?goods_id=754811035676",
+      "base_price_yuan": "142",
+      "variations": [
+        {
+          "selected": "二代黑色(3.5mm)无麦 赠送耳机包",
+          "price_yuan": "142",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代黑色(3.5mm)无麦",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送耳机包",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代黑色(3.5mm)无麦 / 赠送徽章",
+          "price_yuan": "142",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代黑色(3.5mm)无麦",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送徽章",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代黑色(3.5mm)无麦 赠送千耳糖果套",
+          "price_yuan": "143",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代黑色(3.5mm)无麦",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送千耳糖果套",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代黑色(4.4平衡) 赠送耳机包",
+          "price_yuan": "142",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代黑色(4.4平衡)",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送耳机包",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代黑色(4.4平衡) / 赠送徽章",
+          "price_yuan": "142",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代黑色(4.4平衡)",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送徽章",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代黑色(4.4平衡) 赠送千耳糖果套",
+          "price_yuan": "142",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代黑色(4.4平衡)",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送千耳糖果套",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代黑色(3.5带麦) 赠送耳机包",
+          "price_yuan": "154",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代黑色(3.5带麦)",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送耳机包",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代黑色(3.5带麦) / 赠送徽章",
+          "price_yuan": "142",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代黑色(3.5带麦)",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送徽章",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代黑色(3.5带麦) 赠送千耳糖果套",
+          "price_yuan": "154",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代黑色(3.5带麦)",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送千耳糖果套",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代黑色(Type-C带麦) 赠送耳机包",
+          "price_yuan": "172",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代黑色(Type-C带麦)",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送耳机包",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代黑色(Type-C带麦) / 赠送徽章",
+          "price_yuan": "142",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代黑色(Type-C带麦)",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送徽章",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代黑色(Type-C带麦) 赠送千耳糖果套",
+          "price_yuan": "172",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代黑色(Type-C带麦)",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送千耳糖果套",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代白色(3.5mm无麦) 赠送耳机包",
+          "price_yuan": "142",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代白色(3.5mm无麦)",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送耳机包",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代白色(3.5mm无麦) / 赠送徽章",
+          "price_yuan": "142",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代白色(3.5mm无麦)",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送徽章",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代白色(3.5mm无麦) 赠送千耳糖果套",
+          "price_yuan": "142",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代白色(3.5mm无麦)",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送千耳糖果套",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代白色(4.4 mm平衡) 赠送耳机包",
+          "price_yuan": "142",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代白色(4.4 mm平衡)",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送耳机包",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代白色(4.4 mm平衡) / 赠送徽章",
+          "price_yuan": "142",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代白色(4.4 mm平衡)",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送徽章",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代白色(4.4 mm平衡) 赠送千耳糖果套",
+          "price_yuan": "142",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代白色(4.4 mm平衡)",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送千耳糖果套",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代白色(3.5mm带麦) 赠送耳机包",
+          "price_yuan": "154",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代白色(3.5mm带麦)",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送耳机包",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代白色(3.5mm带麦) / 赠送徽章",
+          "price_yuan": "142",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代白色(3.5mm带麦)",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送徽章",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代白色(3.5mm带麦) 赠送千耳糖果套",
+          "price_yuan": "154",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代白色(3.5mm带麦)",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送千耳糖果套",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代白色(type-c无麦) 赠送耳机包",
+          "price_yuan": "172",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代白色(type-c无麦)",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送耳机包",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代白色(type-c无麦) / 赠送徽章",
+          "price_yuan": "142",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代白色(type-c无麦)",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送徽章",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "二代白色(type-c无麦) 赠送千耳糖果套",
+          "price_yuan": "172",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "二代白色(type-c无麦)",
+              "clicked": true
+            },
+            {
+              "label": "型号",
+              "name": "赠送千耳糖果套",
+              "clicked": true
+            }
+          ]
+        }
+      ],
+      "notes": [],
+      "product_audit": {
+        "score": 3,
+        "hits": ["tangzu", "唐族", "上官婉儿"],
+        "terms": ["tangzu", "wanger", "sg", "唐族", "上官婉儿"]
+      }
+    },
+    {
+      "query": "truthear",
+      "category": "IEM",
+      "status": "ok",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=truthear",
+      "search_results": [
+        {
+          "title": "TRUTHEAR GATE 初耳入耳式耳机可换线3.5有线单动圈HIFI音乐耳机",
+          "price_yuan": "84"
+        },
+        {
+          "title": "TRUTHEAR初耳Zero:BLUE2 有线入耳式HIFI耳机双动圈3.5插头带麦",
+          "price_yuan": "309"
+        },
+        {
+          "title": "TRUTHEAR RED双动圈耳机 Crinacle联名定制 高音质专业HIFI有线耳",
+          "price_yuan": "526.42"
+        },
+        {
+          "title": "TRUTHEAR初耳Zero:BLUE2双动圈有线HIFI入耳式耳机可换线3.5带麦",
+          "price_yuan": "434"
+        },
+        {
+          "title": "TRUTHEAR初耳KEYX便携式L型弯头无损解码器耳放一体机小尾巴typec",
+          "price_yuan": "144"
+        }
+      ],
+      "matched_search_result": {
+        "title": "TRUTHEAR GATE 初耳入耳式耳机可换线3.5有线单动圈HIFI音乐耳机",
+        "price_yuan": "84",
+        "audit": {
+          "score": 2,
+          "hits": ["truthear", "初耳"],
+          "terms": ["truthear", "初耳"]
+        }
+      },
+      "product_title": "品牌TRUTHEAR 发货地广东省 佩戴方式入耳式 是否带麦克风带麦克风 使用类型音乐耳机 降噪功能被动降噪（物理降噪）",
+      "product_url": "https://mobile.yangkeduo.com/goods.html?goods_id=619274197400",
+      "base_price_yuan": "84",
+      "variations": [
+        {
+          "selected": "白色 带麦版【3.5插头】",
+          "price_yuan": "93",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "白色",
+              "clicked": true
+            },
+            {
+              "label": "款式",
+              "name": "带麦版【3.5插头】",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "白色 / 无麦版【3.5插头】",
+          "price_yuan": "84",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "白色",
+              "clicked": true
+            },
+            {
+              "label": "款式",
+              "name": "无麦版【3.5插头】",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "黑色 带麦版【3.5插头】",
+          "price_yuan": "93",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "黑色",
+              "clicked": true
+            },
+            {
+              "label": "款式",
+              "name": "带麦版【3.5插头】",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "黑色 / 无麦版【3.5插头】",
+          "price_yuan": "84",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "黑色",
+              "clicked": true
+            },
+            {
+              "label": "款式",
+              "name": "无麦版【3.5插头】",
+              "clicked": true
+            }
+          ]
+        }
+      ],
+      "notes": [],
+      "product_audit": {
+        "score": 2,
+        "hits": ["truthear", "初耳"],
+        "terms": ["truthear", "初耳"]
+      }
+    },
+    {
+      "query": "moondrop chu 2",
+      "category": "IEM",
+      "status": "ok",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=moondrop%20chu%202",
+      "search_results": [
+        {
+          "title": "MOONDROP/水月雨 竹2 /2代高音质振膜重低音入耳式HIFI有线耳机",
+          "price_yuan": "136.9"
+        },
+        {
+          "title": "TRUTHEAR GATE 初耳入耳式耳机可换线3.5有线单动圈HIFI音乐耳机",
+          "price_yuan": "84"
+        },
+        {
+          "title": "唐族上官婉儿二代低音版赤狮新升级HIFI入门级别入耳式有线耳机",
+          "price_yuan": "153"
+        },
+        {
+          "title": "送礼TANGZU唐族上官婉儿二代全新升级HIFI进阶入耳式耳机",
+          "price_yuan": "142"
+        },
+        {
+          "title": "唐族上官婉儿二代全新升级HIFI进阶入耳式耳机",
+          "price_yuan": "139"
+        }
+      ],
+      "matched_search_result": {
+        "title": "MOONDROP/水月雨 竹2 /2代高音质振膜重低音入耳式HIFI有线耳机",
+        "price_yuan": "136.9",
+        "audit": {
+          "score": 3,
+          "hits": ["moondrop", "水月雨", "竹2"],
+          "terms": ["moondrop", "chu", "水月雨", "竹2", "竹二", "chu2"]
+        }
+      },
+      "product_title": "MOONDROP/水月雨 竹2 /2代高音质振膜重低音入耳式HIFI有线耳机",
+      "product_url": "https://mobile.yangkeduo.com/goods.html?goods_id=925338324194",
+      "base_price_yuan": "136.9",
+      "variations": [
+        {
+          "selected": "标配为3.5mm版本[套餐选版本] / 官方标配 3.5mm",
+          "price_yuan": "136.9",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "标配为3.5mm版本[套餐选版本]",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "官方标配 3.5mm",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "标配为3.5mm版本[套餐选版本] / DSP版 【typec插口】",
+          "price_yuan": "136.9",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "标配为3.5mm版本[套餐选版本]",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "DSP版 【typec插口】",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "竹2标配丨 官方标配 3.5mm",
+          "price_yuan": "136.9",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "竹2标配丨",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "官方标配 3.5mm",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "竹2标配丨 / DSP版 【typec插口】",
+          "price_yuan": "136.9",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "竹2标配丨",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "DSP版 【typec插口】",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "标配+typec模拟转接器 不支持C口苹果 / 官方标配 3.5mm",
+          "price_yuan": "136.9",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "标配+typec模拟转接器 不支持C口苹果",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "官方标配 3.5mm",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "标配+typec模拟转接器 不支持C口苹果 官方标配 3.5mm",
+          "price_yuan": "142.4",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "标配+typec模拟转接器 不支持C口苹果",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "DSP版 【typec插口】",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "标配+typec数字转接器支持苹果typec / 官方标配 3.5mm",
+          "price_yuan": "136.9",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "标配+typec数字转接器支持苹果typec",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "官方标配 3.5mm",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "标配+typec数字转接器支持苹果typec / DSP版 【typec插口】",
+          "price_yuan": "136.9",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "标配+typec数字转接器支持苹果typec",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "DSP版 【typec插口】",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "标配+lightning转接器丨 官方标配 3.5mm",
+          "price_yuan": "147.9",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "标配+lightning转接器丨",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "官方标配 3.5mm",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "标配+lightning转接器丨 / DSP版 【typec插口】",
+          "price_yuan": "136.9",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "标配+lightning转接器丨",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "DSP版 【typec插口】",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "标配+千耳带麦线丨 官方标配 3.5mm",
+          "price_yuan": "169.9",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "标配+千耳带麦线丨",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "官方标配 3.5mm",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "标配+千耳带麦线丨 / DSP版 【typec插口】",
+          "price_yuan": "136.9",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "标配+千耳带麦线丨",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "DSP版 【typec插口】",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "标配+MC1带麦线丨 官方标配 3.5mm",
+          "price_yuan": "190.8",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "标配+MC1带麦线丨",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "官方标配 3.5mm",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "标配+MC1带麦线丨 / DSP版 【typec插口】",
+          "price_yuan": "136.9",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "标配+MC1带麦线丨",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "DSP版 【typec插口】",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "标配+MC2带麦线丨 官方标配 3.5mm",
+          "price_yuan": "322.8",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "标配+MC2带麦线丨",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "官方标配 3.5mm",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "标配+MC2带麦线丨 / DSP版 【typec插口】",
+          "price_yuan": "136.9",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "标配+MC2带麦线丨",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "DSP版 【typec插口】",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "标配+CDSP带麦线丨 / 官方标配 3.5mm",
+          "price_yuan": "136.9",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "标配+CDSP带麦线丨",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "官方标配 3.5mm",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "标配+CDSP带麦线丨 官方标配 3.5mm",
+          "price_yuan": "201.8",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "标配+CDSP带麦线丨",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "DSP版 【typec插口】",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "标配+蓝牙耳挂丨 / 官方标配 3.5mm",
+          "price_yuan": "136.9",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "标配+蓝牙耳挂丨",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "官方标配 3.5mm",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "标配+蓝牙耳挂丨 / DSP版 【typec插口】",
+          "price_yuan": "136.9",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "标配+蓝牙耳挂丨",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "DSP版 【typec插口】",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "标配+Free DSP带麦线丨 预计3月发货 / 官方标配 3.5mm",
+          "price_yuan": "136.9",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "标配+Free DSP带麦线丨 预计3月发货",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "官方标配 3.5mm",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "标配+Free DSP带麦线丨 预计3月发货 官方标配 3.5mm",
+          "price_yuan": "355.8",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "标配+Free DSP带麦线丨 预计3月发货",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "DSP版 【typec插口】",
+              "clicked": true
+            }
+          ]
+        }
+      ],
+      "notes": [],
+      "product_audit": {
+        "score": 3,
+        "hits": ["moondrop", "水月雨", "竹2"],
+        "terms": ["moondrop", "chu", "水月雨", "竹2", "竹二", "chu2"]
+      }
+    },
+    {
+      "query": "gk gunten",
+      "category": "IEM",
+      "status": "ok",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=gk%20gunten",
+      "search_results": [
+        {
+          "title": "GK-KUNTEN有线耳机旗舰级单动圈入耳式耳机重低音HIFI高音质耳麦",
+          "price_yuan": "42.5"
+        },
+        {
+          "title": "GK-KUNTEN 有线耳机旗舰级单动圈入耳式重低音发烧HIFI监听",
+          "price_yuan": "65"
+        },
+        {
+          "title": "GK-kunten有线耳机单动圈入耳式HiFi高音质监听带麦音乐耳机typec",
+          "price_yuan": "45"
+        },
+        {
+          "title": "GK Kunten有线耳机入耳式重低音旗舰级单动圈发烧HIFI高音质监听",
+          "price_yuan": "45"
+        },
+        {
+          "title": "新东方Wonders奇迹英语分级阅读绘本教材GK-G6一二三四五六年级",
+          "price_yuan": "136"
+        }
+      ],
+      "matched_search_result": {
+        "title": "GK-KUNTEN有线耳机旗舰级单动圈入耳式耳机重低音HIFI高音质耳麦",
+        "price_yuan": "42.5",
+        "audit": {
+          "score": 2,
+          "hits": ["gk", "kunten"],
+          "terms": ["gk", "gunten", "kunten", "昆腾"]
+        }
+      },
+      "product_title": "GK-KUNTEN有线耳机旗舰级单动圈入耳式耳机重低音HIFI高音质耳麦 未发货秒退",
+      "product_url": "https://mobile.yangkeduo.com/goods.html?goods_id=916296589729",
+      "base_price_yuan": "42.5",
+      "variations": [
+        {
+          "selected": "3.5mm标准款",
+          "price_yuan": "42.5",
+          "promo_price_before_coupon_yuan": "50",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "3.5mm标准款",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "3.5mm带麦款",
+          "price_yuan": "50.8",
+          "promo_price_before_coupon_yuan": "58.8",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "3.5mm带麦款",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "Type-C带麦款",
+          "price_yuan": "60.5",
+          "promo_price_before_coupon_yuan": "69",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "Type-C带麦款",
+              "clicked": true
+            }
+          ]
+        }
+      ],
+      "notes": [],
+      "product_audit": {
+        "score": 2,
+        "hits": ["gk", "kunten"],
+        "terms": ["gk", "gunten", "kunten", "昆腾"]
+      }
+    },
+    {
+      "query": "KZ Duonic bass",
+      "category": "IEM",
+      "status": "ok",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=KZ%20Duonic%20bass",
+      "search_results": [
+        {
+          "title": "KZ Duonic有线游戏耳机电竞入耳式职业外设耳塞FPS听声辨位主播",
+          "price_yuan": "138"
+        },
+        {
+          "title": "GK-KUNTEN有线耳机旗舰级单动圈入耳式耳机重低音HIFI高音质耳麦",
+          "price_yuan": "42.5"
+        },
+        {
+          "title": "TRUTHEAR GATE 初耳入耳式耳机可换线3.5有线单动圈HIFI音乐耳机",
+          "price_yuan": "84"
+        },
+        {
+          "title": "FiiO/飞傲 SP3专业有源HIFI高保真监听音响家用电脑音箱",
+          "price_yuan": "1268"
+        },
+        {
+          "title": "唐族上官婉儿二代低音版赤狮新升级HIFI入门级别入耳式有线耳机",
+          "price_yuan": "153"
+        }
+      ],
+      "matched_search_result": {
+        "title": "KZ Duonic有线游戏耳机电竞入耳式职业外设耳塞FPS听声辨位主播",
+        "price_yuan": "138",
+        "audit": {
+          "score": 2,
+          "hits": ["kz", "duonic"],
+          "terms": ["kz", "duonic", "bass"]
+        }
+      },
+      "product_title": "KZ Duonic有线游戏耳机电竞入耳式职业外设耳塞FPS听声辨位主播",
+      "product_url": "https://mobile.yangkeduo.com/goods.html?goods_id=844588684241",
+      "base_price_yuan": "138",
+      "variations": [
+        {
+          "selected": "【电竞版】-特调双麦线",
+          "price_yuan": "138",
+          "promo_price_before_coupon_yuan": "144",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "【电竞版】-特调双麦线",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "【低频增强电竞版】-特调双麦线",
+          "price_yuan": "146",
+          "promo_price_before_coupon_yuan": "152",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "【低频增强电竞版】-特调双麦线",
+              "clicked": true
+            }
+          ]
+        }
+      ],
+      "notes": [],
+      "product_audit": {
+        "score": 2,
+        "hits": ["kz", "duonic"],
+        "terms": ["kz", "duonic", "bass"]
+      }
+    },
+    {
+      "query": "Tanchjim Bunny",
+      "category": "IEM",
+      "status": "ok",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=Tanchjim%20Bunny",
+      "search_results": [
+        {
+          "title": "TANCHJIM天使吉米BUNNY有线入耳耳机TYEPC圆孔游戏音乐hifi耳塞",
+          "price_yuan": "83.9"
+        },
+        {
+          "title": "TANCHJIM天使吉米BUNNY兔几有线耳机入耳式hifi游戏电竞圆孔TYPEC6月25日发完",
+          "price_yuan": "119.46"
+        },
+        {
+          "title": "TANCHJIM天使吉米BUNNY兔几有线耳机入耳式hifi游戏电竞圆孔TYPEC",
+          "price_yuan": "83.9"
+        },
+        {
+          "title": "TANCHJIM天使吉米BUNNY兔几有线耳机 TYPE-C接口HIFI游戏电竞",
+          "price_yuan": "118.04"
+        },
+        {
+          "title": "TANCHJIM天使吉米BUNNY兔几有线入耳式HIFI耳机游戏电竞圆孔TYPEC",
+          "price_yuan": "144"
+        }
+      ],
+      "matched_search_result": {
+        "title": "TANCHJIM天使吉米BUNNY有线入耳耳机TYEPC圆孔游戏音乐hifi耳塞",
+        "price_yuan": "83.9",
+        "audit": {
+          "score": 3,
+          "hits": ["tanchjim", "bunny", "天使吉米"],
+          "terms": ["tanchjim", "bunny", "天使吉米"]
+        }
+      },
+      "product_title": "L 这款TANCHJIM天使吉米BUNNY耳机，简直是耳机界的“小可爱”！圆润的造型，搭配柔软的线材，拿在手里超有质感。音质表现也是绝绝子，低音深沉有力，高音清亮通透，戴上它，世界都安静了，音乐更动听！而且它超级耐用，用了一段时间，音质依旧在线，性价比超高，强烈推荐给音乐爱好者！",
+      "product_url": "https://mobile.yangkeduo.com/goods.html?goods_id=723992608752",
+      "base_price_yuan": "83.9",
+      "variations": [
+        {
+          "selected": "圆孔3.5mm",
+          "price_yuan": "83.9",
+          "promo_price_before_coupon_yuan": "88.9",
+          "chosen_options": [
+            {
+              "label": "套餐",
+              "name": "圆孔3.5mm",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "DSP版typec口",
+          "price_yuan": "84.9",
+          "promo_price_before_coupon_yuan": "89.9",
+          "chosen_options": [
+            {
+              "label": "套餐",
+              "name": "DSP版typec口",
+              "clicked": true
+            }
+          ]
+        }
+      ],
+      "notes": [],
+      "product_audit": {
+        "score": 3,
+        "hits": ["tanchjim", "bunny", "天使吉米"],
+        "terms": ["tanchjim", "bunny", "天使吉米"]
+      }
+    },
+    {
+      "query": "7hz x Crinacle Zero 2",
+      "category": "IEM",
+      "status": "ok",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=7hz%20x%20Crinacle%20Zero%202",
+      "search_results": [
+        {
+          "title": "七赫兹 7hz 零点ZERO 2代 有线hifi动圈游戏入耳式耳机 圆孔",
+          "price_yuan": "134"
+        },
+        {
+          "title": "七赫兹ZERO2代ZEROII有线HIFI游戏音乐入耳耳机音乐运动HIFI耳塞",
+          "price_yuan": "164"
+        },
+        {
+          "title": "七赫兹ZERO 2 ZERO II有线HIFI游戏 音乐 入耳耳机音乐运动耳机",
+          "price_yuan": "189"
+        },
+        {
+          "title": "七赫兹 ZERO2 有线HIFI耳机 零点线动圈耳机 入耳式音乐游戏耳机",
+          "price_yuan": "164"
+        },
+        {
+          "title": "七赫兹零点线动圈耳机zero二代有线hifi耳机游戏入耳式耳机",
+          "price_yuan": "141"
+        }
+      ],
+      "matched_search_result": {
+        "title": "七赫兹 7hz 零点ZERO 2代 有线hifi动圈游戏入耳式耳机 圆孔",
+        "price_yuan": "134",
+        "audit": {
+          "score": 5,
+          "hits": ["7hz", "zero", "七赫兹", "zero 2", "零点"],
+          "terms": [
+            "7hz",
+            "crinacle",
+            "zero",
+            "七赫兹",
+            "zero 2",
+            "zero2",
+            "zero ii",
+            "零点",
+            "二代"
+          ]
+        }
+      },
+      "product_title": "七赫兹 7hz 零点ZERO 2代 有线hifi动圈游戏入耳式耳机 圆孔",
+      "product_url": "https://mobile.yangkeduo.com/goods.html?goods_id=624679859837",
+      "base_price_yuan": "134",
+      "variations": [
+        {
+          "selected": "橙黄色+暗透底【3.5mm 无麦】 / 全系赠礼请咨询",
+          "price_yuan": "134",
+          "promo_price_before_coupon_yuan": "144",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "橙黄色+暗透底【3.5mm 无麦】",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "全系赠礼请咨询",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "天青色+透明底【3.5mm 无麦】 全系赠礼请咨询",
+          "price_yuan": "134",
+          "promo_price_before_coupon_yuan": "144",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "天青色+透明底【3.5mm 无麦】",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "全系赠礼请咨询",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "银白色+暗透底【3.5mm 无麦】 / 全系赠礼请咨询",
+          "price_yuan": "134",
+          "promo_price_before_coupon_yuan": "144",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "银白色+暗透底【3.5mm 无麦】",
+              "clicked": true
+            },
+            {
+              "label": "套餐",
+              "name": "全系赠礼请咨询",
+              "clicked": true
+            }
+          ]
+        }
+      ],
+      "notes": [],
+      "product_audit": {
+        "score": 5,
+        "hits": ["7hz", "zero", "七赫兹", "zero 2", "零点"],
+        "terms": ["7hz", "crinacle", "zero", "七赫兹", "zero 2", "zero2", "zero ii", "零点", "二代"]
+      }
+    },
+    {
+      "query": "Kz edx pro x",
+      "category": "IEM",
+      "status": "ok",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=Kz%20edx%20pro%20x",
+      "search_results": [
+        {
+          "title": "KZ-EDX PRO X动圈耳机带麦线控手机电脑游戏入耳式运动音乐耳机",
+          "price_yuan": "27"
+        },
+        {
+          "title": "KZ EDX PRO X动圈耳机HIFI重低音耳机线控高解析带麦游戏手机",
+          "price_yuan": "27.5"
+        },
+        {
+          "title": "KZ-EDX PRO X动圈耳机带麦有线控HIFI手机通用入耳式运动音乐耳机",
+          "price_yuan": "27"
+        },
+        {
+          "title": "KZ EDX PRO X有线耳机挂耳入耳式耳塞重低音HiFi电脑游戏电竞耳机",
+          "price_yuan": "28.6"
+        },
+        {
+          "title": "KZ EDX PRO X有线耳机入耳式耳塞重低音HiFi电脑游戏电竞耳机监听",
+          "price_yuan": "28"
+        }
+      ],
+      "matched_search_result": {
+        "title": "KZ-EDX PRO X动圈耳机带麦线控手机电脑游戏入耳式运动音乐耳机",
+        "price_yuan": "27",
+        "audit": {
+          "score": 4,
+          "hits": ["kz", "edx", "pro", "pro x"],
+          "terms": ["kz", "edx", "pro", "pro x", "prox"]
+        }
+      },
+      "product_title": "KZ-EDX PRO X动圈耳机带麦线控手机电脑游戏入耳式运动音乐耳机",
+      "product_url": "https://mobile.yangkeduo.com/goods.html?goods_id=712914617496",
+      "base_price_yuan": "27",
+      "variations": [
+        {
+          "selected": "透灰标准版",
+          "price_yuan": "27",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "透灰标准版",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "透灰带麦版",
+          "price_yuan": "34",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "透灰带麦版",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "透明标准版",
+          "price_yuan": "27",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "透明标准版",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "透明带麦版",
+          "price_yuan": "34",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "透明带麦版",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "透青标准版",
+          "price_yuan": "27",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "透青标准版",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "透青带麦版",
+          "price_yuan": "34",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "透青带麦版",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "透黑标准版",
+          "price_yuan": "27",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "透黑标准版",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "透黑带麦版",
+          "price_yuan": "34",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "透黑带麦版",
+              "clicked": true
+            }
+          ]
+        }
+      ],
+      "notes": [],
+      "product_audit": {
+        "score": 4,
+        "hits": ["kz", "edx", "pro", "pro x"],
+        "terms": ["kz", "edx", "pro", "pro x", "prox"]
+      }
+    },
+    {
+      "query": "Kiwi Ears Cadenza",
+      "category": "IEM",
+      "status": "error",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=Kiwi%20Ears%20Cadenza",
+      "search_results": [
+        {
+          "title": "水月雨kadenz 终章 动圈入耳式有线耳机3.5/4.4旗舰HIFI高解析0.7",
+          "price_yuan": "994"
+        },
+        {
+          "title": "七赫兹 7hz 零点ZERO 2代 有线hifi动圈游戏入耳式耳机 圆孔",
+          "price_yuan": "134"
+        },
+        {
+          "title": "TRUTHEAR GATE 初耳入耳式耳机可换线3.5有线单动圈HIFI音乐耳机",
+          "price_yuan": "84"
+        },
+        {
+          "title": "MONOISE2026新款AI智能挂耳入耳式无线运动超长续航降噪耳机",
+          "price_yuan": "182"
+        },
+        {
+          "title": "KZ-EDX PRO X动圈耳机带麦线控手机电脑游戏入耳式运动音乐耳机",
+          "price_yuan": "27"
+        }
+      ],
+      "matched_search_result": null,
+      "product_title": "",
+      "product_url": "",
+      "base_price_yuan": "",
+      "variations": [],
+      "notes": [],
+      "error": "No verified product match in search results. Best candidate: \"水月雨kadenz 终章 动圈入耳式有线耳机3.5/4.4旗舰HIFI高解析0.7\" (hits: none)"
+    },
+    {
+      "query": "KZ EDC Pro",
+      "category": "IEM",
+      "status": "ok",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=KZ%20EDC%20Pro",
+      "search_results": [
+        {
+          "title": "KZ EDC PRO动圈单元可插拔重低音HIFI有线入耳式音乐游戏耳机",
+          "price_yuan": "22.8"
+        },
+        {
+          "title": "KZ EDC PRO动圈单元可插拔重低音HIFI有线入耳式高解析音乐耳机",
+          "price_yuan": "26.9"
+        },
+        {
+          "title": "KZ EDC PRO 动圈单元可插拔重低音HIFI有线入耳式高解析音乐耳机",
+          "price_yuan": "24"
+        },
+        {
+          "title": "KZ EDC PRO入耳式有线耳机圆孔动圈重低音耳塞HIFI监听直播舞台",
+          "price_yuan": "27"
+        },
+        {
+          "title": "KZ EDC PRO有线耳机动圈重低音HIFI可换线蓝牙高保真立体声圆孔",
+          "price_yuan": "24"
+        }
+      ],
+      "matched_search_result": {
+        "title": "KZ EDC PRO动圈单元可插拔重低音HIFI有线入耳式音乐游戏耳机",
+        "price_yuan": "22.8",
+        "audit": {
+          "score": 3,
+          "hits": ["kz", "edc", "pro"],
+          "terms": ["kz", "edc", "pro"]
+        }
+      },
+      "product_title": "KZ EDC PRO动圈单元可插拔重低音HIFI有线入耳式音乐游戏耳机",
+      "product_url": "https://mobile.yangkeduo.com/goods.html?goods_id=835263608097",
+      "base_price_yuan": "22.8",
+      "variations": [
+        {
+          "selected": "无氧铜 无麦",
+          "price_yuan": "",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "无氧铜 无麦",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "无氧铜 带麦",
+          "price_yuan": "",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "无氧铜 带麦",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "镀银线 无麦",
+          "price_yuan": "",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "镀银线 无麦",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "镀银线 带麦",
+          "price_yuan": "",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "镀银线 带麦",
+              "clicked": true
+            }
+          ]
+        }
+      ],
+      "notes": [],
+      "product_audit": {
+        "score": 3,
+        "hits": ["kz", "edc", "pro"],
+        "terms": ["kz", "edc", "pro"]
+      }
+    },
+    {
+      "query": "Simgot EW100P",
+      "category": "IEM",
+      "status": "ok",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=Simgot%20EW100P",
+      "search_results": [
+        {
+          "title": "KZ EDC PRO动圈单元可插拔重低音HIFI有线入耳式音乐游戏耳机",
+          "price_yuan": "22.8"
+        },
+        {
+          "title": "TRUTHEAR GATE 初耳入耳式耳机可换线3.5有线单动圈HIFI音乐耳机",
+          "price_yuan": "84"
+        },
+        {
+          "title": "GK-KUNTEN有线耳机旗舰级单动圈入耳式耳机重低音HIFI高音质耳麦",
+          "price_yuan": "42.5"
+        },
+        {
+          "title": "七赫兹 7hz 零点ZERO 2代 有线hifi动圈游戏入耳式耳机 圆孔",
+          "price_yuan": "134"
+        },
+        {
+          "title": "KZ-EDX PRO X动圈耳机带麦线控手机电脑游戏入耳式运动音乐耳机",
+          "price_yuan": "27"
+        }
+      ],
+      "matched_search_result": {
+        "title": "SIMGOT兴戈EW300高保真电陶瓷HiFi有线游戏音乐耳机",
+        "price_yuan": "344",
+        "audit": {
+          "score": 2,
+          "hits": ["simgot", "兴戈"],
+          "terms": ["simgot", "ew100p", "兴戈"]
+        }
+      },
+      "product_title": "品牌SIMGOT/兴戈 发货地广东省 佩戴方式入耳式 是否带麦克风不带麦克风 使用类型音乐耳机 降噪功能不支持降噪",
+      "product_url": "https://mobile.yangkeduo.com/goods.html?goods_id=765004684431",
+      "base_price_yuan": "344",
+      "variations": [
+        {
+          "selected": "EW300【3.5无麦】",
+          "price_yuan": "344",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "EW300【3.5无麦】",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "EW300【3.5带麦】1.7M",
+          "price_yuan": "354",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "EW300【3.5带麦】1.7M",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "EW300【DSP带麦】",
+          "price_yuan": "374",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "EW300【DSP带麦】",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "EW300【3.5带麦+PC线】总长2.7M",
+          "price_yuan": "364",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "EW300【3.5带麦+PC线】总长2.7M",
+              "clicked": true
+            }
+          ]
+        }
+      ],
+      "notes": [],
+      "product_audit": {
+        "score": 2,
+        "hits": ["simgot", "兴戈"],
+        "terms": ["simgot", "ew100p", "兴戈"]
+      }
+    },
+    {
+      "query": "Moondrop Space Travel 2",
+      "category": "IEM",
+      "status": "ok",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=Moondrop%20Space%20Travel%202",
+      "search_results": [
+        {
+          "title": "顺丰送礼太空漫游2代主动降噪真无线蓝牙耳机6.0高音质",
+          "price_yuan": "144"
+        },
+        {
+          "title": "水月雨太空漫游2二代入耳式无线音乐蓝牙耳机ANC主动降噪触摸操控",
+          "price_yuan": "144"
+        },
+        {
+          "title": "水月雨太空漫游2二代入耳式真无线TWS音乐蓝牙耳机主动降噪低延迟",
+          "price_yuan": "144"
+        },
+        {
+          "title": "百亿推荐水月雨太空漫游2音质通话降噪游戏tws蓝牙耳机2026年新款",
+          "price_yuan": "144"
+        },
+        {
+          "title": "水月雨太空漫游2高音质真无线通话降噪游戏tws蓝牙耳机2025年新款",
+          "price_yuan": "144"
+        }
+      ],
+      "matched_search_result": {
+        "title": "水月雨太空漫游2二代入耳式无线音乐蓝牙耳机ANC主动降噪触摸操控",
+        "price_yuan": "144",
+        "audit": {
+          "score": 2,
+          "hits": ["水月雨", "太空漫游"],
+          "terms": ["moondrop", "space", "travel", "水月雨", "space travel", "太空漫游"]
+        }
+      },
+      "product_title": "品牌MOONDROP/水月雨 佩戴方式入耳式 防水级别不支持防水 耳机类别真无线耳机 降噪功能主动降噪 续航时间4小时（含）—8小时（不含） 查看全部",
+      "product_url": "https://mobile.yangkeduo.com/goods.html?goods_id=771649850697",
+      "base_price_yuan": "144",
+      "variations": [
+        {
+          "selected": "橙白色-赠便携收纳袋 标配",
+          "price_yuan": "144",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "橙白色-赠便携收纳袋",
+              "clicked": true
+            },
+            {
+              "label": "款式",
+              "name": "标配",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "橙白色-赠便携收纳袋 / 【套餐】标配+小case磁吸保护壳",
+          "price_yuan": "144",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "橙白色-赠便携收纳袋",
+              "clicked": true
+            },
+            {
+              "label": "款式",
+              "name": "【套餐】标配+小case磁吸保护壳",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "黑绿色-赠便携收纳袋 标配",
+          "price_yuan": "144",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "黑绿色-赠便携收纳袋",
+              "clicked": true
+            },
+            {
+              "label": "款式",
+              "name": "标配",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "黑绿色-赠便携收纳袋 / 【套餐】标配+小case磁吸保护壳",
+          "price_yuan": "144",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "黑绿色-赠便携收纳袋",
+              "clicked": true
+            },
+            {
+              "label": "款式",
+              "name": "【套餐】标配+小case磁吸保护壳",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "橙白色-赠慢回弹耳棉 标配",
+          "price_yuan": "144",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "橙白色-赠慢回弹耳棉",
+              "clicked": true
+            },
+            {
+              "label": "款式",
+              "name": "标配",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "橙白色-赠慢回弹耳棉 / 【套餐】标配+小case磁吸保护壳",
+          "price_yuan": "144",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "橙白色-赠慢回弹耳棉",
+              "clicked": true
+            },
+            {
+              "label": "款式",
+              "name": "【套餐】标配+小case磁吸保护壳",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "黑绿色-赠慢回弹耳棉 标配",
+          "price_yuan": "144",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "黑绿色-赠慢回弹耳棉",
+              "clicked": true
+            },
+            {
+              "label": "款式",
+              "name": "标配",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "黑绿色-赠慢回弹耳棉 / 【套餐】标配+小case磁吸保护壳",
+          "price_yuan": "144",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "黑绿色-赠慢回弹耳棉",
+              "clicked": true
+            },
+            {
+              "label": "款式",
+              "name": "【套餐】标配+小case磁吸保护壳",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "橙白色-赠精美钥匙扣 标配",
+          "price_yuan": "144",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "橙白色-赠精美钥匙扣",
+              "clicked": true
+            },
+            {
+              "label": "款式",
+              "name": "标配",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "橙白色-赠精美钥匙扣 / 【套餐】标配+小case磁吸保护壳",
+          "price_yuan": "144",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "橙白色-赠精美钥匙扣",
+              "clicked": true
+            },
+            {
+              "label": "款式",
+              "name": "【套餐】标配+小case磁吸保护壳",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "黑绿色-赠精美钥匙扣 标配",
+          "price_yuan": "144",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "黑绿色-赠精美钥匙扣",
+              "clicked": true
+            },
+            {
+              "label": "款式",
+              "name": "标配",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "黑绿色-赠精美钥匙扣 / 【套餐】标配+小case磁吸保护壳",
+          "price_yuan": "144",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "黑绿色-赠精美钥匙扣",
+              "clicked": true
+            },
+            {
+              "label": "款式",
+              "name": "【套餐】标配+小case磁吸保护壳",
+              "clicked": true
+            }
+          ]
+        }
+      ],
+      "notes": [],
+      "product_audit": {
+        "score": 3,
+        "hits": ["moondrop", "水月雨", "太空漫游"],
+        "terms": ["moondrop", "space", "travel", "水月雨", "space travel", "太空漫游"]
+      }
+    },
+    {
+      "query": "KBear Rosefinch",
+      "category": "IEM",
+      "status": "error",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=KBear%20Rosefinch",
+      "search_results": [
+        {
+          "title": "KBEAR魁宝ST12挂耳式耳机升级线1.2/2米可选高颜值2pin/QDC/mmcx7天内发货",
+          "price_yuan": "44"
+        },
+        {
+          "title": "KZ EDC PRO动圈单元可插拔重低音HIFI有线入耳式音乐游戏耳机",
+          "price_yuan": "22.8"
+        },
+        {
+          "title": "TRUTHEAR GATE 初耳入耳式耳机可换线3.5有线单动圈HIFI音乐耳机",
+          "price_yuan": "84"
+        },
+        {
+          "title": "KBEAR魁宝朱雀入耳式hifi有线耳机硅胶套耳冒KBEAR KS2 圈铁耳塞",
+          "price_yuan": "0.6"
+        },
+        {
+          "title": "KZ-EDX PRO X动圈耳机带麦线控手机电脑游戏入耳式运动音乐耳机",
+          "price_yuan": "27"
+        }
+      ],
+      "matched_search_result": null,
+      "product_title": "",
+      "product_url": "",
+      "base_price_yuan": "",
+      "variations": [],
+      "notes": [],
+      "error": "No verified product match in search results. Best candidate: \"KBEAR魁宝ST12挂耳式耳机升级线1.2/2米可选高颜值2pin/QDC/mmcx7天内发货\" (hits: kbear)"
+    },
+    {
+      "query": "Dunu Titan X",
+      "category": "IEM",
+      "status": "ok",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=Dunu%20Titan%20X",
+      "search_results": [
+        {
+          "title": "旗舰店DUNU达音科TITAN X入耳式typec带麦有线HiFi耳机titanx",
+          "price_yuan": "193"
+        },
+        {
+          "title": "DUNU达音科TITAN X入耳式有线耳机hifi发烧高音质游戏titanx耳塞",
+          "price_yuan": "193"
+        },
+        {
+          "title": "DUNU达音科TITAN X入耳式有线耳机hifi发烧高音质游戏titanx耳塞",
+          "price_yuan": "183"
+        },
+        {
+          "title": "旗舰店新品DUNU达音科TITAN X入耳式typec有线HiFi耳机titanx",
+          "price_yuan": "192"
+        },
+        {
+          "title": "DUNU达音科titanx入耳式有线耳机hifi发烧游戏typecc接口2026新款",
+          "price_yuan": "184"
+        }
+      ],
+      "matched_search_result": {
+        "title": "旗舰店DUNU达音科TITAN X入耳式typec带麦有线HiFi耳机titanx",
+        "price_yuan": "193",
+        "audit": {
+          "score": 4,
+          "hits": ["dunu", "titan", "达音科", "titan x"],
+          "terms": ["dunu", "titan", "达音科", "titan x", "titans"]
+        }
+      },
+      "product_title": "【旗舰店】DUNU达音科TITAN X入耳式typec带麦有线HiFi耳机titanx 顺丰包邮",
+      "product_url": "https://mobile.yangkeduo.com/goods.html?goods_id=967387395672",
+      "base_price_yuan": "193",
+      "variations": [
+        {
+          "selected": "TYPE-c 带麦版 / titan x",
+          "price_yuan": "193",
+          "promo_price_before_coupon_yuan": "198",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "TYPE-c 带麦版",
+              "clicked": true
+            },
+            {
+              "label": "颜色",
+              "name": "titan x",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "3.5MM 不带麦 titan x",
+          "price_yuan": "193",
+          "promo_price_before_coupon_yuan": "198",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "3.5MM 不带麦",
+              "clicked": true
+            },
+            {
+              "label": "颜色",
+              "name": "titan x",
+              "clicked": true
+            }
+          ]
+        }
+      ],
+      "notes": [],
+      "product_audit": {
+        "score": 4,
+        "hits": ["dunu", "titan", "达音科", "titan x"],
+        "terms": ["dunu", "titan", "达音科", "titan x", "titans"]
+      }
+    },
+    {
+      "query": "Kefine Klean SV",
+      "category": "IEM",
+      "status": "ok",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=Kefine%20Klean%20SV",
+      "search_results": [
+        {
+          "title": "KEFINE 灵 SV·Klean SV 10mm DLC动圈喇叭入耳式有线HIFI耳机",
+          "price_yuan": "380"
+        },
+        {
+          "title": "KEFINE 灵·Klean 10mm DLC振膜动圈喇叭入耳式有线HIFI耳机",
+          "price_yuan": "344"
+        },
+        {
+          "title": "外置电竞游戏耳机专业声卡fps虚拟7.1三角洲打瓦csgo战队推荐",
+          "price_yuan": "109"
+        },
+        {
+          "title": "凯声黑铃x6tc/3.5新品可换线动圈平头手机耳塞有线耳机线控入耳式",
+          "price_yuan": "226"
+        },
+        {
+          "title": "KEFINE 高清解码HIFI音频3.5转Type-C转接头无氧铜镀银耳机小尾巴",
+          "price_yuan": "74"
+        }
+      ],
+      "matched_search_result": {
+        "title": "KEFINE 灵 SV·Klean SV 10mm DLC动圈喇叭入耳式有线HIFI耳机",
+        "price_yuan": "380",
+        "audit": {
+          "score": 3,
+          "hits": ["kefine", "klean", "sv"],
+          "terms": ["kefine", "klean", "sv"]
+        }
+      },
+      "product_title": "KEFINE 灵 SV·Klean SV 10mm DLC动圈喇叭入耳式有线HIFI耳机",
+      "product_url": "https://mobile.yangkeduo.com/goods.html?goods_id=904328845800",
+      "base_price_yuan": "380",
+      "variations": [
+        {
+          "selected": "3.5mm单端插头",
+          "price_yuan": "380",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "型号",
+              "name": "3.5mm单端插头",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "4.4mm平衡插头",
+          "price_yuan": "394",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "型号",
+              "name": "4.4mm平衡插头",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "Type-C带麦版本",
+          "price_yuan": "394",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "型号",
+              "name": "Type-C带麦版本",
+              "clicked": true
+            }
+          ]
+        }
+      ],
+      "notes": [],
+      "product_audit": {
+        "score": 3,
+        "hits": ["kefine", "klean", "sv"],
+        "terms": ["kefine", "klean", "sv"]
+      }
+    },
+    {
+      "query": "JCALLY JM12 Portable DAC-Amplifier",
+      "category": "DAC",
+      "status": "ok",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=JCALLY%20JM12%20%E8%A7%A3%E7%A0%81%E8%80%B3%E6%94%BE",
+      "search_results": [
+        {
+          "title": "杰仕声JM12小尾巴耳机转接线解码耳放转接器安卓Type-c数字转接头",
+          "price_yuan": "28.9"
+        },
+        {
+          "title": "FiiO/雪漫天 Melody实木小尾巴USB无损DSD解码耳放耳机功率放大器",
+          "price_yuan": "234.97"
+        },
+        {
+          "title": "JCALLY杰仕声JM6PRO2小尾巴解码器解码耳放手机有线耳机配件",
+          "price_yuan": "64"
+        },
+        {
+          "title": "杰仕声JM7MAX解码耳放小尾巴31993芯片手机音频转接 SGM8262耳放",
+          "price_yuan": "92.9"
+        },
+        {
+          "title": "FiiO/飞傲 雪漫天TinyB小尾巴解码耳放4.4mm双接口直插式耳机",
+          "price_yuan": "124"
+        }
+      ],
+      "matched_search_result": {
+        "title": "杰仕声JM12小尾巴耳机转接线解码耳放转接器安卓Type-c数字转接头",
+        "price_yuan": "28.9",
+        "audit": {
+          "score": 1,
+          "hits": ["jm12"],
+          "terms": ["jcally", "jm12", "portable", "dac", "amplifier", "cally"],
+          "requiredMissing": []
+        }
+      },
+      "product_title": "杰仕声JM12小尾巴耳机转接线解码耳放转接器安卓Type-c数字转接头 正品发票",
+      "product_url": "https://mobile.yangkeduo.com/goods.html?goods_id=646057617660",
+      "base_price_yuan": "28.9",
+      "variations": [
+        {
+          "selected": "银色",
+          "price_yuan": "28.9",
+          "promo_price_before_coupon_yuan": "33.9",
+          "chosen_options": [
+            {
+              "label": "颜色",
+              "name": "银色",
+              "clicked": true
+            }
+          ]
+        }
+      ],
+      "notes": ["Used alternate search query: JCALLY JM12 解码耳放"],
+      "product_audit": {
+        "score": 1,
+        "hits": ["jm12"],
+        "terms": ["jcally", "jm12", "portable", "dac", "amplifier", "cally"],
+        "requiredMissing": []
+      }
+    },
+    {
+      "query": "CALLY JM6 Pro Portable DAC-Amplifier",
+      "category": "DAC",
+      "status": "ok",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=JCALLY%20JM6%20Pro%20%E8%A7%A3%E7%A0%81%E8%80%B3%E6%94%BE",
+      "search_results": [
+        {
+          "title": "JCALLY杰仕声JM6PRO2小尾巴解码器解码耳放手机有线耳机配件",
+          "price_yuan": "64"
+        },
+        {
+          "title": "JCALLY杰仕声JM6PRO2耳机DAC数字音频解码耳放转接线typec小尾巴",
+          "price_yuan": "61"
+        },
+        {
+          "title": "杰仕声jm6pro便捷式解码耳放dac转接头cx31993小尾巴hifi耳机安卓",
+          "price_yuan": "37"
+        },
+        {
+          "title": "杰仕声JM6PRO2解码小尾巴 CX31993芯片 HIFI发烧耳机MAX97220耳放",
+          "price_yuan": "60.9"
+        },
+        {
+          "title": "杰仕声jm6pro便捷式解码耳放dac转接头cx31993小尾巴hifi耳机安卓",
+          "price_yuan": "49.38"
+        }
+      ],
+      "matched_search_result": {
+        "title": "JCALLY杰仕声JM6PRO2耳机DAC数字音频解码耳放转接线typec小尾巴",
+        "price_yuan": "61",
+        "audit": {
+          "score": 6,
+          "hits": ["cally", "jm6", "pro", "dac", "jcally", "jm6pro"],
+          "terms": [
+            "cally",
+            "jm6",
+            "pro",
+            "portable",
+            "dac",
+            "amplifier",
+            "jcally",
+            "jm6 pro",
+            "jm6pro"
+          ],
+          "requiredMissing": []
+        }
+      },
+      "product_title": "JCALLY杰仕声JM6PRO2耳机DAC数字音频解码耳放转接线typec小尾巴",
+      "product_url": "https://mobile.yangkeduo.com/goods.html?goods_id=947719689682",
+      "base_price_yuan": "61",
+      "variations": [
+        {
+          "selected": "标配-赠耳机收纳袋",
+          "price_yuan": "61",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "标配-赠耳机收纳袋",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "标配+便携耳机包",
+          "price_yuan": "66",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "标配+便携耳机包",
+              "clicked": true
+            }
+          ]
+        }
+      ],
+      "notes": ["Used alternate search query: JCALLY JM6 Pro 解码耳放"],
+      "product_audit": {
+        "score": 6,
+        "hits": ["cally", "jm6", "pro", "dac", "jcally", "jm6pro"],
+        "terms": [
+          "cally",
+          "jm6",
+          "pro",
+          "portable",
+          "dac",
+          "amplifier",
+          "jcally",
+          "jm6 pro",
+          "jm6pro"
+        ],
+        "requiredMissing": []
+      }
+    },
+    {
+      "query": "Jcally JM6 Pro II Portable DAC-Amplifier",
+      "category": "DAC",
+      "status": "ok",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=JCALLY%20JM6%20Pro%20II",
+      "search_results": [
+        {
+          "title": "JCALLY杰仕声JM6PRO2高性能耳机数字音频解码转接线耳放小尾巴",
+          "price_yuan": "64"
+        },
+        {
+          "title": "JCALLY杰仕声JM6PRO2解码小尾巴解码耳放hifi耳机小尾巴解码器",
+          "price_yuan": "64"
+        },
+        {
+          "title": "JCALLY杰仕声JM6Pro2便携数字音频解码耳放小尾巴typec耳机转接线",
+          "price_yuan": "64"
+        },
+        {
+          "title": "2026新款华强北顶配ANC六代Pro2降噪蓝牙耳机适用苹果17安卓手机",
+          "price_yuan": "50.8"
+        },
+        {
+          "title": "JCALLY杰仕声JM6PRO2小尾巴解码器解码耳放手机有线耳机配件",
+          "price_yuan": "64"
+        }
+      ],
+      "matched_search_result": {
+        "title": "JCALLY杰仕声JM6PRO2高性能耳机数字音频解码转接线耳放小尾巴",
+        "price_yuan": "64",
+        "audit": {
+          "score": 5,
+          "hits": ["jcally", "jm6", "pro", "cally", "jm6pro2"],
+          "terms": [
+            "jcally",
+            "jm6",
+            "pro",
+            "ii",
+            "portable",
+            "dac",
+            "amplifier",
+            "cally",
+            "jm6 pro ii",
+            "jm6proii",
+            "jm6pro2",
+            "jm6 pro2",
+            "jm6 pro二代"
+          ],
+          "requiredMissing": []
+        }
+      },
+      "product_title": "JCALLY杰仕声JM6PRO2高性能耳机数字音频解码转接线耳放小尾巴",
+      "product_url": "https://mobile.yangkeduo.com/goods.html?goods_id=947692491330",
+      "base_price_yuan": "64",
+      "variations": [
+        {
+          "selected": "标配-赠耳机收纳袋",
+          "price_yuan": "64",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "标配-赠耳机收纳袋",
+              "clicked": true
+            }
+          ]
+        },
+        {
+          "selected": "标配+便携耳机包",
+          "price_yuan": "69",
+          "promo_price_before_coupon_yuan": "",
+          "chosen_options": [
+            {
+              "label": "款式",
+              "name": "标配+便携耳机包",
+              "clicked": true
+            }
+          ]
+        }
+      ],
+      "notes": ["Used alternate search query: JCALLY JM6 Pro II"],
+      "product_audit": {
+        "score": 5,
+        "hits": ["jcally", "jm6", "pro", "cally", "jm6pro2"],
+        "terms": [
+          "jcally",
+          "jm6",
+          "pro",
+          "ii",
+          "portable",
+          "dac",
+          "amplifier",
+          "cally",
+          "jm6 pro ii",
+          "jm6proii",
+          "jm6pro2",
+          "jm6 pro2",
+          "jm6 pro二代"
+        ],
+        "requiredMissing": []
+      }
+    },
+    {
+      "query": "Truthear KEYX Portable DAC-Amplifier",
+      "category": "DAC",
+      "status": "ok",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=TRUTHEAR%20KEYX",
+      "search_results": [
+        {
+          "title": "TRUTHEAR初耳KEYX便携式L型弯头无损解码器耳放一体机小尾巴typec",
+          "price_yuan": "144"
+        },
+        {
+          "title": "TRUTHEAR GATE 初耳入耳式耳机可换线3.5有线单动圈HIFI音乐耳机",
+          "price_yuan": "84"
+        },
+        {
+          "title": "七赫兹 7hz 零点ZERO 2代 有线hifi动圈游戏入耳式耳机 圆孔",
+          "price_yuan": "134"
+        },
+        {
+          "title": "旗舰店DUNU达音科TITAN X入耳式typec带麦有线HiFi耳机titanx",
+          "price_yuan": "193"
+        },
+        {
+          "title": "旗舰店DUNU达音科TITAN S2入耳式耳机有线titans2二代蓝色",
+          "price_yuan": "333"
+        }
+      ],
+      "matched_search_result": {
+        "title": "TRUTHEAR初耳KEYX便携式L型弯头无损解码器耳放一体机小尾巴typec",
+        "price_yuan": "144",
+        "audit": {
+          "score": 3,
+          "hits": ["truthear", "keyx", "初耳"],
+          "terms": ["truthear", "keyx", "portable", "dac", "amplifier", "初耳"],
+          "requiredMissing": []
+        }
+      },
+      "product_title": "TRUTHEAR初耳KEYX便携式L型弯头无损解码器耳放一体机小尾巴typec",
+      "product_url": "https://mobile.yangkeduo.com/goods.html?goods_id=925198507165",
+      "base_price_yuan": "144",
+      "variations": [
+        {
+          "selected": "KEYX",
+          "price_yuan": "144",
+          "promo_price_before_coupon_yuan": "149",
+          "chosen_options": [
+            {
+              "label": "型号",
+              "name": "KEYX",
+              "clicked": true
+            }
+          ]
+        }
+      ],
+      "notes": ["Used alternate search query: TRUTHEAR KEYX"],
+      "product_audit": {
+        "score": 3,
+        "hits": ["truthear", "keyx", "初耳"],
+        "terms": ["truthear", "keyx", "portable", "dac", "amplifier", "初耳"],
+        "requiredMissing": []
+      }
+    }
+  ]
+}
