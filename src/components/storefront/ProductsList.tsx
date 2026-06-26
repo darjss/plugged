@@ -5,6 +5,7 @@ import { api } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 import ProductCard from "./ProductCard";
 import type { StoreProduct } from "./product-types";
+import StorefrontProviders from "./StorefrontProviders";
 
 interface ProductsListProps {
   /** SSR-rendered first page — hydrated as the infinite query's initial data. */
@@ -28,6 +29,14 @@ const DEFAULT_PAGE_SIZE = 12;
  * must run only in the browser to avoid SSR/localStorage mismatches.
  */
 export default function ProductsList(props: ProductsListProps) {
+  return (
+    <StorefrontProviders>
+      <ProductsListInner {...props} />
+    </StorefrontProviders>
+  );
+}
+
+function ProductsListInner(props: ProductsListProps) {
   const pageSize = () => props.pageSize ?? DEFAULT_PAGE_SIZE;
 
   // Read live filter params from the URL so the grid reacts to filter-bar
