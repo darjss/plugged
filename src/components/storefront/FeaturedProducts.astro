@@ -90,7 +90,10 @@ function hasComparePrice(product: Product) {
                 >
                   {/* Image frame — halftone B&W default, color on hover.
                       transition:name enables the View Transition morph into
-                      the product detail hero image. */}
+                      the product detail hero image. Naming convention:
+                        product-image-{slug}  — image element
+                        product-title-{slug}  — title element
+                      The detail page MUST use the SAME names with slug. */}
                   <div
                     class="relative aspect-square overflow-hidden border-b-4 border-ink bg-newsprint-dark"
                     transition:name={`product-image-${product.slug}`}

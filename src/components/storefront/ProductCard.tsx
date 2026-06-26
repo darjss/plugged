@@ -73,9 +73,13 @@ export default function ProductCard(props: ProductCardProps) {
     >
       {/* Image — halftone B&W by default, color on hover.
           `view-transition-name` enables the View Transition morph into
-          the product detail hero image when the detail page is built.
-          Set via inline style because SolidJS islands don't get Astro's
-          `transition:name` directive (that's .astro-only). */}
+          the product detail hero image. The naming convention is:
+            product-image-{slug}  — image element
+            product-title-{slug}  — title element
+          The product detail page MUST use the SAME names with the SAME
+          slug (not id) for the morph to work. Set via inline style
+          because SolidJS islands don't get Astro's `transition:name`
+          directive (that's .astro-only). */}
       <a
         href={href()}
         class="relative block aspect-square overflow-hidden border-b-2 border-ink bg-newsprint-dark"

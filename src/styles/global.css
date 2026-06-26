@@ -318,80 +318,54 @@
   /* =================================================================
      Grunge keyframes — high energy, physical, chaotic (DESIGN.md)
      Sharp ease-out with slight overshoot; never bounce or elastic.
+
+     Performance rule: animate ONLY opacity and transform. These are
+     compositor-only properties — no layout, no paint. Torn edges
+     (clip-path), halftone dots (background-image), colors, and shadows
+     are STATIC on the element; the keyframes animate opacity/transform
+     on top of those static properties for the "reveal" feel.
      ================================================================= */
 
-  /* torn-paper-reveal: element appears with torn-paper edge animation.
-     Mask wipes in from top-left with a jagged clip-path, settling flat. */
+  /* torn-paper-reveal: element fades + slides in with a slight rotation
+     settle. The torn-paper edge is a STATIC clip-path applied via the
+     .clip-torn-* utility classes on the element — not animated here. */
   @keyframes torn-paper-reveal {
     0% {
-      clip-path: polygon(0% 0%, 0% 0%, 0% 0%, 0% 0%);
       opacity: 0;
-      transform: translateY(8px) rotate(-1.5deg);
+      transform: translateY(8px) rotate(-1.5deg) scale(0.98);
     }
     60% {
-      clip-path: polygon(
-        0% 0%,
-        100% 0%,
-        100% 88%,
-        96% 92%,
-        92% 86%,
-        88% 94%,
-        84% 88%,
-        80% 96%,
-        76% 90%,
-        72% 95%,
-        68% 89%,
-        64% 96%,
-        60% 90%,
-        56% 95%,
-        52% 96%,
-        48% 89%,
-        44% 95%,
-        40% 90%,
-        36% 96%,
-        32% 90%,
-        28% 96%,
-        24% 89%,
-        20% 95%,
-        16% 90%,
-        12% 96%,
-        8% 90%,
-        4% 95%,
-        0% 88%
-      );
       opacity: 1;
-      transform: translateY(0) rotate(0deg);
+      transform: translateY(0) rotate(0.5deg) scale(1);
     }
     100% {
-      clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
       opacity: 1;
-      transform: translateY(0) rotate(0deg);
+      transform: translateY(0) rotate(0deg) scale(1);
     }
   }
 
-  /* halftone-shimmer: halftone dot pattern shifts and pulses. */
+  /* halftone-shimmer: opacity pulses on the halftone overlay element.
+     The dot pattern (background-image) is static; only opacity animates. */
   @keyframes halftone-shimmer {
     0%,
     100% {
-      background-position: 0 0;
       opacity: 0.5;
     }
     50% {
-      background-position: 8px 8px;
       opacity: 0.85;
     }
   }
 
-  /* hazard-pulse: hazard-orange color pulses for CTAs and alerts. */
+  /* hazard-pulse: subtle scale pulse on the element. The hazard-orange
+     background-color and hard shadow are static on the element; the
+     keyframe only animates transform for a physical "throb". */
   @keyframes hazard-pulse {
     0%,
     100% {
-      background-color: var(--color-orange);
-      box-shadow: 4px 4px 0px 0px var(--color-ink);
+      transform: scale(1);
     }
     50% {
-      background-color: var(--color-orange-dark);
-      box-shadow: 6px 6px 0px 0px var(--color-ink);
+      transform: scale(1.04);
     }
   }
 
@@ -433,13 +407,23 @@
     }
   }
 
-  /* scanline-sweep: scanline texture moves across element. */
+  /* scanline-sweep: scanline overlay element translates vertically.
+     The scanline texture (background-image) is static on the element;
+     the keyframe animates transform: translateY to sweep it across. */
   @keyframes scanline-sweep {
     0% {
-      background-position: 0 -100%;
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.6;
+    }
+    90% {
+      opacity: 0.6;
     }
     100% {
-      background-position: 0 200%;
+      transform: translateY(200%);
+      opacity: 0;
     }
   }
 
