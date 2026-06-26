@@ -1,0 +1,103 @@
+---
+interface FilterOption {
+  id: string;
+  slug: string;
+  name: string;
+}
+
+interface Props {
+  categories: FilterOption[];
+  brands: FilterOption[];
+  activeCategory?: string;
+  activeBrand?: string;
+}
+
+const { categories, brands, activeCategory, activeBrand } = Astro.props;
+---
+
+<div class="border-2 border-ink bg-card p-4 shadow-hard-sm" data-filter-bar>
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    {/* Category links */}
+    <div class="flex flex-col gap-2">
+      <span class="text-micro font-black uppercase tracking-widest text-ink-muted">
+        Categories
+      </span>
+      <nav class="flex flex-wrap gap-2" aria-label="Product categories">
+        <a
+          href="/products"
+          class:list={[
+            "border-2 border-ink px-3 py-1.5 text-caption font-black uppercase tracking-wide transition-all hover:shadow-hard-sm",
+            !activeCategory
+              ? "bg-orange text-ink shadow-hard-sm"
+              : "bg-newsprint text-ink hover:bg-yellow",
+          ]}
+        >
+          All
+        </a>
+        {categories.map((category) => (
+          <a
+            href={`/products?category=${category.slug}`}
+            class:list={[
+              "border-2 border-ink px-3 py-1.5 text-caption font-black uppercase tracking-wide transition-all hover:shadow-hard-sm",
+              activeCategory === category.slug
+                ? "bg-orange text-ink shadow-hard-sm"
+                : "bg-newsprint text-ink hover:bg-yellow",
+            ]}
+          >
+            {category.name}
+          </a>
+        ))}
+      </nav>
+    </div>
+
+    {/* Brand filter */}
+    <div class="flex flex-col gap-2">
+      <label
+        for="brand-filter"
+        class="text-micro font-black uppercase tracking-widest text-ink-muted"
+      >
+        Brand
+      </label>
+      <div class="relative border-2 border-ink bg-newsprint shadow-hard-sm">
+        <select
+          id="brand-filter"
+          class="w-full appearance-none bg-transparent px-3 py-2 pr-8 text-caption font-black uppercase tracking-wide text-ink outline-none"
+          data-brand-filter
+        >
+          <option value="">All brands</option>
+          {brands.map((brand) => (
+            <option value={brand.slug} selected={activeBrand === brand.slug}>
+              {brand.name}
+            </option>
+          ))}
+        </select>
+        <span
+          class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-ink"
+          aria-hidden="true"
+        >
+          ▾
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function setupBrandFilter() {
+    const select = document.querySelector<HTMLSelectElement>("[data-brand-filter]");
+    if (!select) return;
+
+    select.addEventListener("change", () => {
+      const url = new URL(window.location.href);
+      const value = select.value;
+      if (value) {
+        url.searchParams.set("brand", value);
+      } else {
+        url.searchParams.delete("brand");
+      }
+      window.location.href = url.toString();
+    });
+  }
+
+  document.addEventListener("astro:page-load", setupBrandFilter);
+</script>
