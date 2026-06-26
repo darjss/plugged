@@ -1,8 +1,13 @@
 ---
 /**
- * IEM specs table — photocopied document look.
- * Only renders fields that have values. Grunge: mono type, scanline
- * overlay, torn edges, stamp header.
+ * IEM specs sheet — collapsible photocopied document.
+ *
+ * Renders as a `<details>` so the spec wall never pushes the buy box
+ * below the fold. The stamp header is the `<summary>`. Sound signature
+ * visualization is rendered inside the same panel when provided.
+ *
+ * Grunge: mono type, scanline overlay, torn edges, stamp header,
+ * hazard chevron that rotates on open.
  */
 
 interface IemSpec {
@@ -22,9 +27,10 @@ interface IemSpec {
 
 interface Props {
   spec: IemSpec;
+  soundSignature?: string | null;
 }
 
-const { spec } = Astro.props;
+const { spec, soundSignature = null } = Astro.props;
 
 const rows: Array<{ label: string; value: string | null }> = [
   { label: "Driver type", value: spec.driverType },
@@ -45,20 +51,53 @@ const rows: Array<{ label: string; value: string | null }> = [
 ];
 
 const visibleRows = rows.filter((row) => row.value !== null && row.value !== "");
+
+// Sound signature parsing — kept inline so the panel is self-contained.
+interface SignatureBars {
+  bass: number;
+  mid: number;
+  treble: number;
+}
+
+function parseSignature(raw: string): SignatureBars | null {
+  const text = raw.toLowerCase();
+  const named = text.match(
+    /bass[:\s=]+(\d+(?:\.\d+)?).*?mid[:\s=]+(\d+(?:\.\d+)?).*?treble[:\s=]+(\d+(?:\.\d+)?)/,
+  );
+  if (named) return clamp(Number(named[1]), Number(named[2]), Number(named[3]));
+  const triple = text.match(/(\d(?:\.\d+)?)\s*[/\s]\s*(\d(?:\.\d+)?)\s*[/\s]\s*(\d(?:\.\d+)?)/);
+  if (triple) return clamp(Number(triple[1]), Number(triple[2]), Number(triple[3]));
+  return null;
+}
+
+function clamp(bass: number, mid: number, treble: number): SignatureBars {
+  const c = (n: number) => Math.max(0, Math.min(10, Number.isFinite(n) ? n : 0));
+  return { bass: c(bass), mid: c(mid), treble: c(treble) };
+}
+
+const bars = soundSignature ? parseSignature(soundSignature) : null;
+const hasBars = bars !== null;
 ---
 
 {
   visibleRows.length > 0 && (
-    <section class="relative mt-12">
-      {/* Stamp header */}
-      <div class="mb-4 flex items-center gap-3">
-        <h2 class="-rotate-1 border-2 border-ink bg-cyan px-3 py-1 font-display text-heading-lg font-black uppercase tracking-tight text-ink shadow-hard-sm">
+    <details class="group relative mt-10 sm:mt-12">
+      {/* Summary — stamp header, clickable */}
+      <summary class="mb-4 flex cursor-pointer list-none items-center gap-3 outline-none focus-visible:ring-2 focus-visible:ring-ink">
+        <h2 class="-rotate-1 border-2 border-ink bg-cyan px-3 py-1 font-display text-heading-lg font-black uppercase tracking-tight text-ink shadow-hard-sm transition-all group-open:rotate-0 group-open:bg-orange">
           Spec sheet
         </h2>
         <span class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
           photocopied · do not fold
         </span>
-      </div>
+        {/* Chevron — hazard marker, rotates on open */}
+        <span
+          class="ml-auto flex size-7 items-center justify-center border-2 border-ink bg-yellow font-mono text-micro font-black text-ink shadow-hard-sm transition-transform group-open:rotate-180"
+          aria-hidden="true"
+        >
+          ▼
+        </span>
+      </summary>
 
       {/* Photocopied document */}
       <div class="clip-torn-edges relative overflow-hidden border-2 border-ink bg-newsprint-2 p-5 shadow-hard-lg sm:p-8">
@@ -70,24 +109,73 @@ const visibleRows = rows.filter((row) => row.value !== null && row.value !== "")
         />
         <div class="bg-noise pointer-events-none absolute inset-0 opacity-20" aria-hidden="true" />
 
-        <table class="relative z-10 w-full border-collapse">
-          <tbody>
-            {visibleRows.map((row, i) => (
-              <tr class={i % 2 === 0 ? "bg-newsprint/40" : ""}>
-                <th
-                  scope="row"
-                  class="w-1/3 border-b border-ink/30 px-3 py-2.5 text-left font-mono text-caption font-black uppercase tracking-wide text-ink-muted align-top sm:w-1/4"
-                >
-                  {row.label}
-                </th>
-                <td class="border-b border-ink/30 px-3 py-2.5 font-mono text-body font-medium text-ink align-top">
-                  {row.value}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div class="relative z-10 space-y-8">
+          {/* Spec table */}
+          <table class="w-full border-collapse">
+            <tbody>
+              {visibleRows.map((row, i) => (
+                <tr class={i % 2 === 0 ? "bg-newsprint/40" : ""}>
+                  <th
+                    scope="row"
+                    class="w-1/3 border-b border-ink/30 px-3 py-2.5 text-left font-mono text-caption font-black uppercase tracking-wide text-ink-muted align-top sm:w-1/4"
+                  >
+                    {row.label}
+                  </th>
+                  <td class="border-b border-ink/30 px-3 py-2.5 font-mono text-body font-medium text-ink align-top">
+                    {row.value}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* Sound signature — inside the same panel */}
+          {soundSignature && (
+            <div class="relative">
+              <div class="mb-3 flex items-center gap-3">
+                <h3 class="rotate-1 border-2 border-ink bg-orange px-3 py-1 font-display text-heading font-black uppercase tracking-tight text-ink shadow-hard-sm">
+                  Sound signature
+                </h3>
+              </div>
+
+              <div class="flex flex-col gap-5 sm:flex-row sm:items-end sm:gap-8">
+                {/* Badge — always shown */}
+                <div class="shrink-0">
+                  <span class="-rotate-2 inline-block border-2 border-ink bg-yellow px-3 py-1.5 font-mono text-caption font-black uppercase tracking-wide text-ink shadow-hard-sm">
+                    {soundSignature}
+                  </span>
+                </div>
+
+                {/* Bar chart — only when parseable */}
+                {hasBars && bars && (
+                  <div class="flex flex-1 items-end gap-4 sm:gap-8">
+                    {(["bass", "mid", "treble"] as const).map((key) => {
+                      const value = bars[key];
+                      const heightPct = (value / 10) * 100;
+                      return (
+                        <div class="flex flex-1 flex-col items-center gap-2">
+                          <div class="flex h-24 w-full items-end border-2 border-ink bg-newsprint sm:h-32">
+                            <div
+                              class="w-full bg-orange transition-all"
+                              style={`height: ${heightPct}%;`}
+                            />
+                          </div>
+                          <span class="font-mono text-micro font-black uppercase tracking-wide text-ink">
+                            {key}
+                          </span>
+                          <span class="font-mono text-micro font-bold text-ink-muted">
+                            {value}/10
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </section>
+    </details>
   )
 }
