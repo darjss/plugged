@@ -6,13 +6,12 @@ import ProductBuyBox from "../../components/storefront/ProductBuyBox.tsx";
 import AnalyticsEvent from "../../components/storefront/AnalyticsEvent.tsx";
 import ProductSpecs from "../../components/storefront/ProductSpecs.astro";
 
-export const prerender = true;
+export const prerender = false;
 
 /**
- * Build-time API base. In dev, hit the local Astro server. In build,
- * hit the deployed site (Astro.site). If the fetch fails, we emit zero
- * paths — the build still succeeds, pages prerender once the API is
- * reachable.
+ * On-demand API base. Pages render from D1 at request time, so product
+ * inventory stays fresh and a build-time API outage no longer wipes
+ * every product page.
  */
 function apiBase(): string {
   if (import.meta.env.DEV) return "http://[::1]:4321";
@@ -134,14 +133,8 @@ export async function getStaticPaths() {
 }
 
 const { slug } = Astro.params;
-const { redirectTo } = Astro.props as { redirectTo: string | null };
 
-// Old-slug 301 redirect — preserves SEO link equity.
-if (redirectTo) {
-  return Astro.redirect(`/products/${redirectTo}`, 301);
-}
-
-// Fetch full product detail at build time.
+// Fetch full product detail on demand from D1.
 let product: ProductDetail | null = null;
 try {
   const res = await fetch(`${apiBase()}/api/products/${slug}`);
@@ -152,7 +145,23 @@ try {
   console.warn(`[products/[slug]] product fetch failed for ${slug}`, error);
 }
 
+// Old-slug 301 redirect — preserves SEO link equity. With prerender off,
+// we resolve old slugs at request time by scanning the product list.
 if (!product) {
+  try {
+    const listRes = await fetch(`${apiBase()}/api/products`);
+    if (listRes.ok) {
+      const data = (await listRes.json()) as { products: ProductSummary[] };
+      const match = (data.products ?? []).find((p) =>
+        parseOldSlugs(p.oldSlugs).includes(slug ?? ""),
+      );
+      if (match && match.slug !== slug) {
+        return Astro.redirect(`/products/${match.slug}`, 301);
+      }
+    }
+  } catch (error) {
+    console.warn(`[products/[slug]] old-slug lookup failed for ${slug}`, error);
+  }
   return Astro.redirect("/404");
 }
 
