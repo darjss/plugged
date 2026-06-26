@@ -132,6 +132,9 @@ export const app = new Elysia()
       status: result.status,
     };
   })
+  .get("/orders/:orderNumber", async ({ params }) =>
+    commerceQueries.store.getOrderByNumber(params.orderNumber),
+  )
   .post("/qpay/webhook", async ({ query, status }) => {
     const paymentNumber = typeof query.id === "string" ? query.id : null;
     if (!paymentNumber) return status(200, { ok: true });

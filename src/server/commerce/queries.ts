@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import * as v from "valibot";
 import { db } from "../db";
@@ -240,7 +240,41 @@ export const commerceQueries = {
       return this.getCartByToken(cartToken);
     },
 
-    async createOrder(input: v.InferOutput<typeof checkoutInputSchema>, userId: null | string) {
+    /**
+     * Normalized line item used by createOrder regardless of whether the
+     * source is a server-side cart (cartToken) or client-side items array.
+     */
+    async resolveCheckoutLines(input: v.InferOutput<typeof checkoutInputSchema>) {
+      if (input.items && input.items.length > 0) {
+        // Client-side cart flow: look up each variant + its product from DB.
+        const variants = await db.query.productVariant.findMany({
+          where: inArray(
+            productVariant.id,
+            input.items.map((i) => i.variantId),
+          ),
+          with: { product: true },
+        });
+
+        const byId = new Map(variants.map((v) => [v.id, v]));
+        const lines = input.items.map((requested) => {
+          const variant = byId.get(requested.variantId);
+          if (!variant) throw new NotFoundError("variant", requested.variantId);
+          return {
+            productId: variant.productId,
+            quantity: requested.quantity,
+            variantId: variant.id,
+            variant,
+            product: variant.product,
+          };
+        });
+
+        return { lines, sourceCartId: null };
+      }
+
+      if (!input.cartToken) {
+        throw new ConflictError("Checkout requires either cartToken or items.");
+      }
+
       const currentCart = await db.query.cart.findFirst({
         where: eq(cart.anonymousToken, input.cartToken),
         with: {
@@ -256,12 +290,27 @@ export const commerceQueries = {
       if (!currentCart) throw new NotFoundError("cart", input.cartToken);
       if (currentCart.items.length === 0) throw new ConflictError("Cart is empty");
 
-      const unavailable = currentCart.items.find((item) => {
-        const availableQuantity = item.variant.stockQuantity - item.variant.reservedQuantity;
+      return {
+        lines: currentCart.items.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          variantId: item.variantId,
+          variant: item.variant,
+          product: item.product,
+        })),
+        sourceCartId: currentCart.id,
+      };
+    },
+
+    async createOrder(input: v.InferOutput<typeof checkoutInputSchema>, userId: null | string) {
+      const { lines, sourceCartId } = await this.resolveCheckoutLines(input);
+
+      const unavailable = lines.find((line) => {
+        const availableQuantity = line.variant.stockQuantity - line.variant.reservedQuantity;
         return (
-          item.product.status !== "active" ||
-          !item.variant.active ||
-          availableQuantity < item.quantity
+          line.product.status !== "active" ||
+          !line.variant.active ||
+          availableQuantity < line.quantity
         );
       });
 
@@ -274,8 +323,8 @@ export const commerceQueries = {
       const date = now();
       const orderId = nanoid();
       const paymentId = nanoid();
-      const subtotalMnt = currentCart.items.reduce(
-        (sum, item) => sum + item.variant.priceMnt * item.quantity,
+      const subtotalMnt = lines.reduce(
+        (sum, line) => sum + line.variant.priceMnt * line.quantity,
         0,
       );
       const totalMnt = subtotalMnt + deliveryFeeMnt;
@@ -302,18 +351,18 @@ export const commerceQueries = {
       });
 
       await db.insert(orderItem).values(
-        currentCart.items.map((item) => ({
+        lines.map((line) => ({
           createdAt: date,
           id: nanoid(),
-          lineTotalMnt: item.variant.priceMnt * item.quantity,
+          lineTotalMnt: line.variant.priceMnt * line.quantity,
           orderId,
-          productId: item.productId,
-          productName: item.product.name,
-          quantity: item.quantity,
-          sku: item.variant.sku,
-          unitPriceMnt: item.variant.priceMnt,
-          variantId: item.variantId,
-          variantName: item.variant.name,
+          productId: line.productId,
+          productName: line.product.name,
+          quantity: line.quantity,
+          sku: line.variant.sku,
+          unitPriceMnt: line.variant.priceMnt,
+          variantId: line.variantId,
+          variantName: line.variant.name,
         })),
       );
 
@@ -328,16 +377,18 @@ export const commerceQueries = {
         updatedAt: date,
       });
 
-      await db.delete(cartItem).where(eq(cartItem.cartId, currentCart.id));
+      if (sourceCartId) {
+        await db.delete(cartItem).where(eq(cartItem.cartId, sourceCartId));
+      }
 
-      for (const item of currentCart.items) {
+      for (const line of lines) {
         await db
           .update(productVariant)
           .set({
-            stockQuantity: sql`${productVariant.stockQuantity} - ${item.quantity}`,
+            stockQuantity: sql`${productVariant.stockQuantity} - ${line.quantity}`,
             updatedAt: date,
           })
-          .where(eq(productVariant.id, item.variantId));
+          .where(eq(productVariant.id, line.variantId));
       }
 
       return db.query.order.findFirst({
@@ -347,6 +398,19 @@ export const commerceQueries = {
           payments: true,
         },
       });
+    },
+
+    async getOrderByNumber(orderNumber: string) {
+      const result = await db.query.order.findFirst({
+        where: eq(order.orderNumber, orderNumber),
+        with: {
+          items: true,
+          payments: true,
+        },
+      });
+
+      if (!result) throw new NotFoundError("order", orderNumber);
+      return result;
     },
   },
 
