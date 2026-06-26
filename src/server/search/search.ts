@@ -1,5 +1,5 @@
 import { env } from "cloudflare:workers";
-import { and, desc, eq, like, or, sql } from "drizzle-orm";
+import { and, desc, eq, or, sql } from "drizzle-orm";
 
 import { commerceQueries } from "../commerce/queries";
 import { db } from "../db";
@@ -50,23 +50,18 @@ async function keywordSearchIds(terms: string[], limit: number) {
   const cleaned = terms
     .map((term) => term.trim())
     .filter(Boolean)
-    .slice(0, 12);
+    .slice(0, 5);
   if (cleaned.length === 0) return [];
 
-  const conditions = cleaned.flatMap((term) => {
-    const pattern = `%${term}%`;
-    return [
-      like(product.name, pattern),
-      like(product.shortDescription, pattern),
-      like(product.description, pattern),
-      like(brand.name, pattern),
-      like(category.name, pattern),
-      like(iemSpec.driverType, pattern),
-      like(iemSpec.driverConfig, pattern),
-      like(iemSpec.soundSignature, pattern),
-      like(iemSpec.fit, pattern),
-    ];
-  });
+  // Concatenate all searchable columns into one string per row and LIKE-match
+  // each term against it. This collapses the OR tree from terms×columns (up to
+  // 12×9 = 108, exceeding D1's max expression depth of 100) to just `terms`
+  // (≤5). COALESCE guards against NULLs from left-joined tables.
+  const searchable = sql<string>`coalesce(${product.name}, '') || ' ' || coalesce(${product.shortDescription}, '') || ' ' || coalesce(${product.description}, '') || ' ' || coalesce(${brand.name}, '') || ' ' || coalesce(${category.name}, '') || ' ' || coalesce(${iemSpec.driverType}, '') || ' ' || coalesce(${iemSpec.driverConfig}, '') || ' ' || coalesce(${iemSpec.soundSignature}, '') || ' ' || coalesce(${iemSpec.fit}, '')`;
+
+  const conditions = cleaned.map(
+    (term) => sql`lower(${searchable}) like lower(${"%" + term + "%"})`,
+  );
 
   const rows = await db
     .select({ id: product.id })
