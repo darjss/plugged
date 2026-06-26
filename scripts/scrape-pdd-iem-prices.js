@@ -53,16 +53,6 @@ function parsePriceFromText(text) {
   return any ? any[1] : "";
 }
 
-async function ensurePage() {
-  if (!state.page || state.page.isClosed()) {
-    state.page =
-      context.pages().find((p) => p.url() === "about:blank") ?? (await context.newPage());
-  }
-  try {
-    await state.page.setViewportSize({ width: 390, height: 844 });
-  } catch {}
-}
-
 async function getSearchCards() {
   return await state.page.evaluate(() => {
     function priceFromText(text) {
@@ -182,10 +172,6 @@ function scoreText(query, text) {
     (group) => !group.some((part) => t.includes(part)),
   );
   return { score: hits.length, hits, terms, requiredMissing };
-}
-
-function scoreCard(query, card) {
-  return scoreText(query, `${card.title} ${card.text || ""}`).score;
 }
 
 function searchVariants(query) {
@@ -601,7 +587,7 @@ function formatMarkdown(results) {
     "Notes: prices are in Chinese yuan (¥/CNY) as shown by the mobile Yangkeduo page. Products are audited against the source query; unrelated first search results are rejected instead of saved.",
   );
   lines.push("");
-  for (const category of [...new Set(results.map((r) => r.category))]) {
+  for (const category of new Set(results.map((r) => r.category))) {
     lines.push(`## ${category}`);
     lines.push("");
     for (const r of results.filter((x) => x.category === category)) {

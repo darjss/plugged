@@ -1,6 +1,5 @@
 import { Route, Router } from "@solidjs/router";
-import type { ParentProps } from "solid-js";
-import { cn } from "@/lib/utils";
+
 import DashboardProviders from "./DashboardProviders";
 import DashboardLayout from "./DashboardLayout";
 import DashboardHome from "./DashboardHome";
@@ -9,6 +8,7 @@ import ProductsList from "./products/ProductsList";
 import ProductForm from "./products/ProductForm";
 import OrdersList from "./orders/OrdersList";
 import OrderDetail from "./orders/OrderDetail";
+import AnalyticsPage from "./AnalyticsPage";
 
 /**
  * Admin SPA. Mounted at `/dashboard/*` via `client:load` in
@@ -18,27 +18,6 @@ import OrderDetail from "./orders/OrderDetail";
  * Route base is `/dashboard` so `<Route path="/">` maps to `/dashboard`
  * and `<Route path="/products">` maps to `/dashboard/products`.
  */
-
-function Placeholder(props: ParentProps & { label: string; issue: string }) {
-  return (
-    <div
-      class={cn(
-        "mx-auto max-w-3xl border-2 border-ink bg-card p-8 shadow-hard",
-        "flex flex-col gap-2",
-      )}
-    >
-      <h2 class="font-display text-3xl uppercase text-ink">{props.label}</h2>
-      <p class="font-mono text-sm text-muted-foreground">Coming in #{props.issue}</p>
-      <div class="mt-4 font-body text-foreground/80">
-        {props.children ?? "Placeholder content — real view lands in a later issue."}
-      </div>
-    </div>
-  );
-}
-
-function Analytics() {
-  return <Placeholder label="Analytics" issue="17" />;
-}
 
 export default function DashboardApp() {
   return (
@@ -50,7 +29,7 @@ export default function DashboardApp() {
         <Route path="/products/:id" component={ProductForm} />
         <Route path="/orders" component={OrdersList} />
         <Route path="/orders/:id" component={OrderDetail} />
-        <Route path="/analytics" component={Analytics} />
+        <Route path="/analytics" component={AnalyticsPage} />
         <Route path="/settings" component={SettingsPage} />
         {/* Fallthrough — unknown sub-routes render the home placeholder. */}
         <Route path="*" component={DashboardHome} />
