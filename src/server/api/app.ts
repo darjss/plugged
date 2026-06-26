@@ -18,9 +18,15 @@ import { MONGOLIAN_PHONE_REGEX } from "../../lib/utils";
 import { authPlugin } from "./plugins/auth";
 import { adminRoutes } from "./routes/admin";
 import { parseInput } from "./validation";
+import { searchProducts } from "../search/search";
 
 const ordersPhoneQuerySchema = v.object({
   phone: v.pipe(v.string(), v.regex(MONGOLIAN_PHONE_REGEX)),
+});
+
+const searchQuerySchema = v.object({
+  q: v.pipe(v.string(), v.minLength(1)),
+  limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(50))),
 });
 
 export const app = new Elysia()
@@ -131,6 +137,13 @@ export const app = new Elysia()
   })
   .get("/categories", () => commerceQueries.store.getCategories())
   .get("/brands", () => commerceQueries.store.getBrands())
+  .get("/search", async ({ query }) => {
+    const raw = query as Record<string, string | undefined>;
+    const coerced: Record<string, unknown> = { q: raw.q ?? "" };
+    if (raw.limit !== undefined) coerced.limit = Number(raw.limit);
+    const input = parseInput(searchQuerySchema, coerced);
+    return { products: await searchProducts(input) };
+  })
   .get("/products/:slug", async ({ params }) => commerceQueries.store.getProductBySlug(params.slug))
   .post("/cart", async ({ user }) => commerceQueries.store.createCart(user?.id ?? null))
   .get("/cart/:cartToken", async ({ params }) =>
