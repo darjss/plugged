@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "2170a76f-4bec-4ceb-ac49-75d20239e298",
-  "prevId": "b9541373-bcb6-483b-8601-fac2dc3c2781",
+  "id": "c86837be-c980-4cfb-932d-a39b7dc16be0",
+  "prevId": "2170a76f-4bec-4ceb-ac49-75d20239e298",
   "tables": {
     "account": {
       "name": "account",
@@ -505,6 +505,13 @@
         },
         "included_accessories": {
           "name": "included_accessories",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "squiglink_file": {
+          "name": "squiglink_file",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -1030,6 +1037,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "old_slugs": {
+          "name": "old_slugs",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "integer",
@@ -1459,6 +1473,14 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "is_admin": {
+          "name": "is_admin",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
         },
         "created_at": {
           "name": "created_at",

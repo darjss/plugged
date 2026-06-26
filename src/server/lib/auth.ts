@@ -2,15 +2,16 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { phoneNumber } from "better-auth/plugins/phone-number";
 import { env } from "cloudflare:workers";
-import { getDb } from "../db";
+import { MONGOLIAN_PHONE_REGEX } from "../../lib/utils";
+import { db } from "../db";
 import * as schema from "../db/schema";
 import { sendSmsAndWait } from "../integrations/sms";
 
-export function getAuth() {
+function createAuth() {
   return betterAuth({
     basePath: "/api/auth",
     baseURL: env.BETTER_AUTH_URL || undefined,
-    database: drizzleAdapter(getDb(), {
+    database: drizzleAdapter(db, {
       provider: "sqlite",
       schema,
     }),
@@ -28,7 +29,7 @@ export function getAuth() {
         allowedAttempts: 5,
         expiresIn: 300,
         otpLength: 4,
-        phoneNumberValidator: (phone) => /^\+976[6-9]\d{7}$/.test(phone),
+        phoneNumberValidator: (phone) => MONGOLIAN_PHONE_REGEX.test(phone),
         sendOTP: async ({ phoneNumber, code }) => {
           const result = await sendSmsAndWait(env, {
             message: `Tanii nevtreh kod ${code}`,
@@ -48,4 +49,16 @@ export function getAuth() {
   });
 }
 
-export type Auth = ReturnType<typeof getAuth>;
+type AuthInstance = ReturnType<typeof createAuth>;
+
+let _auth: AuthInstance | null = null;
+
+export function getAuth(): AuthInstance {
+  if (!_auth) {
+    _auth = createAuth();
+  }
+
+  return _auth;
+}
+
+export type Auth = AuthInstance;

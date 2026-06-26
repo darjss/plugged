@@ -1,7 +1,7 @@
 import { and, desc, eq, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import * as v from "valibot";
-import { getDb } from "../db";
+import { db } from "../db";
 import {
   cart,
   cartItem,
@@ -12,6 +12,7 @@ import {
   product,
   productVariant,
 } from "../db/schema";
+import { ConflictError, NotFoundError, OutOfStockError } from "../lib/errors";
 import { checkoutInputSchema } from "./validation";
 
 const publicProductColumns = {
@@ -33,7 +34,7 @@ const activeProduct = () => eq(product.status, "active");
 export const commerceQueries = {
   store: {
     async getProducts() {
-      return getDb().query.product.findMany({
+      return db.query.product.findMany({
         columns: publicProductColumns,
         orderBy: [desc(product.featured), desc(product.createdAt)],
         where: activeProduct(),
@@ -51,7 +52,7 @@ export const commerceQueries = {
     },
 
     async getProductBySlug(slug: string) {
-      return getDb().query.product.findFirst({
+      const result = await db.query.product.findFirst({
         columns: publicProductColumns,
         where: and(activeProduct(), eq(product.slug, slug)),
         with: {
@@ -70,10 +71,12 @@ export const commerceQueries = {
           },
         },
       });
+
+      if (!result) throw new NotFoundError("product", slug);
+      return result;
     },
 
     async createCart(userId: null | string) {
-      const db = getDb();
       const date = now();
       const id = nanoid();
       const anonymousToken = nanoid(32);
@@ -90,7 +93,7 @@ export const commerceQueries = {
     },
 
     async getCartByToken(cartToken: string) {
-      return getDb().query.cart.findFirst({
+      const result = await db.query.cart.findFirst({
         where: eq(cart.anonymousToken, cartToken),
         with: {
           items: {
@@ -98,7 +101,10 @@ export const commerceQueries = {
               product: {
                 with: {
                   images: {
-                    orderBy: (image, { asc, desc }) => [desc(image.isPrimary), asc(image.sortOrder)],
+                    orderBy: (image, { asc, desc }) => [
+                      desc(image.isPrimary),
+                      asc(image.sortOrder),
+                    ],
                   },
                 },
               },
@@ -107,13 +113,18 @@ export const commerceQueries = {
           },
         },
       });
+
+      if (!result) throw new NotFoundError("cart", cartToken);
+      return result;
     },
 
     async addCartItem(cartToken: string, variantId: string, quantity: number) {
-      const db = getDb();
-      const currentCart = await this.getCartByToken(cartToken);
+      const currentCart = await db.query.cart.findFirst({
+        where: eq(cart.anonymousToken, cartToken),
+        with: { items: true },
+      });
 
-      if (!currentCart) return null;
+      if (!currentCart) throw new NotFoundError("cart", cartToken);
 
       const variant = await db.query.productVariant.findFirst({
         where: and(eq(productVariant.id, variantId), eq(productVariant.active, true)),
@@ -122,11 +133,15 @@ export const commerceQueries = {
         },
       });
 
-      if (!variant || variant.product.status !== "active") return null;
+      if (!variant || variant.product.status !== "active") {
+        throw new NotFoundError("variant", variantId);
+      }
 
       const availableQuantity = variant.stockQuantity - variant.reservedQuantity;
 
-      if (availableQuantity < quantity) return null;
+      if (availableQuantity < quantity) {
+        throw new OutOfStockError(variantId, quantity, availableQuantity);
+      }
 
       const date = now();
       const existing = await db.query.cartItem.findFirst({
@@ -136,7 +151,9 @@ export const commerceQueries = {
       if (existing) {
         const nextQuantity = existing.quantity + quantity;
 
-        if (availableQuantity < nextQuantity) return null;
+        if (availableQuantity < nextQuantity) {
+          throw new OutOfStockError(variantId, nextQuantity, availableQuantity);
+        }
 
         await db
           .update(cartItem)
@@ -163,10 +180,12 @@ export const commerceQueries = {
     },
 
     async updateCartItem(cartToken: string, itemId: string, quantity: number) {
-      const db = getDb();
-      const currentCart = await this.getCartByToken(cartToken);
+      const currentCart = await db.query.cart.findFirst({
+        where: eq(cart.anonymousToken, cartToken),
+        with: { items: true },
+      });
 
-      if (!currentCart) return null;
+      if (!currentCart) throw new NotFoundError("cart", cartToken);
 
       const existing = await db.query.cartItem.findFirst({
         where: and(eq(cartItem.id, itemId), eq(cartItem.cartId, currentCart.id)),
@@ -175,11 +194,13 @@ export const commerceQueries = {
         },
       });
 
-      if (!existing) return null;
+      if (!existing) throw new NotFoundError("cart-item", itemId);
 
       const availableQuantity = existing.variant.stockQuantity - existing.variant.reservedQuantity;
 
-      if (availableQuantity < quantity) return null;
+      if (availableQuantity < quantity) {
+        throw new OutOfStockError(existing.variantId, quantity, availableQuantity);
+      }
 
       const date = now();
 
@@ -196,29 +217,57 @@ export const commerceQueries = {
     },
 
     async removeCartItem(cartToken: string, itemId: string) {
-      const db = getDb();
-      const currentCart = await this.getCartByToken(cartToken);
+      const currentCart = await db.query.cart.findFirst({
+        where: eq(cart.anonymousToken, cartToken),
+        with: { items: true },
+      });
 
-      if (!currentCart) return null;
+      if (!currentCart) throw new NotFoundError("cart", cartToken);
 
-      await db.delete(cartItem).where(and(eq(cartItem.id, itemId), eq(cartItem.cartId, currentCart.id)));
+      const existing = await db.query.cartItem.findFirst({
+        where: and(eq(cartItem.id, itemId), eq(cartItem.cartId, currentCart.id)),
+      });
+
+      if (!existing) throw new NotFoundError("cart-item", itemId);
+
+      await db
+        .delete(cartItem)
+        .where(and(eq(cartItem.id, itemId), eq(cartItem.cartId, currentCart.id)));
       await db.update(cart).set({ updatedAt: now() }).where(eq(cart.id, currentCart.id));
 
       return this.getCartByToken(cartToken);
     },
 
     async createOrder(input: v.InferOutput<typeof checkoutInputSchema>, userId: null | string) {
-      const db = getDb();
-      const currentCart = await this.getCartByToken(input.cartToken);
+      const currentCart = await db.query.cart.findFirst({
+        where: eq(cart.anonymousToken, input.cartToken),
+        with: {
+          items: {
+            with: {
+              product: true,
+              variant: true,
+            },
+          },
+        },
+      });
 
-      if (!currentCart || currentCart.items.length === 0) return null;
+      if (!currentCart) throw new NotFoundError("cart", input.cartToken);
+      if (currentCart.items.length === 0) throw new ConflictError("Cart is empty");
 
       const unavailable = currentCart.items.find((item) => {
         const availableQuantity = item.variant.stockQuantity - item.variant.reservedQuantity;
-        return item.product.status !== "active" || !item.variant.active || availableQuantity < item.quantity;
+        return (
+          item.product.status !== "active" ||
+          !item.variant.active ||
+          availableQuantity < item.quantity
+        );
       });
 
-      if (unavailable) return null;
+      if (unavailable) {
+        const availableQuantity =
+          unavailable.variant.stockQuantity - unavailable.variant.reservedQuantity;
+        throw new OutOfStockError(unavailable.variantId, unavailable.quantity, availableQuantity);
+      }
 
       const date = now();
       const orderId = nanoid();

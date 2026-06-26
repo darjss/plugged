@@ -1,7 +1,4 @@
-import Client, {
-  type Message,
-  type MessageState,
-} from "android-sms-gateway";
+import Client, { type Message, type MessageState } from "android-sms-gateway";
 import ky from "ky";
 
 type SmsEnv = {
@@ -38,19 +35,19 @@ function createHttpClient(): HttpClient {
   };
 
   return {
-    async get<T>(url, headers) {
+    async get<T>(url: string, headers?: Record<string, string>) {
       return handleResponse<T>(await client.get(url, { headers }));
     },
-    async post<T>(url, body, headers) {
+    async post<T>(url: string, body: unknown, headers?: Record<string, string>) {
       return handleResponse<T>(await client.post(url, { headers, json: body }));
     },
-    async put<T>(url, body, headers) {
+    async put<T>(url: string, body: unknown, headers?: Record<string, string>) {
       return handleResponse<T>(await client.put(url, { headers, json: body }));
     },
-    async patch<T>(url, body, headers) {
+    async patch<T>(url: string, body: unknown, headers?: Record<string, string>) {
       return handleResponse<T>(await client.patch(url, { headers, json: body }));
     },
-    async delete<T>(url, headers) {
+    async delete<T>(url: string, headers?: Record<string, string>) {
       return handleResponse<T>(await client.delete(url, { headers }));
     },
   };

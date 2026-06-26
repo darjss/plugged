@@ -1,9 +1,6 @@
 type RequireUserContext = {
   locals: App.Locals;
-  redirect: (
-    path: string,
-    status?: 300 | 301 | 302 | 303 | 304 | 307 | 308,
-  ) => Response;
+  redirect: (path: string, status?: 300 | 301 | 302 | 303 | 304 | 307 | 308) => Response;
   url: URL;
 };
 

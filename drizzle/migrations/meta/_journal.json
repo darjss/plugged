@@ -22,6 +22,13 @@
       "when": 1782192765839,
       "tag": "0002_cool_cerise",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1782475877806,
+      "tag": "0003_late_bastion",
+      "breakpoints": true
     }
   ]
 }
