@@ -1,5 +1,7 @@
 import { Elysia } from "elysia";
 import { eq } from "drizzle-orm";
+import { adminQueries } from "../admin/queries";
+import { adminUpdateUserSchema, adminUsersQuerySchema } from "../admin/validation";
 import { commerceQueries } from "../commerce/queries";
 import {
   cartItemInputSchema,
@@ -52,6 +54,26 @@ export const app = new Elysia()
     {
       requireAdmin: true,
     },
+  )
+  .get("/admin/settings", () => adminQueries.getSettings(), { requireAdmin: true })
+  .get(
+    "/admin/users",
+    async ({ query }) => {
+      const input = parseInput(adminUsersQuerySchema, query);
+      if (input.search) {
+        return { users: await adminQueries.searchUsersByEmail(input.search) };
+      }
+      return { users: await adminQueries.listUsers() };
+    },
+    { requireAdmin: true },
+  )
+  .patch(
+    "/admin/users/:id",
+    async ({ body, params, user }) => {
+      const input = parseInput(adminUpdateUserSchema, body);
+      return adminQueries.updateIsAdmin(params.id, input.isAdmin, user!.id);
+    },
+    { requireAdmin: true },
   )
   .get("/products", async () => ({
     products: await commerceQueries.store.getProducts(),
