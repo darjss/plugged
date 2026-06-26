@@ -1,0 +1,100 @@
+---
+/**
+ * FAQ — zine Q&A with stamp-style question markers.
+ * Prerendered. Placeholder content; real answers filled in later.
+ */
+import StorefrontLayout from "../layouts/StorefrontLayout.astro";
+import InfoPageHeader from "../components/storefront/InfoPageHeader.astro";
+
+export const prerender = true;
+
+const faqs = [
+  {
+    q: "How long does delivery take?",
+    a: "UB orders land in 1–3 business days. Aimags run 3–7 business days depending on the courier route. You'll get a tracking link the moment the parcel leaves the warehouse.",
+  },
+  {
+    q: "What payment methods do you accept?",
+    a: "QPay, bank transfer, and cash on delivery inside Ulaanbaatar. We're working on cards — soon. All prices are in MNT and include VAT.",
+  },
+  {
+    q: "Can I return an IEM after opening it?",
+    a: "Yes — within 14 days, as long as the shell, cable, and tips are clean and undamaged. Hygiene products (foam tips) are non-returnable once opened. See the Returns & Refunds page for the full process.",
+  },
+  {
+    q: "How do I pick the right IEM size?",
+    a: "Every pair ships with a tip kit (S/M/L silicone + foam). Start with the largest tip that seats comfortably without pressure. A good seal means bass you can feel and zero city leak. If nothing fits, message us — we stock aftermarket tips.",
+  },
+  {
+    q: "Do you ship outside Mongolia?",
+    a: "Not yet. We're a domestic operation for now. International shipping is on the roadmap — follow us on Instagram for the announcement.",
+  },
+  {
+    q: "Are these genuine IEMs?",
+    a: "Every unit is sourced direct from the brand or an authorized distributor. Serials are recorded against your order. If anything ever checks out wrong, we refund in full and eat the cost.",
+  },
+  {
+    q: "What's the warranty?",
+    a: "12 months against manufacturing defects on the driver and shell. Cables are wear items — 3 months. Keep your order number; it's your proof of purchase.",
+  },
+  {
+    q: "Can I cancel an order after placing it?",
+    a: "Up until the parcel ships. Once the courier has it, you're on the returns path instead. Hit us the second you change your mind — speed matters.",
+  },
+];
+---
+
+<StorefrontLayout
+  title="FAQ | Plugged"
+  description="Common questions about shipping, payment, returns, IEM sizing, and warranty."
+>
+  <InfoPageHeader
+    kicker="File / vol. 01"
+    title="Frequently Asked"
+    tagline="Read this before you DM us"
+  />
+
+  <section class="mx-auto max-w-screen-2xl px-4 py-14 lg:px-8 lg:py-20">
+    <div class="mx-auto max-w-3xl">
+      <ol class="flex flex-col gap-5">
+        {
+          faqs.map((faq, i) => (
+            <li
+              class="group relative border-4 border-ink bg-card p-5 shadow-hard-lg transition-all hover:border-orange lg:p-7"
+              style={`transform: rotate(${i % 2 === 0 ? "0.5deg" : "-0.5deg"});`}
+            >
+              {/* Stamp question marker */}
+              <div class="mb-3 flex items-center gap-3">
+                <span
+                  class="inline-flex size-9 shrink-0 items-center justify-center border-2 border-ink bg-orange font-display text-lg font-black text-ink shadow-hard-sm"
+                  style="transform: rotate(-3deg);"
+                  aria-hidden="true"
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <h2 class="font-display text-heading-lg font-black uppercase tracking-tight text-ink">
+                  {faq.q}
+                </h2>
+              </div>
+              <p class="max-w-prose text-body font-medium leading-relaxed text-ink-muted">
+                {faq.a}
+              </p>
+            </li>
+          ))
+        }
+      </ol>
+
+      {/* Still stuck — sticker CTA */}
+      <div class="mt-10 flex flex-wrap items-center gap-3">
+        <span class="text-body font-bold text-ink-muted">Still stuck?</span>
+        <a
+          href="/contact"
+          class="inline-flex items-center gap-2 border-2 border-ink bg-orange px-5 py-3 text-sm font-black uppercase tracking-wider text-ink shadow-hard transition-all hover:-rotate-1 hover:bg-orange-dark hover:shadow-hard-lg active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
+        >
+          Hit us up
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</StorefrontLayout>

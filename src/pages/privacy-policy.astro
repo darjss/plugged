@@ -1,0 +1,83 @@
+---
+/**
+ * Privacy policy — standard template, placeholder content.
+ * Prerendered.
+ */
+import StorefrontLayout from "../layouts/StorefrontLayout.astro";
+import InfoPageHeader from "../components/storefront/InfoPageHeader.astro";
+import LegalSections from "../components/storefront/LegalSections.astro";
+
+export const prerender = true;
+
+const sections = [
+  {
+    num: "01",
+    title: "What we collect",
+    body: [
+      "When you place an order we collect your name, phone number, delivery address, and payment details. When you sign in we collect your phone number and any profile info you choose to add.",
+      "We also receive standard technical data: IP address, browser type, and the pages you visit. This is logged for security and abuse prevention.",
+    ],
+  },
+  {
+    num: "02",
+    title: "How we use it",
+    body: [
+      "To process and ship your orders, to authenticate your account, to respond to your support requests, and to improve the store. We do not sell your personal data to anyone, ever.",
+    ],
+  },
+  {
+    num: "03",
+    title: "Who sees it",
+    body: [
+      "Staff at Plugged Audio with a need-to-know, plus our payment provider (QPay) and courier partners — and only the subset each needs to do their job. All third parties are bound by data-protection terms.",
+    ],
+  },
+  {
+    num: "04",
+    title: "How long we keep it",
+    body: [
+      "Order records are kept for the period required by Mongolian tax law. Account data is kept until you ask us to delete it. Technical logs rotate after 90 days.",
+    ],
+  },
+  {
+    num: "05",
+    title: "Your rights",
+    body: [
+      "You can request a copy of your data, ask us to correct it, or ask us to delete your account. Email yo@plugged.mn and we'll respond within 14 days.",
+    ],
+  },
+  {
+    num: "06",
+    title: "Cookies",
+    body: [
+      "We use a minimal set of cookies for session authentication and cart persistence. Analytics cookies, if any, are opt-in. You can clear cookies at any time from your browser.",
+    ],
+  },
+  {
+    num: "07",
+    title: "Changes",
+    body: [
+      "If this policy changes, we'll post the updated version here and bump the date above. Continued use after that means you accept the new terms.",
+    ],
+  },
+  {
+    num: "08",
+    title: "Contact",
+    body: [
+      "Questions about privacy? Email yo@plugged.mn or call +976 11 00 00 00 during business hours.",
+    ],
+  },
+];
+---
+
+<StorefrontLayout
+  title="Privacy Policy | Plugged"
+  description="How Plugged Audio collects, uses, and protects your personal data."
+>
+  <InfoPageHeader
+    kicker="Legal / file 01"
+    title="Privacy Policy"
+    tagline="We don't sell your data"
+  />
+  <LegalSections sections={sections} />
+</StorefrontLayout>
