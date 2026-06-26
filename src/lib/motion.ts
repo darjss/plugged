@@ -1,5 +1,5 @@
 import { spring } from "@motionone/dom";
-import { onCleanup, onMount } from "solid-js";
+import { onCleanup } from "solid-js";
 import { createSignal } from "solid-js";
 
 /**
@@ -46,20 +46,39 @@ export const defaultTransition = {
 } as const;
 
 /**
- * Reactively tracks `prefers-reduced-motion: reduce`. Motion-one
- * animations should short-circuit to instant state changes when this
- * is true (DESIGN.md: "fall back to instant state changes").
+ * Read `prefers-reduced-motion: reduce` synchronously at signal creation.
+ * Client-only islands (client:only) run this in the browser, so
+ * `window.matchMedia` is available immediately — no onMount delay.
+ * Returns false on the server (no window).
+ */
+function readReducedMotion(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Reactively tracks `prefers-reduced-motion: reduce`. Initializes
+ * SYNCHRONOUSLY from `window.matchMedia` so the first render respects
+ * the user's preference — no flash of full animation for reduced-motion
+ * users. Use in client-only islands where `window` is available.
+ *
+ * For SSR-compatible islands, gate Motion props with `initial={false}`
+ * until the preference is known.
  */
 export function createPrefersReducedMotion() {
-  const [reduced, setReduced] = createSignal(false);
+  const [reduced, setReduced] = createSignal(readReducedMotion());
 
-  onMount(() => {
+  // Subscribe to changes. Wrapped in a guard for SSR / old browsers.
+  if (typeof window !== "undefined") {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduced(mq.matches);
     const onChange = (e: MediaQueryListEvent) => setReduced(e.matches);
     mq.addEventListener("change", onChange);
     onCleanup(() => mq.removeEventListener("change", onChange));
-  });
+  }
 
   return reduced;
 }
@@ -70,6 +89,5 @@ export function createPrefersReducedMotion() {
  * the server.
  */
 export function prefersReducedMotion(): boolean {
-  if (typeof window === "undefined") return false;
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return readReducedMotion();
 }

@@ -21,9 +21,15 @@ export function scrollReveal(
 ): void {
   const { staggerIndex = 0, rootMargin = "0px 0px -10% 0px" } = options;
 
-  // Reduced motion: show immediately, no observer overhead.
+  // Reduced motion: remove the reveal class entirely so the element
+  // is in its natural visible state — no opacity:0, no paused animation,
+  // no transform. Belt-and-suspenders with the CSS reduced-motion block.
   if (prefersReducedMotion()) {
+    el.classList.remove("stagger-fade-in-up");
+    el.style.removeProperty("animation-play-state");
+    el.style.removeProperty("--stagger-i");
     el.style.opacity = "1";
+    el.style.transform = "";
     return;
   }
 

@@ -124,10 +124,28 @@
     *,
     *::before,
     *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
+      /* Cancel ALL animations: duration, delay, iteration, and paused
+         state. Without canceling delay + play-state, elements that
+         start at opacity:0 (hero, staggered cards) stay invisible
+         because the keyframe never reaches the visible end-state. */
+      animation: none !important;
+      animation-delay: 0ms !important;
+      animation-play-state: running !important;
+      transition: none !important;
       scroll-behavior: auto !important;
+    }
+
+    /* Force reveal utilities to the visible end-state so elements
+       that start at opacity:0 / translated are shown immediately. */
+    .animate-torn-paper-reveal,
+    .animate-fade-in-up,
+    .animate-fade-in,
+    .animate-scale-up,
+    .animate-slide-down,
+    .animate-slide-in-right,
+    .stagger-fade-in-up {
+      opacity: 1 !important;
+      transform: none !important;
     }
   }
 }
@@ -536,6 +554,13 @@
 /* ===================================================================
    View Transitions — grunge morph defaults.
    Sharp ease-out with slight overshoot per DESIGN.md motion rules.
+
+   Naming convention (MUST be consistent across listing + detail pages):
+     product-image-{slug}  — product image element
+     product-title-{slug}  — product title element
+   The slug-based names are dynamic, so we use the universal selector
+   `::view-transition-group(*)` to apply the grunge timing to ALL
+   named morphs, not just literal `product-image` / `product-title`.
    =================================================================== */
 @layer base {
   ::view-transition-old(root),
@@ -544,10 +569,11 @@
     animation-timing-function: var(--ease-out-expo);
   }
 
-  /* Morph targets — product image card -> product detail hero.
-     Pages opt in by setting transition:name on the image wrapper. */
-  ::view-transition-group(product-image),
-  ::view-transition-group(product-title) {
+  /* All named morph groups (product-image-{slug}, product-title-{slug},
+     header, footer, etc.) get the same grunge timing. The universal
+     selector catches dynamic slug-based names without needing to
+     generate a selector per slug. */
+  ::view-transition-group(*) {
     animation-duration: 0.4s;
     animation-timing-function: var(--ease-out-expo);
   }
