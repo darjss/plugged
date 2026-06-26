@@ -5,7 +5,6 @@ import ProductImageCarousel from "../../components/storefront/ProductImageCarous
 import ProductBuyBox from "../../components/storefront/ProductBuyBox.tsx";
 import AnalyticsEvent from "../../components/storefront/AnalyticsEvent.tsx";
 import ProductSpecs from "../../components/storefront/ProductSpecs.astro";
-import ProductSoundSignature from "../../components/storefront/ProductSoundSignature.astro";
 
 export const prerender = false;
 
@@ -15,7 +14,7 @@ export const prerender = false;
  * every product page.
  */
 function apiBase(): string {
-  if (import.meta.env.DEV) return "http://localhost:4321";
+  if (import.meta.env.DEV) return "http://[::1]:4321";
   return Astro.site?.origin ?? "https://pluggedaudio.store";
 }
 
@@ -83,13 +82,54 @@ interface ProductDetail {
   variants: ProductVariant[];
 }
 
-/** Parse the comma-separated oldSlugs text field into a clean array. */
-function parseOldSlugs(raw: string | null): string[] {
-  if (!raw) return [];
-  return raw
-    .split(",")
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0);
+export async function getStaticPaths() {
+  // Astro hoists getStaticPaths — frontmatter functions are not in scope.
+  // Inline the API base + parseOldSlugs here so they're available locally.
+  const base = import.meta.env.DEV
+    ? "http://[::1]:4321"
+    : "https://pluggedaudio.store";
+
+  // Parse the comma-separated oldSlugs text field into a clean array.
+  const parseOldSlugs = (raw: string | null): string[] => {
+    if (!raw) return [];
+    return raw
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+  };
+
+  let products: ProductSummary[] = [];
+  try {
+    const res = await fetch(`${base}/api/products`);
+    if (res.ok) {
+      const data = (await res.json()) as { products: ProductSummary[] };
+      products = data.products ?? [];
+    }
+  } catch (error) {
+    console.warn("[products/[slug]] getStaticPaths: fetch failed, 0 pages", error);
+  }
+
+  const paths: Array<{
+    params: { slug: string };
+    props: { redirectTo: string | null };
+  }> = [];
+
+  for (const product of products) {
+    // Canonical slug path
+    paths.push({ params: { slug: product.slug }, props: { redirectTo: null } });
+
+    // Old slug redirect paths — 301 to canonical
+    for (const oldSlug of parseOldSlugs(product.oldSlugs)) {
+      if (oldSlug && oldSlug !== product.slug) {
+        paths.push({
+          params: { slug: oldSlug },
+          props: { redirectTo: product.slug },
+        });
+      }
+    }
+  }
+
+  return paths;
 }
 
 const { slug } = Astro.params;
@@ -175,10 +215,12 @@ const seoDescription =
     {/* Breadcrumb */}
     <ProductBreadcrumb items={breadcrumbItems} />
 
-    {/* Main grid — images + info */}
+    {/* Main grid — images + buy info.
+        Mobile: buy box first (above the fold), images after.
+        Desktop: images left, buy info right. */}
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
-      {/* Image carousel */}
-      <div transition:name={`product-image-${product.id}`}>
+      {/* Image carousel — desktop left (order-1), mobile after buy box (order-2) */}
+      <div class="order-2 lg:order-1" transition:name={`product-image-${product.id}`}>
         <ProductImageCarousel
           client:visible
           images={product.images}
@@ -186,8 +228,8 @@ const seoDescription =
         />
       </div>
 
-      {/* Product info */}
-      <div class="flex flex-col gap-5">
+      {/* Buy info — mobile first (order-1), desktop right (order-2) */}
+      <div class="order-1 flex flex-col gap-5 lg:order-2">
         {/* Brand link — stamped tag */}
         {
           product.brand && (
@@ -228,29 +270,29 @@ const seoDescription =
             variants={product.variants}
           />
         </div>
-
-        {/* Full description — torn paper panel */}
-        {
-          product.description && (
-            <div class="clip-torn-edges relative border-2 border-ink bg-newsprint p-5 shadow-hard sm:p-6">
-              <div class="bg-noise pointer-events-none absolute inset-0 opacity-15" aria-hidden="true" />
-              <div class="relative z-10">
-                <h2 class="mb-3 font-display text-heading-lg font-black uppercase tracking-tight text-ink">
-                  The rundown
-                </h2>
-                <div class="max-w-prose space-y-3 text-body text-ink" set:html={product.description} />
-              </div>
-            </div>
-          )
-        }
       </div>
     </div>
 
-    {/* IEM specs table */}
-    {product.iemSpec && <ProductSpecs spec={product.iemSpec} />}
+    {/* IEM specs — collapsible panel (contains sound signature).
+        Closed by default so the buy box stays above the fold. */}
+    {product.iemSpec && (
+      <ProductSpecs spec={product.iemSpec} soundSignature={product.iemSpec.soundSignature} />
+    )}
 
-    {/* Sound signature */}
-    {product.iemSpec && <ProductSoundSignature soundSignature={product.iemSpec.soundSignature} />}
+    {/* Full description — torn paper panel, below specs */}
+    {
+      product.description && (
+        <section class="clip-torn-edges relative mt-10 border-2 border-ink bg-newsprint p-5 shadow-hard sm:mt-12 sm:p-6">
+          <div class="bg-noise pointer-events-none absolute inset-0 opacity-15" aria-hidden="true" />
+          <div class="relative z-10">
+            <h2 class="mb-3 font-display text-heading-lg font-black uppercase tracking-tight text-ink">
+              The rundown
+            </h2>
+            <div class="max-w-prose space-y-3 text-body text-ink" set:html={product.description} />
+          </div>
+        </section>
+      )
+    }
 
     {/* Base price fallback (for SEO / no-JS) */}
     <script
