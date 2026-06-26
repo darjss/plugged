@@ -3,6 +3,7 @@ import type { ParentProps } from "solid-js";
 import { cn } from "@/lib/utils";
 import DashboardProviders from "./DashboardProviders";
 import DashboardLayout from "./DashboardLayout";
+import DashboardHome from "./DashboardHome";
 
 /**
  * Admin SPA. Mounted at `/dashboard/*` via `client:load` in
@@ -30,9 +31,6 @@ function Placeholder(props: ParentProps & { label: string; issue: string }) {
   );
 }
 
-function DashboardHome() {
-  return <Placeholder label="Dashboard home" issue="16" />;
-}
 function ProductsList() {
   return <Placeholder label="Products" issue="14" />;
 }

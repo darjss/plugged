@@ -1,5 +1,6 @@
 import { Elysia } from "elysia";
 import { eq } from "drizzle-orm";
+import { adminQueries } from "../commerce/admin-queries";
 import { commerceQueries } from "../commerce/queries";
 import {
   cartItemInputSchema,
@@ -52,6 +53,28 @@ export const app = new Elysia()
     {
       requireAdmin: true,
     },
+  )
+  .get("/admin/stats", () => adminQueries.getStats(), {
+    requireAdmin: true,
+  })
+  .get(
+    "/admin/orders",
+    ({ query }) => {
+      const raw = query as Record<string, string | undefined>;
+      const parsed = Number(raw.limit ?? 10);
+      const limit = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 1), 50) : 10;
+      return adminQueries.getRecentOrders(limit);
+    },
+    { requireAdmin: true },
+  )
+  .get(
+    "/admin/products",
+    ({ query }) => {
+      const raw = query as Record<string, string | undefined>;
+      if (raw.lowStock !== "true") return { products: [] };
+      return adminQueries.getLowStockProducts().then((products) => ({ products }));
+    },
+    { requireAdmin: true },
   )
   .get("/products", async () => ({
     products: await commerceQueries.store.getProducts(),
