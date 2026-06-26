@@ -56,5 +56,6 @@
     "POSTHOG_KEY": "",
     "POSTHOG_HOST": "",
     "POSTHOG_PROJECT_ID": "",
+    "AI_SEARCH_INDEX_ID": "",
   },
 }
