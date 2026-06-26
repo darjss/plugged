@@ -30,7 +30,12 @@ const searchQuerySchema = v.object({
   limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(50))),
 });
 
-export const app = new Elysia()
+export const app = new Elysia({
+  // Astro's Vite SSR environment blocks code generation from strings,
+  // which breaks Elysia's default JIT (AOT) compilation. Interpreted
+  // mode avoids `new Function()` / `eval` so the API works in dev.
+  aot: false,
+})
   .onError(({ error, status }) => {
     if (error instanceof DomainError) {
       return status(error.status, {
