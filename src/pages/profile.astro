@@ -1,0 +1,70 @@
+---
+import StorefrontLayout from "../layouts/StorefrontLayout.astro";
+import OrderHistory from "../components/storefront/OrderHistory.tsx";
+import LogoutButton from "../components/storefront/LogoutButton.tsx";
+import { requireUser } from "../lib/server/require-user";
+
+export const prerender = false;
+
+// Auth gate: redirect to sign-in with `next=/profile` if not logged in.
+// `requireUser` reads `Astro.locals.user` (populated by middleware) and
+// returns a Response redirect when unauthenticated.
+const user = requireUser(Astro);
+if (user instanceof Response) {
+  return user;
+}
+
+// Phone is stored as "+976XXXXXXXX" on the user record. Display as
+// "+976 XXXX XXXX" for readability.
+const phone = user.phoneNumber ?? "";
+const phoneDisplay = phone
+  ? `${phone.slice(0, 4)} ${phone.slice(4, 8)} ${phone.slice(8)}`
+  : "—";
+const phoneSuffix = phone.slice(-2) || "??";
+---
+
+<StorefrontLayout title="Профайл | Plugged" description="Таны захиалгын түүх ба профайл.">
+  <section class="mx-auto max-w-3xl px-4 py-12 md:py-16">
+    {/* Header — stamp-style title */}
+    <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="font-mono text-micro font-black uppercase tracking-[0.3em] text-ink-muted">
+          02:47 AM / your stash
+        </p>
+        <h1 class="mt-1 font-display text-5xl uppercase leading-none text-ink md:text-6xl">
+          Профайл
+        </h1>
+      </div>
+      <LogoutButton client:only="solid-js" />
+    </div>
+
+    {/* Customer card — photocopied ID card */}
+    <div class="relative mb-10 rotate-[-1deg] border-2 border-ink bg-newsprint-2 shadow-hard-lg">
+      <div class="flex items-center gap-4 border-b-2 border-ink bg-orange p-5">
+        <div class="flex size-16 items-center justify-center border-2 border-ink bg-newsprint font-display text-3xl font-black text-ink shadow-hard-sm">
+          {phoneSuffix}
+        </div>
+        <div class="flex-1">
+          <p class="font-mono text-micro font-black uppercase tracking-widest text-ink/70">
+            УТАСНЫ ДУГААР
+          </p>
+          <p class="font-mono text-xl font-black text-ink">{phoneDisplay}</p>
+        </div>
+        <div class="text-right">
+          <p class="font-mono text-micro font-black uppercase tracking-widest text-ink/70">
+            ID
+          </p>
+          <p class="font-mono text-xs font-bold text-ink">{user.id.slice(0, 8)}</p>
+        </div>
+      </div>
+    </div>
+
+    {/* Order history section */}
+    <div class="mb-4 flex items-center gap-3">
+      <div class="h-6 w-1.5 bg-orange" aria-hidden="true"></div>
+      <h2 class="font-display text-3xl uppercase text-ink">Захиалгын түүх</h2>
+    </div>
+
+    <OrderHistory client:only="solid-js" />
+  </section>
+</StorefrontLayout>

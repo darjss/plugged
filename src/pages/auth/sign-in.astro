@@ -1,0 +1,57 @@
+---
+import StorefrontLayout from "../../layouts/StorefrontLayout.astro";
+import SignInForm from "../../components/storefront/SignInForm.tsx";
+
+export const prerender = false;
+
+// If already signed in, bounce to the next destination (or homepage).
+// `Astro.locals.user` is populated by middleware for SSR routes.
+const next = Astro.url.searchParams.get("next") || "/";
+if (Astro.locals.user) {
+  return Astro.redirect(next);
+}
+---
+
+<StorefrontLayout title="Sign in | Plugged" description="Phone OTP sign in to Plugged.">
+  <section class="relative mx-auto flex min-h-[80svh] max-w-md flex-col justify-center px-4 py-16">
+    {/* Photocopied form card — torn top edge, hazard-orange stamp header */}
+    <div class="relative -rotate-1 border-2 border-ink bg-newsprint-2 shadow-hard-lg clip-torn-top">
+      {/* Stamp header */}
+      <div class="border-b-2 border-ink bg-orange p-5 text-ink">
+        <p class="font-mono text-micro font-black uppercase tracking-[0.3em]">
+          02:47 AM / no receipt no problem
+        </p>
+        <h1 class="mt-1 font-display text-4xl uppercase leading-none">Sign in</h1>
+        <p class="mt-2 font-mono text-xs font-bold uppercase tracking-wider">
+          Утсаараа нэвтэр — баталгаажуулах код илгээгдэнэ
+        </p>
+      </div>
+
+      {/* Form body */}
+      <div class="bg-tape p-5">
+        <SignInForm client:only="solid-js" next={next} />
+      </div>
+
+      {/* Footer note — marker scribble vibe */}
+      <div class="border-t-2 border-ink/30 bg-newsprint p-4">
+        <p class="text-center font-mono text-micro font-black uppercase tracking-wider text-ink-muted">
+          Нэвтрэх товчийг дарснаар та үйлчилгээний нөхцөлтэй зөвшөөрч байна
+        </p>
+      </div>
+    </div>
+
+    {/* Tape strips holding the form to the wall */}
+    <div
+      aria-hidden="true"
+      class="absolute -top-3 left-8 -rotate-3 bg-tape px-6 py-1.5 font-mono text-micro font-black uppercase tracking-widest text-ink shadow-hard-sm"
+    >
+      AUTHORIZED ENTRY
+    </div>
+    <div
+      aria-hidden="true"
+      class="absolute -right-2 top-24 rotate-6 bg-tape px-4 py-1 font-mono text-micro font-black uppercase tracking-widest text-ink shadow-hard-sm"
+    >
+      NO WINDOW SHOPPING
+    </div>
+  </section>
+</StorefrontLayout>
