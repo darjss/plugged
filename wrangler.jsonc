@@ -1,9 +1,15 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "compatibility_date": "2026-06-22",
-  "compatibility_flags": ["global_fetch_strictly_public"],
+  "compatibility_flags": ["global_fetch_strictly_public", "nodejs_compat"],
   "name": "plugged",
   "main": "@astrojs/cloudflare/entrypoints/server",
+  "routes": [
+    {
+      "pattern": "pluggedaudio.store/*",
+      "zone_name": "pluggedaudio.store",
+    },
+  ],
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
@@ -11,4 +17,28 @@
   "observability": {
     "enabled": true,
   },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "plugged",
+      "database_id": "09caab12-e654-4a09-b26b-8a43b334e616",
+      "migrations_dir": "drizzle/migrations",
+    },
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "CACHE",
+      "id": "fa4e106260994a4eac8bc41a3129dd7e",
+    },
+    {
+      "binding": "SESSION",
+      "id": "26d058168b5d44c1a8b6f0b27bdb196b",
+    },
+  ],
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      "bucket_name": "plugged",
+    },
+  ],
 }

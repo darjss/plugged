@@ -1,0 +1,1049 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Plugged Audio | Dark Room Store</title>
+    <meta
+      name="description"
+      content="A grunge rave ecommerce mock for Plugged Audio, built as a shopping experience for first-time IEM buyers."
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600;800&family=Rubik+Mono+One&display=swap");
+
+      :root {
+        color-scheme: dark;
+        --void: oklch(9% 0.018 282);
+        --void-2: oklch(13% 0.028 292);
+        --paper: oklch(88% 0.033 88);
+        --paper-dim: oklch(75% 0.04 84);
+        --ink: oklch(14% 0.012 77);
+        --ash: oklch(70% 0.02 82);
+        --orange: oklch(69% 0.245 48);
+        --acid: oklch(89% 0.205 111);
+        --pink: oklch(67% 0.28 356);
+        --cyan: oklch(72% 0.17 222);
+        --green: oklch(73% 0.18 151);
+        --red: oklch(57% 0.25 28);
+        --shadow: 0 24px 80px oklch(2% 0.02 280 / 0.72);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        overflow-x: hidden;
+        background:
+          radial-gradient(circle at var(--mx, 50%) var(--my, 30%), oklch(47% 0.25 356 / 0.22), transparent 18rem),
+          radial-gradient(circle at 78% 12%, oklch(70% 0.22 111 / 0.2), transparent 18rem),
+          linear-gradient(180deg, var(--void), oklch(7% 0.02 278) 45%, oklch(12% 0.035 20));
+        color: var(--paper);
+        font-family: Archivo, system-ui, sans-serif;
+        min-height: 100svh;
+      }
+
+      body::before,
+      body::after {
+        content: "";
+        pointer-events: none;
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+      }
+
+      body::before {
+        opacity: 0.17;
+        mix-blend-mode: screen;
+        background-image:
+          linear-gradient(transparent 0 48%, oklch(98% 0.02 90 / 0.16) 50%, transparent 54%),
+          repeating-linear-gradient(90deg, transparent 0 7px, oklch(100% 0 0 / 0.08) 8px 9px),
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+        background-size: 100% 5px, 18px 18px, 180px 180px;
+      }
+
+      body::after {
+        box-shadow: inset 0 0 9rem oklch(0% 0 0 / 0.72);
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      img {
+        display: block;
+        max-width: 100%;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .skip {
+        position: fixed;
+        left: 1rem;
+        top: -5rem;
+        z-index: 80;
+        background: var(--acid);
+        color: var(--ink);
+        padding: 0.8rem 1rem;
+        font-weight: 800;
+      }
+
+      .skip:focus {
+        top: 1rem;
+      }
+
+      .nav {
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 0;
+        z-index: 40;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.9rem clamp(1rem, 3vw, 2rem);
+        color: var(--paper);
+        mix-blend-mode: difference;
+      }
+
+      .brand {
+        font-family: "Archivo Black", Impact, sans-serif;
+        letter-spacing: 0;
+        font-size: clamp(1rem, 2.2vw, 1.55rem);
+        line-height: 0.9;
+        text-transform: uppercase;
+      }
+
+      .nav__links {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(0.65rem, 2vw, 1.6rem);
+        font-size: 0.73rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .nav__cart {
+        justify-self: end;
+        border: 2px solid currentColor;
+        border-radius: 999px;
+        padding: 0.48rem 0.7rem;
+        font-size: 0.73rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .hero {
+        position: relative;
+        min-height: 100svh;
+        display: grid;
+        align-items: end;
+        padding: clamp(5rem, 10vw, 8rem) clamp(1rem, 4vw, 3rem) clamp(2rem, 5vw, 4rem);
+        isolation: isolate;
+      }
+
+      .hero__image {
+        position: absolute;
+        inset: 0;
+        z-index: -3;
+      }
+
+      .hero__image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: grayscale(1) contrast(1.55) brightness(0.62);
+        transform: scale(1.05);
+      }
+
+      .hero__image::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(90deg, oklch(0% 0 0 / 0.82), transparent 58%),
+          linear-gradient(0deg, var(--void), transparent 46%),
+          repeating-radial-gradient(circle at 70% 36%, oklch(100% 0 0 / 0.08) 0 1px, transparent 1px 7px);
+        mix-blend-mode: multiply;
+      }
+
+      .hero__poster {
+        max-width: 78rem;
+      }
+
+      .kicker {
+        display: inline-block;
+        margin: 0 0 1rem;
+        padding: 0.42rem 0.58rem;
+        background: var(--orange);
+        color: var(--ink);
+        font-weight: 900;
+        text-transform: uppercase;
+        transform: rotate(-2deg);
+        box-shadow: 8px 8px 0 var(--pink);
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        max-width: 12ch;
+        font-family: "Rubik Mono One", "Archivo Black", Impact, sans-serif;
+        font-size: clamp(3rem, 13.8vw, 13rem);
+        line-height: 0.77;
+        letter-spacing: 0;
+        text-transform: uppercase;
+        text-wrap: balance;
+      }
+
+      .hero__copy {
+        display: grid;
+        grid-template-columns: minmax(0, 32rem) auto;
+        align-items: end;
+        gap: clamp(1rem, 5vw, 5rem);
+        margin-top: clamp(1rem, 4vw, 2.5rem);
+      }
+
+      .hero__copy p {
+        color: var(--ash);
+        font-size: clamp(1rem, 1.7vw, 1.35rem);
+        line-height: 1.45;
+        max-width: 36rem;
+      }
+
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+
+      .btn {
+        display: inline-flex;
+        min-height: 3.15rem;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--paper);
+        background: var(--paper);
+        color: var(--ink);
+        padding: 0.85rem 1rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        box-shadow: 7px 7px 0 var(--orange);
+        transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+      }
+
+      .btn:hover {
+        transform: translate(-3px, -3px) rotate(-1deg);
+        box-shadow: 12px 12px 0 var(--pink);
+        background: var(--acid);
+      }
+
+      .btn--ghost {
+        background: transparent;
+        color: var(--paper);
+        box-shadow: 7px 7px 0 oklch(100% 0 0 / 0.14);
+      }
+
+      .ticker {
+        overflow: hidden;
+        border-block: 2px solid var(--paper);
+        background: var(--acid);
+        color: var(--ink);
+        font-family: "Archivo Black", Impact, sans-serif;
+        text-transform: uppercase;
+      }
+
+      .ticker__track {
+        display: flex;
+        width: max-content;
+        animation: crawl 24s linear infinite;
+      }
+
+      .ticker span {
+        padding: 0.72rem 1.5rem;
+        white-space: nowrap;
+      }
+
+      main {
+        position: relative;
+      }
+
+      section {
+        position: relative;
+        padding: clamp(5rem, 10vw, 10rem) clamp(1rem, 4vw, 3rem);
+      }
+
+      .section-head {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(18rem, 32rem);
+        gap: clamp(1rem, 6vw, 6rem);
+        align-items: end;
+        margin-bottom: clamp(2rem, 6vw, 5rem);
+      }
+
+      .section-head h2 {
+        font-family: "Archivo Black", Impact, sans-serif;
+        font-size: clamp(3rem, 9vw, 8rem);
+        line-height: 0.82;
+        text-transform: uppercase;
+        max-width: 9ch;
+      }
+
+      .section-head p {
+        color: var(--ash);
+        line-height: 1.6;
+      }
+
+      .signal-room {
+        background:
+          linear-gradient(110deg, oklch(9% 0.03 285), oklch(18% 0.06 346) 50%, oklch(8% 0.03 265)),
+          var(--void-2);
+      }
+
+      .tuner {
+        display: grid;
+        grid-template-columns: minmax(16rem, 0.72fr) minmax(18rem, 1fr);
+        gap: clamp(1.5rem, 4vw, 4rem);
+        align-items: stretch;
+      }
+
+      .tuner__panel {
+        display: grid;
+        gap: 0.85rem;
+        align-content: start;
+        padding: clamp(1rem, 3vw, 2rem);
+        background: var(--paper);
+        color: var(--ink);
+        clip-path: polygon(0 2%, 99% 0, 97% 95%, 5% 100%);
+        box-shadow: var(--shadow);
+      }
+
+      .mode {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 1rem;
+        border: 2px solid var(--ink);
+        background: oklch(95% 0.035 93);
+        padding: 0.9rem;
+        min-height: 4.2rem;
+        cursor: pointer;
+        transition: transform 160ms ease, background 160ms ease;
+      }
+
+      .mode:hover {
+        transform: translateX(0.35rem) rotate(-0.5deg);
+        background: var(--acid);
+      }
+
+      .mode strong {
+        display: block;
+        font-size: 1.05rem;
+        text-transform: uppercase;
+      }
+
+      .mode small {
+        color: oklch(32% 0.02 80);
+        line-height: 1.35;
+      }
+
+      .mode b {
+        display: grid;
+        width: 3.2rem;
+        aspect-ratio: 1;
+        place-items: center;
+        background: var(--ink);
+        color: var(--paper);
+        border-radius: 50%;
+        font-size: 0.8rem;
+      }
+
+      .tuner__stage {
+        min-height: 31rem;
+        position: relative;
+        overflow: hidden;
+        border: 2px solid oklch(92% 0.02 90 / 0.4);
+        background:
+          linear-gradient(180deg, oklch(100% 0 0 / 0.04), transparent),
+          repeating-linear-gradient(0deg, transparent 0 38px, oklch(100% 0 0 / 0.08) 39px 40px),
+          oklch(7% 0.025 290);
+      }
+
+      .wave {
+        position: absolute;
+        inset: 12% -8% auto;
+        height: 58%;
+        background:
+          linear-gradient(90deg, transparent, var(--cyan), transparent),
+          repeating-linear-gradient(90deg, transparent 0 2.2rem, oklch(100% 0 0 / 0.1) 2.25rem 2.45rem);
+        clip-path: polygon(0 52%, 6% 42%, 12% 60%, 18% 24%, 24% 72%, 30% 46%, 36% 52%, 42% 18%, 48% 78%, 54% 40%, 60% 56%, 66% 26%, 72% 74%, 78% 50%, 84% 58%, 90% 34%, 100% 54%, 100% 100%, 0 100%);
+        opacity: 0.78;
+        filter: blur(0.5px) drop-shadow(0 0 22px var(--cyan));
+        animation: pulse 4s ease-in-out infinite;
+      }
+
+      .stage-copy {
+        position: absolute;
+        left: clamp(1rem, 3vw, 2rem);
+        bottom: clamp(1rem, 3vw, 2rem);
+        max-width: 30rem;
+      }
+
+      .stage-copy h3 {
+        font-family: "Archivo Black", Impact, sans-serif;
+        font-size: clamp(2rem, 5vw, 5rem);
+        line-height: 0.86;
+        text-transform: uppercase;
+      }
+
+      .stage-copy p {
+        margin-top: 1rem;
+        color: var(--ash);
+        line-height: 1.55;
+      }
+
+      .drop-wall {
+        background:
+          linear-gradient(180deg, oklch(8% 0.025 285), oklch(18% 0.05 35)),
+          var(--void);
+      }
+
+      .products {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: clamp(1rem, 2vw, 1.6rem);
+        align-items: start;
+      }
+
+      .product {
+        position: relative;
+        display: grid;
+        min-height: 28rem;
+        overflow: hidden;
+        isolation: isolate;
+        background: var(--paper);
+        color: var(--ink);
+        box-shadow: var(--shadow);
+        clip-path: polygon(1% 0, 100% 3%, 97% 96%, 2% 100%);
+        transform: rotate(var(--r, 0deg));
+        transition: transform 180ms ease, filter 180ms ease;
+      }
+
+      .product:hover {
+        transform: rotate(0deg) translateY(-0.6rem);
+        filter: saturate(1.18);
+      }
+
+      .product:nth-child(1) {
+        --r: -1.2deg;
+        grid-column: span 5;
+      }
+
+      .product:nth-child(2) {
+        --r: 1deg;
+        grid-column: span 4;
+        margin-top: 4rem;
+      }
+
+      .product:nth-child(3) {
+        --r: -0.5deg;
+        grid-column: span 3;
+        margin-top: 1.4rem;
+      }
+
+      .product:nth-child(4) {
+        --r: 0.8deg;
+        grid-column: 3 / span 6;
+        margin-top: 1rem;
+      }
+
+      .product__photo {
+        position: absolute;
+        inset: 0;
+        z-index: -2;
+      }
+
+      .product__photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: grayscale(1) contrast(1.35);
+        mix-blend-mode: multiply;
+        opacity: 0.74;
+        transition: filter 180ms ease, opacity 180ms ease, transform 180ms ease;
+      }
+
+      .product:hover img {
+        filter: grayscale(0) contrast(1.08);
+        opacity: 0.94;
+        transform: scale(1.04);
+      }
+
+      .product::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background:
+          linear-gradient(0deg, var(--paper) 0 26%, transparent 62%),
+          repeating-radial-gradient(circle at 22% 22%, oklch(0% 0 0 / 0.2) 0 1px, transparent 1px 6px);
+      }
+
+      .product__meta {
+        align-self: end;
+        display: grid;
+        gap: 0.75rem;
+        padding: 1.2rem;
+      }
+
+      .tagline {
+        width: fit-content;
+        padding: 0.32rem 0.45rem;
+        background: var(--pink);
+        color: var(--ink);
+        font-size: 0.72rem;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .product h3 {
+        font-family: "Archivo Black", Impact, sans-serif;
+        font-size: clamp(1.9rem, 4vw, 3.8rem);
+        line-height: 0.85;
+        text-transform: uppercase;
+      }
+
+      .product__line {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.65rem;
+      }
+
+      .price {
+        font-family: "Rubik Mono One", monospace;
+        font-size: 1rem;
+        background: var(--ink);
+        color: var(--paper);
+        padding: 0.45rem 0.55rem;
+      }
+
+      .sound {
+        font-size: 0.8rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .cart-button {
+        justify-self: start;
+        border: 2px solid var(--ink);
+        background: var(--acid);
+        color: var(--ink);
+        padding: 0.75rem 0.9rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: transform 160ms ease, background 160ms ease;
+      }
+
+      .cart-button:hover {
+        transform: rotate(1deg) translateY(-0.18rem);
+        background: var(--orange);
+      }
+
+      .ritual {
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 18% 38%, oklch(70% 0.26 48 / 0.26), transparent 18rem),
+          radial-gradient(circle at 78% 60%, oklch(76% 0.2 222 / 0.2), transparent 20rem),
+          oklch(8% 0.03 285);
+      }
+
+      .ritual__grid {
+        display: grid;
+        grid-template-columns: 0.85fr 1.15fr;
+        gap: clamp(2rem, 6vw, 6rem);
+        align-items: center;
+      }
+
+      .receipt {
+        background: var(--paper);
+        color: var(--ink);
+        padding: clamp(1.2rem, 3vw, 2.2rem);
+        clip-path: polygon(0 0, 100% 1%, 98% 93%, 92% 95%, 86% 93%, 80% 96%, 74% 93%, 68% 96%, 62% 93%, 56% 96%, 50% 93%, 44% 96%, 38% 93%, 32% 96%, 26% 93%, 20% 96%, 14% 93%, 8% 96%, 2% 93%);
+        box-shadow: 18px 18px 0 var(--orange), var(--shadow);
+        transform: rotate(-2deg);
+      }
+
+      .receipt h2 {
+        font-family: "Archivo Black", Impact, sans-serif;
+        font-size: clamp(2.5rem, 7vw, 6rem);
+        line-height: 0.82;
+        text-transform: uppercase;
+      }
+
+      .receipt p {
+        margin-top: 1rem;
+        color: oklch(28% 0.018 80);
+        line-height: 1.55;
+      }
+
+      .receipt ol {
+        display: grid;
+        gap: 0.65rem;
+        margin: 1.4rem 0 0;
+        padding: 0;
+        list-style: none;
+        counter-reset: steps;
+      }
+
+      .receipt li {
+        counter-increment: steps;
+        display: grid;
+        grid-template-columns: 2.2rem 1fr;
+        gap: 0.75rem;
+        align-items: center;
+        border-top: 2px dashed oklch(18% 0.015 80 / 0.5);
+        padding-top: 0.65rem;
+        font-weight: 800;
+      }
+
+      .receipt li::before {
+        content: counter(steps);
+        display: grid;
+        place-items: center;
+        width: 2rem;
+        aspect-ratio: 1;
+        background: var(--ink);
+        color: var(--paper);
+        border-radius: 50%;
+      }
+
+      .checkout {
+        display: grid;
+        min-height: 36rem;
+        align-content: end;
+        padding: clamp(1rem, 3vw, 2rem);
+        border: 2px solid oklch(91% 0.03 90 / 0.42);
+        background:
+          linear-gradient(180deg, transparent, oklch(0% 0 0 / 0.78)),
+          url("https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1600&q=80") center / cover;
+        box-shadow: var(--shadow);
+      }
+
+      .checkout__stamp {
+        width: fit-content;
+        margin-bottom: 1rem;
+        border: 3px solid var(--pink);
+        color: var(--pink);
+        padding: 0.4rem 0.55rem;
+        font-family: "Archivo Black", Impact, sans-serif;
+        text-transform: uppercase;
+        transform: rotate(5deg);
+      }
+
+      .checkout h3 {
+        max-width: 11ch;
+        font-family: "Rubik Mono One", "Archivo Black", Impact, sans-serif;
+        font-size: clamp(2.4rem, 7vw, 6.5rem);
+        line-height: 0.83;
+        text-transform: uppercase;
+      }
+
+      .checkout p {
+        margin-top: 1rem;
+        max-width: 31rem;
+        color: var(--ash);
+        line-height: 1.55;
+      }
+
+      .footer {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 1rem;
+        padding: 1.25rem clamp(1rem, 4vw, 3rem);
+        border-top: 2px solid oklch(90% 0.03 90 / 0.24);
+        color: var(--ash);
+        font-size: 0.8rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      @keyframes crawl {
+        to {
+          transform: translateX(-50%);
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: translateX(-1%) scaleY(0.92);
+          opacity: 0.58;
+        }
+        50% {
+          transform: translateX(1%) scaleY(1.06);
+          opacity: 0.9;
+        }
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        .hero__poster,
+        .section-head,
+        .tuner,
+        .product,
+        .ritual__grid {
+          animation: enter 760ms cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .product:nth-child(2) {
+          animation-delay: 80ms;
+        }
+
+        .product:nth-child(3) {
+          animation-delay: 150ms;
+        }
+
+        .product:nth-child(4) {
+          animation-delay: 220ms;
+        }
+      }
+
+      @keyframes enter {
+        from {
+          opacity: 0;
+          transform: translateY(2rem) rotate(-2deg);
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @media (max-width: 820px) {
+        .nav {
+          grid-template-columns: 1fr auto;
+        }
+
+        .nav__links {
+          display: none;
+        }
+
+        .hero {
+          min-height: 92svh;
+        }
+
+        .hero__copy,
+        .section-head,
+        .tuner,
+        .ritual__grid {
+          grid-template-columns: 1fr;
+        }
+
+        .hero__copy {
+          align-items: start;
+        }
+
+        .products {
+          grid-template-columns: 1fr;
+        }
+
+        .product,
+        .product:nth-child(1),
+        .product:nth-child(2),
+        .product:nth-child(3),
+        .product:nth-child(4) {
+          grid-column: auto;
+          margin-top: 0;
+          min-height: 31rem;
+        }
+
+        .footer {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 520px) {
+        .brand {
+          font-size: 0.95rem;
+        }
+
+        h1 {
+          font-size: clamp(2.65rem, 17vw, 5rem);
+        }
+
+        .cta-row {
+          display: grid;
+        }
+
+        .btn {
+          width: 100%;
+        }
+
+        .tuner__stage {
+          min-height: 26rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip" href="#shop">Skip to shop</a>
+    <nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="#">Plugged<br />Audio</a>
+      <div class="nav__links" aria-label="Store sections">
+        <a href="#tune">Tune</a>
+        <a href="#shop">Drops</a>
+        <a href="#ritual">Ritual</a>
+      </div>
+      <a class="nav__cart" href="#ritual">Cart 04</a>
+    </nav>
+
+    <header class="hero">
+      <div class="hero__image" aria-hidden="true">
+        <img
+          src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=2000&q=80"
+          alt=""
+        />
+      </div>
+      <div class="hero__poster">
+        <p class="kicker">midnight stock, no gatekeeping</p>
+        <h1>Shop With Your Eyes Closed</h1>
+        <div class="hero__copy">
+          <p>
+            Curated IEMs for the walk home after the room goes black. Pick by pressure,
+            sweat, vocals, bass, and the exact kind of damage you want from a song.
+          </p>
+          <div class="cta-row">
+            <a class="btn" href="#tune">Enter the sound room</a>
+            <a class="btn btn--ghost" href="#shop">Open the drop</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="ticker" aria-label="Store notes">
+      <div class="ticker__track">
+        <span>sealed tips</span><span>2am dispatch</span><span>first iem friendly</span><span>no forum homework</span>
+        <span>sealed tips</span><span>2am dispatch</span><span>first iem friendly</span><span>no forum homework</span>
+      </div>
+    </div>
+
+    <main>
+      <section class="signal-room" id="tune" aria-labelledby="tune-title">
+        <div class="section-head">
+          <h2 id="tune-title">Tune By Feeling</h2>
+          <p>
+            Specs are still here, but they enter through the side door. Start with the
+            scene in your head and let the store narrow the room.
+          </p>
+        </div>
+
+        <div class="tuner">
+          <div class="tuner__panel" aria-label="Listening modes">
+            <button class="mode" type="button">
+              <span><strong>Bedroom Static</strong><small>soft vocals, late messages, no sharp edges</small></span>
+              <b>01</b>
+            </button>
+            <button class="mode" type="button">
+              <span><strong>Warehouse Pulse</strong><small>sub pressure, fast percussion, black hoodie heat</small></span>
+              <b>02</b>
+            </button>
+            <button class="mode" type="button">
+              <span><strong>Ranked Match</strong><small>footsteps forward, explosions controlled, focus intact</small></span>
+              <b>03</b>
+            </button>
+            <button class="mode" type="button">
+              <span><strong>Vocal Shrapnel</strong><small>bright hooks, beautiful distortion, main character pain</small></span>
+              <b>04</b>
+            </button>
+          </div>
+
+          <div class="tuner__stage" aria-label="Selected sound profile visualization">
+            <div class="wave" aria-hidden="true"></div>
+            <div class="stage-copy">
+              <h3>Warehouse Pulse</h3>
+              <p>
+                More slam than sparkle. For bass that hits your ribs without burying the
+                vocal, and for tracks that feel better when the room is almost too much.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="drop-wall" id="shop" aria-labelledby="shop-title">
+        <div class="section-head">
+          <h2 id="shop-title">Tonight's Drop</h2>
+          <p>
+            Four ways in. Each one is a complete starter setup, edited for a specific
+            listener instead of dumped into a grid.
+          </p>
+        </div>
+
+        <div class="products">
+          <article class="product">
+            <div class="product__photo">
+              <img
+                src="https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=1200&q=80"
+                alt="Close-up of wired earphones on a dark surface"
+              />
+            </div>
+            <div class="product__meta">
+              <span class="tagline">best first hit</span>
+              <h3>Zero Red Starter Pack</h3>
+              <div class="product__line">
+                <span class="price">$54</span>
+                <span class="sound">warm bass · smooth vocal · safe treble</span>
+              </div>
+              <button class="cart-button" type="button">Add to ritual</button>
+            </div>
+          </article>
+
+          <article class="product">
+            <div class="product__photo">
+              <img
+                src="https://images.unsplash.com/photo-1545127398-14699f92334b?auto=format&fit=crop&w=1200&q=80"
+                alt="Earbuds and audio cable photographed on fabric"
+              />
+            </div>
+            <div class="product__meta">
+              <span class="tagline">for chaos pop</span>
+              <h3>Glass Bite Set</h3>
+              <div class="product__line">
+                <span class="price">$79</span>
+                <span class="sound">bright edge · fast drums · vocal cut</span>
+              </div>
+              <button class="cart-button" type="button">Add to ritual</button>
+            </div>
+          </article>
+
+          <article class="product">
+            <div class="product__photo">
+              <img
+                src="https://images.unsplash.com/photo-1484704849700-f032a568e944?auto=format&fit=crop&w=1200&q=80"
+                alt="Headphones in low light with a cable beside them"
+              />
+            </div>
+            <div class="product__meta">
+              <span class="tagline">queue this</span>
+              <h3>Night Bus DAC</h3>
+              <div class="product__line">
+                <span class="price">$29</span>
+                <span class="sound">phone power · cleaner floor · pocket tiny</span>
+              </div>
+              <button class="cart-button" type="button">Add to ritual</button>
+            </div>
+          </article>
+
+          <article class="product">
+            <div class="product__photo">
+              <img
+                src="https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?auto=format&fit=crop&w=1400&q=80"
+                alt="Black headphones and audio accessories arranged on a table"
+              />
+            </div>
+            <div class="product__meta">
+              <span class="tagline">full lock-in</span>
+              <h3>Closed Eye Bundle</h3>
+              <div class="product__line">
+                <span class="price">$118</span>
+                <span class="sound">iem · dac · foam tips · carry case</span>
+              </div>
+              <button class="cart-button" type="button">Add to ritual</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="ritual" id="ritual" aria-labelledby="ritual-title">
+        <div class="ritual__grid">
+          <div class="receipt">
+            <h2 id="ritual-title">Checkout Is A Ritual</h2>
+            <p>
+              The store remembers the room you chose. Your cart becomes a listening kit,
+              not a random pile of SKUs.
+            </p>
+            <ol>
+              <li>Pick a sound room.</li>
+              <li>Choose one drop or bundle.</li>
+              <li>Get fit notes, tip size, and the first three tracks to test.</li>
+              <li>Leave with better sound before the next night starts.</li>
+            </ol>
+          </div>
+
+          <div class="checkout">
+            <div class="checkout__stamp">ready when the lights cut</div>
+            <h3>Wear The Track</h3>
+            <p>
+              Affordable IEMs, chosen like clothes and explained like a friend who already
+              made every expensive mistake.
+            </p>
+            <div class="cta-row" style="margin-top: 1.4rem">
+              <a class="btn" href="#shop">Build my kit</a>
+              <a class="btn btn--ghost" href="#tune">Retune</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>Plugged Audio mock storefront</span>
+      <span>raw · honest · plugged-in</span>
+    </footer>
+
+    <script>
+      const root = document.documentElement;
+      window.addEventListener(
+        "pointermove",
+        (event) => {
+          root.style.setProperty("--mx", `${event.clientX}px`);
+          root.style.setProperty("--my", `${event.clientY}px`);
+        },
+        { passive: true },
+      );
+
+      const modes = document.querySelectorAll(".mode");
+      const stageTitle = document.querySelector(".stage-copy h3");
+      const stageBody = document.querySelector(".stage-copy p");
+      const profiles = [
+        [
+          "Bedroom Static",
+          "Soft upper mids, rounded bass, no ice-pick treble. For songs you play too quietly because the lyrics know too much.",
+        ],
+        [
+          "Warehouse Pulse",
+          "More slam than sparkle. For bass that hits your ribs without burying the vocal, and for tracks that feel better when the room is almost too much.",
+        ],
+        [
+          "Ranked Match",
+          "A clean center image with footstep clarity and controlled explosions. The set for late queue discipline.",
+        ],
+        [
+          "Vocal Shrapnel",
+          "Forward hooks, fast edges, and a little beautiful pain. For chaos pop that should feel like broken glass catching light.",
+        ],
+      ];
+
+      modes.forEach((mode, index) => {
+        mode.addEventListener("click", () => {
+          stageTitle.textContent = profiles[index][0];
+          stageBody.textContent = profiles[index][1];
+        });
+      });
+    </script>
+  </body>
+</html>

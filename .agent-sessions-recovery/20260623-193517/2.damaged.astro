@@ -1,0 +1,1014 @@
+---
+const products = [
+  {
+    name: "CHU II",
+    full: "MOONDROP CHU II",
+    price: "$19",
+    note: "cheap metal trouble",
+    image:
+      "https://cn.cdn.moondroplab.com/627128d862c9a44234848dda/64a67decb6354a3471c0d4cd_CHU2.jpg",
+  },
+  {
+    name: "ZERO:2",
+    full: "7Hz Zero:2",
+    price: "$24",
+    note: "wet concrete bass",
+    image:
+      "https://www.theaudiostore.in/cdn/shop/files/7hz-x-crinacle-zero-2-iem-with-mic-orange-44271691333887.webp?v=1744393797&width=900",
+  },
+  {
+    name: "BELLE",
+    full: "Kiwi Ears Belle",
+    price: "$30",
+    note: "black shell sleeper",
+    image:
+      "https://kiwiears.com/cdn/shop/files/KiwiEarsBelle_2_08949fc3-017c-4815-a6cb-8caa6ad6a52f.jpg?v=1773412066&width=1200",
+  },
+  {
+    name: "ZERO:RED",
+    full: "TRUTHEAR Zero:Red",
+    price: "$55",
+    note: "red line pressure",
+    image:
+      "https://prom.ua/img/2458303318_w640_h640_vnutrikanalnye-iem-naushniki.jpg",
+  },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Plugged variation two: a lived-in grungy underground IEM store with Three.js and collage texture."
+    />
+    <title>PLUGGED / 2</title>
+  </head>
+  <body>
+    <main class="room" data-room>
+      <canvas id="iem-canvas" aria-hidden="true"></canvas>
+      <div class="lamp" aria-hidden="true"></div>
+      <div class="rot" aria-hidden="true"></div>
+      <div class="trash" aria-hidden="true">
+        <span class="paper-sheet ps1"></span>
+        <span class="paper-sheet ps2"></span>
+        <span class="paper-sheet ps3"></span>
+        <span class="paper-sheet ps4"></span>
+        <span class="tear t1">listening room</span>
+        <span class="tear t2">wired audio</span>
+        <span class="tear t3">demo units</span>
+        <span class="tear t4">PLUGGED PLUGGED PLUGGED</span>
+        <span class="tear t5">old stock</span>
+        <span class="scratch s1">seal test</span>
+        <span class="scratch s2">low gain</span>
+        <span class="scratch s3">medium tips</span>
+      </div>
+
+      <a class="corner-logo" href="/" aria-label="Plugged home">
+        <img src="/logo.png" alt="" />
+      </a>
+
+      <section class="poster" aria-labelledby="hero-title">
+        <div class="word-block">
+          <p>drop 002 / wired in-ear monitors</p>
+          <h1 id="hero-title" data-word="PLUGGED">PLUGGED</h1>
+        </div>
+        <p class="rant">
+          Wired in-ear monitors, cables, and tips. A rough catalog for small
+          audio pieces with real weight.
+        </p>
+        <a class="crawl-link" href="#mess">view stock</a>
+      </section>
+
+      <section class="mess" id="mess" aria-label="Product pile">
+        {
+          products.map((product, index) => (
+            <article class={`scrap p${index + 1}`} style={`--i:${index}`}>
+              <button class="scrap-button" type="button" data-product>
+                <span class="tape"></span>
+                <span class="photo">
+                  <img
+                    src={product.image}
+                    alt={`${product.full} product photo`}
+                    loading={index === 0 ? "eager" : "lazy"}
+                  />
+                </span>
+                <span class="label">
+                  <small>{product.note}</small>
+                  <strong>{product.name}</strong>
+                  <em>{product.price}</em>
+                </span>
+                <span class="hand">{index % 2 ? "keep" : "take"}</span>
+              </button>
+            </article>
+          ))
+        }
+
+        <div class="receipt">
+          <img src="/logo.png" alt="" />
+          <p>bag check</p>
+          <strong>4 items</strong>
+          <span>tested stock, limited quantities.</span>
+        </div>
+      </section>
+
+      <section class="underpass" aria-labelledby="underpass-title">
+        <h2 id="underpass-title">Fit, cable, seal, source.</h2>
+        <div class="columns">
+          <p>foam tips</p>
+          <p>replaceable cable</p>
+          <p>metal shell</p>
+          <p>portable source</p>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <img src="/logo.png" alt="" />
+        <div>
+          <span>PLUGGED AUDIO SUPPLY</span>
+          <strong>IN-EAR MONITORS / CABLES / TIPS</strong>
+        </div>
+      </footer>
+    </main>
+
+    <script is:inline type="module">
+      import * as THREE from "https://esm.sh/three@0.167.1";
+
+      const canvas = document.querySelector("#iem-canvas");
+      const room = document.querySelector("[data-room]");
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      const pointer = new THREE.Vector2(0, 0);
+      const group = new THREE.Group();
+      scene.add(group);
+      camera.position.set(0, 0.2, 13);
+
+      const shellMat = new THREE.MeshStandardMaterial({
+        color: "#090909",
+        roughness: 0.62,
+        metalness: 0.18,
+      });
+      const faceMat = new THREE.MeshStandardMaterial({
+        color: "#c94f28",
+        roughness: 0.54,
+        metalness: 0.26,
+      });
+      const wireMat = new THREE.MeshStandardMaterial({
+        color: "#d9d0bf",
+        roughness: 0.62,
+        metalness: 0.4,
+      });
+      const tipMat = new THREE.MeshStandardMaterial({
+        color: "#1a1a18",
+        roughness: 0.92,
+        metalness: 0.04,
+      });
+      const pinMat = new THREE.MeshStandardMaterial({
+        color: "#d9d0bf",
+        roughness: 0.34,
+        metalness: 0.72,
+      });
+      const bruiseMat = new THREE.MeshBasicMaterial({
+        color: "#607080",
+        transparent: true,
+        opacity: 0.16,
+        side: THREE.DoubleSide,
+      });
+
+      function roundedIemShape() {
+        const shape = new THREE.Shape();
+        shape.moveTo(-0.82, 0.12);
+        shape.bezierCurveTo(-0.72, 0.78, -0.22, 1.02, 0.38, 0.88);
+        shape.bezierCurveTo(0.96, 0.75, 1.18, 0.28, 0.98, -0.22);
+        shape.bezierCurveTo(0.84, -0.62, 0.44, -0.86, -0.08, -0.9);
+        shape.bezierCurveTo(-0.6, -0.94, -0.98, -0.58, -1.02, -0.12);
+        shape.bezierCurveTo(-1.04, 0.02, -0.96, 0.09, -0.82, 0.12);
+        return shape;
+      }
+
+      function addLogoBurst(parent, side) {
+        const mark = new THREE.Group();
+        const lineMat = new THREE.MeshBasicMaterial({ color: "#ded4c1" });
+        for (let i = 0; i < 8; i += 1) {
+          const ray = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.025, 0.012), lineMat);
+          ray.position.set(Math.cos(i * Math.PI / 4) * 0.22, Math.sin(i * Math.PI / 4) * 0.22, 0.014);
+          ray.rotation.z = i * Math.PI / 4;
+          mark.add(ray);
+        }
+        mark.scale.set(0.56, 0.56, 0.56);
+        mark.position.set(side * 0.1, 0.02, 0.116);
+        parent.add(mark);
+      }
+
+      function shell(side) {
+        const g = new THREE.Group();
+        const shellShape = roundedIemShape();
+        const faceShape = roundedIemShape();
+        const body = new THREE.Mesh(
+          new THREE.ExtrudeGeometry(shellShape, {
+            depth: 0.42,
+            bevelEnabled: true,
+            bevelSegments: 8,
+            bevelSize: 0.08,
+            bevelThickness: 0.08,
+          }),
+          shellMat,
+        );
+        body.scale.set(side, 1, 1);
+        body.position.z = -0.28;
+
+        const faceplate = new THREE.Mesh(
+          new THREE.ExtrudeGeometry(faceShape, {
+            depth: 0.08,
+            bevelEnabled: true,
+            bevelSegments: 5,
+            bevelSize: 0.035,
+            bevelThickness: 0.035,
+          }),
+          faceMat,
+        );
+        faceplate.scale.set(side * 0.82, 0.82, 1);
+        faceplate.position.set(side * 0.02, 0, 0.17);
+        addLogoBurst(faceplate, side);
+
+        const rim = new THREE.Mesh(
+          new THREE.TorusGeometry(0.74, 0.018, 8, 80),
+          pinMat,
+        );
+        rim.scale.set(1.24, 0.9, 0.2);
+        rim.position.set(side * 0.02, 0.02, 0.24);
+        rim.rotation.z = side * -0.05;
+
+        const socketBar = new THREE.Mesh(new THREE.BoxGeometry(0.54, 0.16, 0.14), shellMat);
+        socketBar.position.set(side * -0.62, 0.68, 0.03);
+        socketBar.rotation.z = side * -0.28;
+
+        for (let i = 0; i < 2; i += 1) {
+          const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.22, 12), pinMat);
+          pin.position.set(side * (-0.7 + i * 0.13), 0.72 - i * 0.02, 0.14);
+          pin.rotation.x = Math.PI / 2;
+          g.add(pin);
+        }
+
+        const relief = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.52, 14), wireMat);
+        relief.position.set(side * -0.86, 0.86, 0.08);
+        relief.rotation.set(Math.PI / 2, 0, side * 0.78);
+
+        const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.24, 0.82, 24), shellMat);
+        nozzle.position.set(side * 0.92, -0.35, -0.08);
+        nozzle.rotation.set(0.08, side * 0.28, Math.PI / 2 + side * 0.14);
+
+        const mesh = new THREE.Mesh(new THREE.CylinderGeometry(0.145, 0.145, 0.018, 24), pinMat);
+        mesh.position.set(side * 1.28, -0.42, -0.12);
+        mesh.rotation.z = Math.PI / 2;
+
+        const tip = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.42, 0.46, 28), tipMat);
+        tip.position.set(side * 1.46, -0.48, -0.14);
+        tip.rotation.set(0.08, side * 0.28, Math.PI / 2 + side * 0.14);
+
+        const bore = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.025, 24), shellMat);
+        bore.position.set(side * 1.66, -0.52, -0.16);
+        bore.rotation.z = Math.PI / 2;
+
+        g.add(body, faceplate, rim, socketBar, relief, nozzle, mesh, tip, bore);
+        g.rotation.set(0.14, side * 0.28, side * -0.34);
+        return g;
+      }
+
+      const left = shell(-1);
+      left.position.set(-1.75, 0.28, 0);
+      const right = shell(1);
+      right.position.set(1.55, -0.32, -0.18);
+      right.rotation.z = 0.5;
+      group.add(left, right);
+
+      const curve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-2.6, 1.18, 0.05),
+        new THREE.Vector3(-4.6, 3.0, -1.1),
+        new THREE.Vector3(-2.2, 4.5, -2),
+        new THREE.Vector3(0.8, 3.55, -1.4),
+        new THREE.Vector3(4.5, 2.7, -1.2),
+        new THREE.Vector3(2.42, 0.48, -0.08),
+      ]);
+      group.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 180, 0.035, 8), wireMat));
+
+      for (let i = 0; i < 22; i += 1) {
+        const scrap = new THREE.Mesh(
+          new THREE.PlaneGeometry(1.2 + (i % 4) * 0.45, 0.35 + (i % 2) * 0.16),
+          bruiseMat,
+        );
+        scrap.position.set((i % 7) * 1.9 - 6.1, Math.sin(i * 1.35) * 3.4, -3.6 - i * 0.16);
+        scrap.rotation.set(i * 0.23, i * 0.17, i * 0.51);
+        group.add(scrap);
+      }
+
+      scene.add(new THREE.AmbientLight("#d9d0bf", 0.58));
+      const key = new THREE.DirectionalLight("#e0d7c4", 2.4);
+      key.position.set(5, 7, 7);
+      scene.add(key);
+      const sideLight = new THREE.PointLight("#c94f28", 20, 20);
+      sideLight.position.set(-4.5, -1.2, 4.8);
+      scene.add(sideLight);
+
+      function size() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.7));
+        renderer.setSize(width, height, false);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+      }
+
+      function frame(ms) {
+        const t = ms * 0.001;
+        group.rotation.x = Math.sin(t * 0.42) * 0.12 + pointer.y * 0.14;
+        group.rotation.y = Math.sin(t * 0.22) * 0.24 + pointer.x * 0.34;
+        group.rotation.z = Math.sin(t * 0.33) * 0.08;
+        left.rotation.y = Math.sin(t * 0.9) * 0.1;
+        right.rotation.x = Math.cos(t * 0.82) * 0.1;
+        renderer.render(scene, camera);
+        requestAnimationFrame(frame);
+      }
+
+      window.addEventListener("resize", size);
+      window.addEventListener(
+        "pointermove",
+        (event) => {
+          pointer.x = (event.clientX / window.innerWidth - 0.5) * 2;
+          pointer.y = -(event.clientY / window.innerHeight - 0.5) * 2;
+          room.style.setProperty("--mx", `${event.clientX}px`);
+          room.style.setProperty("--my", `${event.clientY}px`);
+        },
+        { passive: true },
+      );
+
+      document.querySelectorAll("[data-product]").forEach((button) => {
+        button.addEventListener("pointermove", (event) => {
+          const rect = button.getBoundingClientRect();
+          button.style.setProperty("--hx", `${event.clientX - rect.left}px`);
+          button.style.setProperty("--hy", `${event.clientY - rect.top}px`);
+        });
+      });
+
+      size();
+      requestAnimationFrame(frame);
+    </script>
+  </body>
+</html>
+
+<style>
+  :root {
+    color-scheme: dark;
+    --ink: #030405;
+    --black: #070707;
+    --paper: #ded4c1;
+    --old: #a79b88;
+    --orange: #c94f28;
+    --orange-dark: #702415;
+    --graphite: #171d22;
+    --bluegray: #607080;
+    font-family:
+      "Arial Narrow", Impact, "Helvetica Neue", Arial, system-ui, sans-serif;
+    background: var(--ink);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    background: var(--ink);
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-width: 320px;
+    margin: 0;
+    overflow-x: hidden;
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button {
+    font: inherit;
+  }
+
+  .room {
+    --mx: 50vw;
+    --my: 35vh;
+    position: relative;
+    min-height: 100svh;
+    isolation: isolate;
+    background:
+      radial-gradient(circle at var(--mx) var(--my), rgba(201, 79, 40, 0.22), transparent 20rem),
+      radial-gradient(circle at 18% 70%, rgba(96, 112, 128, 0.24), transparent 26rem),
+      repeating-linear-gradient(103deg, rgba(222,212,193,0.026) 0 1px, transparent 1px 9px),
+      linear-gradient(118deg, #030405 0%, #12171b 46%, #050505 100%);
+  }
+
+  #iem-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    width: 100vw;
+    height: 100svh;
+    opacity: 0.82;
+    filter: contrast(1.18) saturate(0.86);
+  }
+
+  .lamp,
+  .rot,
+  .rot::before,
+  .rot::after {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .lamp {
+    z-index: 2;
+    background:
+      radial-gradient(circle at var(--mx) var(--my), rgba(222,212,193,0.16), transparent 15rem),
+      linear-gradient(115deg, transparent 0 58%, rgba(96,112,128,0.12) 58% 60%, transparent 60%);
+    mix-blend-mode: screen;
+  }
+
+  .rot {
+    z-index: 50;
+    opacity: 0.58;
+    mix-blend-mode: overlay;
+    background-image:
+      repeating-radial-gradient(circle at 17% 19%, rgba(255,255,255,0.16) 0 1px, transparent 1px 4px),
+      repeating-radial-gradient(circle at 76% 68%, rgba(0,0,0,0.8) 0 1px, transparent 1px 5px),
+      repeating-linear-gradient(87deg, transparent 0 2px, rgba(222,212,193,0.08) 2px 3px);
+    animation: grime 0.46s steps(2) infinite;
+  }
+
+  .rot::before {
+    content: "";
+    opacity: 0.4;
+    background:
+      linear-gradient(90deg, transparent 0 7%, rgba(222,212,193,0.09) 7% 7.2%, transparent 7.2% 30%),
+      repeating-linear-gradient(0deg, transparent 0 5px, rgba(222,212,193,0.08) 5px 6px);
+  }
+
+  .rot::after {
+    content: "";
+    opacity: 0.68;
+    background: radial-gradient(circle at center, transparent 0 35%, rgba(0,0,0,0.92) 88%);
+  }
+
+  .trash {
+    position: fixed;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .paper-sheet,
+  .tear,
+  .scratch {
+    position: absolute;
+    text-transform: uppercase;
+  }
+
+  .paper-sheet {
+    display: block;
+    width: clamp(12rem, 26vw, 28rem);
+    aspect-ratio: 1.45;
+    background:
+      radial-gradient(circle at 20% 18%, rgba(112,36,21,0.18), transparent 20%),
+      radial-gradient(circle at 80% 70%, rgba(3,4,5,0.16), transparent 22%),
+      linear-gradient(180deg, rgba(222,212,193,0.68), rgba(167,155,136,0.42)),
+      repeating-linear-gradient(0deg, transparent 0 8px, rgba(3,4,5,0.11) 8px 9px);
+    opacity: 0.16;
+    clip-path: polygon(2% 3%, 98% 0, 94% 100%, 0 92%);
+    box-shadow: 0.7rem 0.8rem 0 rgba(0,0,0,0.5);
+    filter: blur(0.2px);
+  }
+
+  .ps1 { left: -3vw; top: 9svh; transform: rotate(-8deg); }
+  .ps2 { right: 7vw; top: 12svh; transform: rotate(5deg); }
+  .ps3 { left: 18vw; bottom: 11svh; transform: rotate(3deg); }
+  .ps4 { right: -5vw; bottom: 20svh; transform: rotate(-6deg); }
+
+  .tear {
+    max-width: 20rem;
+    padding: 0.55rem 0.75rem;
+    background:
+      linear-gradient(90deg, rgba(222,212,193,0.8), rgba(167,155,136,0.52)),
+      repeating-linear-gradient(0deg, transparent 0 7px, rgba(3,4,5,0.15) 7px 8px);
+    color: var(--ink);
+    font-size: clamp(0.78rem, 1.7vw, 1.2rem);
+    font-weight: 1000;
+    line-height: 0.86;
+    opacity: 0.22;
+    clip-path: polygon(2% 0, 100% 8%, 94% 100%, 0 87%);
+    box-shadow: 0.35rem 0.35rem 0 rgba(0,0,0,0.62);
+  }
+
+  .scratch {
+    color: rgba(222,212,193,0.46);
+    font-family: "Comic Sans MS", "Bradley Hand", cursive;
+    font-size: clamp(1.4rem, 3.4vw, 3.7rem);
+    font-weight: 1000;
+    line-height: 0.76;
+    opacity: 0.35;
+    text-transform: lowercase;
+  }
+
+  .t1 { left: 5vw; top: 15svh; transform: rotate(-8deg); }
+  .t2 { right: 4vw; top: 20svh; transform: rotate(6deg); }
+  .t3 { left: 8vw; bottom: 16svh; transform: rotate(3deg); }
+  .t4 { right: 14vw; bottom: 10svh; transform: rotate(-5deg); color: var(--orange-dark); }
+  .t5 { left: 45vw; top: 48svh; transform: rotate(-2deg); }
+  .s1 { left: 12vw; top: 35svh; transform: rotate(-10deg); }
+  .s2 { right: 9vw; top: 43svh; transform: rotate(8deg); color: rgba(96,112,128,0.54); }
+  .s3 { left: 39vw; bottom: 26svh; transform: rotate(5deg); color: rgba(201,79,40,0.54); }
+
+  .corner-logo {
+    position: fixed;
+    right: 1rem;
+    top: 1rem;
+    z-index: 70;
+    width: clamp(3.4rem, 6vw, 5.6rem);
+    transform: rotate(6deg);
+    mix-blend-mode: screen;
+  }
+
+  .corner-logo img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    background: var(--paper);
+    clip-path: polygon(7% 0, 100% 9%, 91% 100%, 0 92%);
+    box-shadow: 0.4rem 0.45rem 0 rgba(0,0,0,0.78);
+  }
+
+  .poster,
+  .mess,
+  .underpass,
+  .footer {
+    position: relative;
+    z-index: 10;
+  }
+
+  .poster {
+    min-height: 112svh;
+    padding: 7rem clamp(1rem, 5vw, 5rem) 4rem;
+  }
+
+  .poster::before {
+    position: absolute;
+    left: clamp(1rem, 5vw, 5rem);
+    top: 6rem;
+    z-index: -1;
+    width: min(68rem, 86vw);
+    height: clamp(18rem, 42vw, 38rem);
+    content: "";
+    background:
+      radial-gradient(circle at 16% 28%, rgba(112,36,21,0.16), transparent 16rem),
+      linear-gradient(180deg, rgba(222,212,193,0.18), rgba(167,155,136,0.08)),
+      repeating-linear-gradient(90deg, rgba(3,4,5,0.11) 0 1px, transparent 1px 2rem);
+    clip-path: polygon(1% 1%, 100% 4%, 96% 98%, 0 92%);
+    box-shadow: 1.2rem 1.25rem 0 rgba(0,0,0,0.48);
+    transform: rotate(-1.5deg);
+  }
+
+  .word-block {
+    position: sticky;
+    top: 5.5rem;
+    width: min-content;
+  }
+
+  .word-block p {
+    margin: 0 0 0.7rem;
+    color: color-mix(in srgb, var(--bluegray), var(--paper) 42%);
+    font-size: 0.78rem;
+    font-weight: 1000;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    position: relative;
+    width: min-content;
+    margin: 0;
+    color: var(--paper);
+    font-size: clamp(5.4rem, 19vw, 18rem);
+    font-weight: 1000;
+    line-height: 0.78;
+    text-transform: uppercase;
+    text-shadow:
+      0.035em 0.04em 0 var(--orange),
+      -0.028em 0.06em 0 rgba(96,112,128,0.7),
+      0.075em 0.08em 0 rgba(0,0,0,0.96);
+    filter: contrast(1.18);
+  }
+
+  h1 {
+    -webkit-text-stroke: 0.012em rgba(3,4,5,0.42);
+  }
+
+  h1::before,
+  h1::after {
+    position: absolute;
+    inset: 0;
+    content: attr(data-word);
+    pointer-events: none;
+  }
+
+  h1::before {
+    color: var(--orange);
+    clip-path: inset(50% 0 14% 0);
+    transform: translate(0.045em, 0.025em);
+    mix-blend-mode: multiply;
+    animation: title-slice-a 2.8s steps(2) infinite;
+  }
+
+  h1::after {
+    color: rgba(96,112,128,0.86);
+    clip-path: inset(7% 0 70% 0);
+    transform: translate(-0.035em, -0.012em);
+    mix-blend-mode: screen;
+    animation: title-slice-b 2.2s steps(2) infinite;
+  }
+
+  .rant {
+    width: min(32rem, 82vw);
+    margin: clamp(1.5rem, 8vh, 6rem) 0 0 auto;
+    color: var(--paper);
+    font-size: clamp(1.3rem, 3vw, 3rem);
+    font-weight: 1000;
+    line-height: 0.92;
+    transform: rotate(-2deg);
+  }
+
+  .crawl-link {
+    display: block;
+    width: max-content;
+    margin: 2rem 7vw 0 auto;
+    border: 1px solid var(--paper);
+    background: var(--orange);
+    color: var(--paper);
+    padding: 0.85rem 1rem;
+    font-weight: 1000;
+    text-transform: uppercase;
+    box-shadow: 0.4rem 0.45rem 0 rgba(0,0,0,0.78);
+    transform: rotate(2deg);
+  }
+
+  .mess {
+    min-height: 150svh;
+    padding: clamp(3rem, 7vw, 6rem) clamp(1rem, 5vw, 5rem);
+  }
+
+  .mess::before {
+    position: absolute;
+    inset: 3rem 4vw auto;
+    height: 72%;
+    content: "";
+    opacity: 0.18;
+    background:
+      linear-gradient(90deg, transparent 0 14%, rgba(222,212,193,0.2) 14% 14.2%, transparent 14.2%),
+      repeating-linear-gradient(0deg, transparent 0 1.6rem, rgba(222,212,193,0.12) 1.6rem 1.68rem);
+    clip-path: polygon(0 2%, 99% 0, 96% 100%, 2% 94%);
+  }
+
+  .scrap {
+    position: relative;
+    width: clamp(16rem, 29vw, 27rem);
+    min-height: clamp(25rem, 42vw, 37rem);
+  }
+
+  .p1 { margin-left: 2vw; transform: rotate(-5deg); }
+  .p2 { margin: -16rem 4vw 0 auto; transform: rotate(4deg); }
+  .p3 { margin: -4rem auto 0 22vw; transform: rotate(2deg); }
+  .p4 { margin: -18rem 12vw 0 auto; transform: rotate(-3deg); }
+
+  .scrap-button {
+    --hx: 50%;
+    --hy: 35%;
+    position: relative;
+    display: grid;
+    width: 100%;
+    min-height: inherit;
+    overflow: hidden;
+    border: 1px solid rgba(222,212,193,0.22);
+    background:
+      radial-gradient(circle at var(--hx) var(--hy), rgba(222,212,193,0.38), transparent 10rem),
+      radial-gradient(circle at 17% 20%, rgba(112,36,21,0.16), transparent 8rem),
+      repeating-linear-gradient(98deg, transparent 0 1.2rem, rgba(201,79,40,0.1) 1.2rem 1.28rem),
+      repeating-linear-gradient(0deg, transparent 0 7px, rgba(222,212,193,0.035) 7px 8px),
+      rgba(5,5,5,0.88);
+    color: var(--paper);
+    cursor: pointer;
+    text-align: left;
+    box-shadow: 0.85rem 0.9rem 0 rgba(0,0,0,0.72);
+    clip-path: polygon(2% 0, 100% 4%, 96% 100%, 0 94%);
+  }
+
+  .scrap-button::before {
+    position: absolute;
+    inset: 0;
+    content: "";
+    opacity: 0;
+    background: radial-gradient(circle at var(--hx) var(--hy), rgba(201,79,40,0.36), transparent 12rem);
+    transition: opacity 180ms ease;
+  }
+
+  .scrap-button:hover::before,
+  .scrap-button:focus-visible::before {
+    opacity: 1;
+  }
+
+  .tape {
+    position: absolute;
+    left: 50%;
+    top: 0.75rem;
+    z-index: 4;
+    width: 42%;
+    height: 1.15rem;
+    background: rgba(222,212,193,0.62);
+    transform: translateX(-50%) rotate(calc((var(--i) - 1.5) * 3deg));
+    mix-blend-mode: screen;
+  }
+
+  .photo {
+    position: absolute;
+    inset: 2.2rem 0.85rem auto;
+    display: grid;
+    height: 56%;
+    place-items: center;
+    background:
+      radial-gradient(circle at 24% 20%, rgba(112,36,21,0.18), transparent 20%),
+      linear-gradient(180deg, rgba(222,212,193,0.97), rgba(167,155,136,0.82)),
+      repeating-linear-gradient(90deg, rgba(3,4,5,0.12) 0 1px, transparent 1px 1.6rem);
+    clip-path: polygon(3% 1%, 99% 8%, 92% 98%, 0 91%);
+    box-shadow: 0.65rem 0.72rem 0 rgba(0,0,0,0.76);
+  }
+
+  .photo img {
+    width: 92%;
+    max-height: 88%;
+    object-fit: contain;
+    filter: contrast(1.14) saturate(0.78) drop-shadow(0.4rem 0.5rem 0 rgba(0,0,0,0.42));
+    transition: transform 220ms ease, filter 220ms ease;
+  }
+
+  .scrap-button:hover .photo img,
+  .scrap-button:focus-visible .photo img {
+    transform: scale(1.08) rotate(-2deg);
+    filter: contrast(1.24) saturate(0.92) drop-shadow(0.45rem 0.6rem 0 rgba(0,0,0,0.54));
+  }
+
+  .label {
+    position: relative;
+    z-index: 4;
+    align-self: end;
+    display: grid;
+    gap: 0.5rem;
+    padding: 1rem;
+    text-transform: uppercase;
+  }
+
+  .label small,
+  .label em {
+    color: color-mix(in srgb, var(--orange), var(--paper) 34%);
+    font-size: 0.78rem;
+    font-style: normal;
+    font-weight: 1000;
+  }
+
+  .label strong {
+    font-size: clamp(2.5rem, 6vw, 5.8rem);
+    font-weight: 1000;
+    line-height: 0.78;
+  }
+
+  .hand {
+    position: absolute;
+    right: 0.8rem;
+    top: 61%;
+    z-index: 5;
+    color: rgba(222,212,193,0.68);
+    font-family: "Comic Sans MS", "Bradley Hand", cursive;
+    font-size: clamp(1.5rem, 3vw, 3rem);
+    font-weight: 1000;
+    transform: rotate(-12deg);
+  }
+
+  .receipt {
+    display: grid;
+    gap: 0.45rem;
+    width: min(24rem, 82vw);
+    margin: -6rem 0 0 4vw;
+    padding: 0.9rem;
+    background:
+      linear-gradient(180deg, rgba(222,212,193,0.96), rgba(167,155,136,0.84)),
+      repeating-linear-gradient(0deg, transparent 0 7px, rgba(3,4,5,0.12) 7px 8px);
+    color: var(--ink);
+    clip-path: polygon(4% 0, 100% 7%, 93% 100%, 0 92%);
+    box-shadow: 0.8rem 0.85rem 0 rgba(0,0,0,0.76);
+    transform: rotate(7deg);
+  }
+
+  .receipt img {
+    width: 7rem;
+    mix-blend-mode: multiply;
+  }
+
+  .receipt p,
+  .receipt strong,
+  .receipt span {
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  .receipt p {
+    color: var(--orange-dark);
+    font-family: "Comic Sans MS", "Bradley Hand", cursive;
+    font-size: 1.7rem;
+    font-weight: 1000;
+  }
+
+  .receipt strong {
+    font-size: clamp(2rem, 4vw, 4rem);
+    line-height: 0.85;
+  }
+
+  .underpass {
+    min-height: 100svh;
+    padding: clamp(4rem, 9vw, 8rem) clamp(1rem, 5vw, 5rem);
+  }
+
+  .underpass::before {
+    position: absolute;
+    inset: 4rem clamp(1rem, 5vw, 5rem) auto;
+    height: 28rem;
+    content: "";
+    z-index: -1;
+    opacity: 0.16;
+    background:
+      linear-gradient(180deg, rgba(222,212,193,0.9), rgba(167,155,136,0.52)),
+      repeating-linear-gradient(0deg, transparent 0 8px, rgba(3,4,5,0.12) 8px 9px);
+    clip-path: polygon(2% 0, 100% 8%, 94% 100%, 0 90%);
+    transform: rotate(1.8deg);
+  }
+
+  h2 {
+    max-width: 72rem;
+    margin: 0;
+    font-size: clamp(3.5rem, 10vw, 9rem);
+    font-weight: 1000;
+    line-height: 0.78;
+    text-transform: uppercase;
+  }
+
+  .columns {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.8rem;
+    margin-top: 3rem;
+  }
+
+  .columns p {
+    min-height: 12rem;
+    margin: 0;
+    padding: 0.9rem;
+    background: rgba(222,212,193,0.88);
+    color: var(--ink);
+    font-family: "Comic Sans MS", "Bradley Hand", cursive;
+    font-size: clamp(1.25rem, 2.2vw, 2.4rem);
+    font-weight: 1000;
+    line-height: 0.84;
+    clip-path: polygon(3% 0, 99% 8%, 95% 100%, 0 91%);
+    transform: rotate(calc((var(--n, 1) - 2) * 3deg));
+  }
+
+  .columns p:nth-child(1) { --n: 0; }
+  .columns p:nth-child(2) { --n: 1; }
+  .columns p:nth-child(3) { --n: 3; }
+  .columns p:nth-child(4) { --n: 4; }
+
+  .footer {
+    display: grid;
+    grid-template-columns: minmax(9rem, 19rem) minmax(0, 1fr);
+    gap: clamp(1.5rem, 5vw, 5rem);
+    align-items: end;
+    min-height: 70svh;
+    padding: clamp(4rem, 9vw, 8rem) clamp(1rem, 5vw, 5rem);
+    background:
+      linear-gradient(90deg, rgba(96,112,128,0.3), transparent 48%),
+      rgba(3,4,5,0.72);
+  }
+
+  .footer img {
+    width: 100%;
+    background: var(--paper);
+    clip-path: polygon(5% 0, 99% 7%, 91% 100%, 0 94%);
+    box-shadow: 0.85rem 0.9rem 0 rgba(0,0,0,0.76);
+    transform: rotate(-5deg);
+  }
+
+  .footer span {
+    display: block;
+    color: var(--paper);
+    font-size: 0.82rem;
+    font-weight: 1000;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .footer strong {
+    display: block;
+    margin-top: 0.6rem;
+    font-size: clamp(3rem, 9vw, 8rem);
+    font-weight: 1000;
+    line-height: 0.78;
+  }
+
+  @keyframes grime {
+    to {
+      transform: translate(-2%, 1%);
+    }
+  }
+
+  @keyframes title-slice-a {
+    0%, 72%, 100% { clip-path: inset(50% 0 14% 0); }
+    74% { clip-path: inset(18% 0 63% 0); }
+    76% { clip-path: inset(67% 0 7% 0); }
+  }
+
+  @keyframes title-slice-b {
+    0%, 64%, 100% { clip-path: inset(7% 0 70% 0); }
+    66% { clip-path: inset(37% 0 36% 0); }
+    68% { clip-path: inset(4% 0 82% 0); }
+  }
+
+  @media (max-width: 900px) {
+    .poster {
+      min-height: 100svh;
+      padding-top: 6rem;
+    }
+
+    .word-block {
+      position: relative;
+      top: auto;
+    }
+
+    h1 {
+      font-size: clamp(4.3rem, 21vw, 8rem);
+    }
+
+    .rant,
+    .crawl-link {
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    .mess {
+      min-height: auto;
+    }
+
+    .scrap,
+    .p1,
+    .p2,
+    .p3,
+    .p4 {
+      width: 100%;
+      min-height: 29rem;
+      margin: 0 0 1.2rem;
+      transform: rotate(calc((var(--i) - 1.5) * 1.3deg));
+    }
+
+    .columns,
+    .footer {
+      grid-template-columns: 1fr;
+    }
+
+    .footer img {
+      width: min(16rem, 70vw);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
