@@ -32,6 +32,7 @@ const publicProductColumns = {
   compareAtPriceMnt: true,
   currency: true,
   featured: true,
+  oldSlugs: true,
 } as const;
 
 const now = () => new Date();

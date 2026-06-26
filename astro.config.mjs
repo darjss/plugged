@@ -4,6 +4,7 @@ import { defineConfig } from "astro/config";
 import cloudflare from "@astrojs/cloudflare";
 import solid from "@astrojs/solid-js";
 import tailwindcss from "@tailwindcss/vite";
+import { solidPrimitivesExportStarShim } from "./src/lib/rolldown-export-star-shim.mjs";
 
 // https://astro.build/config
 export default defineConfig({
@@ -11,6 +12,6 @@ export default defineConfig({
   adapter: cloudflare(),
   integrations: [solid()],
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss(), solidPrimitivesExportStarShim()],
   },
 });
