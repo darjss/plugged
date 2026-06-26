@@ -115,3 +115,7 @@ export const paymentUpdateSchema = v.object({
   status: v.picklist(paymentStatuses),
   paidAt: v.optional(v.nullable(v.date())),
 });
+
+export const createPaymentInputSchema = v.object({
+  orderNumber: v.pipe(v.string(), v.minLength(1)),
+});

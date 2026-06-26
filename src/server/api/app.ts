@@ -1,6 +1,14 @@
 import { Elysia } from "elysia";
+import { eq } from "drizzle-orm";
 import { commerceQueries } from "../commerce/queries";
-import { cartItemInputSchema, checkoutInputSchema } from "../commerce/validation";
+import {
+  cartItemInputSchema,
+  checkoutInputSchema,
+  createPaymentInputSchema,
+} from "../commerce/validation";
+import { db } from "../db";
+import { order } from "../db/schema";
+import { checkQpayInvoice } from "../integrations/qpay";
 import { DomainError } from "../lib/errors";
 import { authPlugin } from "./plugins/auth";
 import { parseInput } from "./validation";
@@ -67,6 +75,39 @@ export const app = new Elysia()
   .post("/checkout", async ({ body, user }) => {
     const input = parseInput(checkoutInputSchema, body);
     return commerceQueries.store.createOrder(input, user?.id ?? null);
+  })
+  .post("/checkout/create-payment", async ({ body }) => {
+    const input = parseInput(createPaymentInputSchema, body);
+    return commerceQueries.payments.createQpayInvoiceForOrder(input.orderNumber);
+  })
+  .get("/payments/:paymentNumber/status", async ({ params }) => {
+    const result = await commerceQueries.payments.getPaymentByNumber(params.paymentNumber);
+    return {
+      provider: result.provider,
+      status: result.status,
+    };
+  })
+  .post("/qpay/webhook", async ({ query, status }) => {
+    const paymentNumber = typeof query.id === "string" ? query.id : null;
+    if (!paymentNumber) return status(200, { ok: true });
+
+    try {
+      const targetPayment = await commerceQueries.payments.getPaymentByNumber(paymentNumber);
+      if (!targetPayment.qpayInvoiceId) return status(200, { ok: true });
+
+      const invoiceStatus = await checkQpayInvoice(targetPayment.qpayInvoiceId);
+      if (invoiceStatus.paid) {
+        await commerceQueries.payments.updatePaymentStatus(targetPayment.id, "success");
+        await db
+          .update(order)
+          .set({ status: "pending", updatedAt: new Date() })
+          .where(eq(order.id, targetPayment.orderId));
+      }
+    } catch (error) {
+      console.error("qpay webhook failed", { paymentNumber, error: String(error) });
+    }
+
+    return status(200, { ok: true });
   });
 
 export type App = typeof app;
