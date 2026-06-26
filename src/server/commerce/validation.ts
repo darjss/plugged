@@ -94,8 +94,17 @@ export const cartTokenSchema = v.object({
   cartToken: id,
 });
 
+export const checkoutItemSchema = v.object({
+  variantId: id,
+  quantity: positiveQuantity,
+});
+
 export const checkoutInputSchema = v.object({
-  cartToken: id,
+  // Server-side cart flow (legacy): look up items by cart token.
+  cartToken: v.optional(id),
+  // Client-side cart flow: items sent directly from the storefront.
+  // Either `cartToken` or `items` must be present (enforced in createOrder).
+  items: v.optional(v.array(checkoutItemSchema)),
   customerPhone: mongolianPhone,
   customerName: v.optional(v.nullable(v.string())),
   address: v.pipe(v.string(), v.minLength(10)),
