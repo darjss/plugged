@@ -1,0 +1,72 @@
+---
+/**
+ * Shared zine masthead for static info pages.
+ * Stamp kicker, poster headline, optional marker tagline, torn bottom edge.
+ */
+interface Props {
+  kicker: string;
+  title: string;
+  tagline?: string;
+}
+
+const { kicker, title, tagline } = Astro.props;
+---
+
+<section
+  class="relative overflow-hidden border-b-4 border-ink bg-newsprint-2 bg-noise"
+  aria-labelledby="info-page-title"
+>
+  {/* Halftone backdrop — rotated, bleeds off-grid */}
+  <div
+    class="pointer-events-none absolute inset-0 -z-0 opacity-[0.16]"
+    style="background-image: radial-gradient(var(--color-ink) 1.4px, transparent 1.4px); background-size: 14px 14px; transform: rotate(-1.2deg) scale(1.08);"
+    aria-hidden="true"
+  >
+  </div>
+
+  {/* Hazard stripe ribbon — top edge accent */}
+  <div
+    class="absolute left-0 right-0 top-0 z-10 h-2 bg-hazard-stripes"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="relative z-10 mx-auto max-w-screen-2xl px-4 pb-16 pt-14 lg:px-8 lg:pb-24 lg:pt-20">
+    <div class="max-w-4xl">
+      {/* Kicker — stamped label */}
+      <div class="mb-5 inline-flex -rotate-1 items-center gap-2 border-2 border-ink bg-orange px-3 py-1.5 shadow-hard-sm">
+        <span class="size-2 bg-ink" aria-hidden="true"></span>
+        <span class="text-micro font-black uppercase tracking-widest text-ink">
+          {kicker}
+        </span>
+      </div>
+
+      {/* Headline — poster scale, condensed, slight misregistration shadow */}
+      <h1
+        id="info-page-title"
+        class="relative font-display font-black uppercase leading-[0.84] tracking-tight text-ink"
+        style="font-size: var(--text-display); text-shadow: 0.04em 0.04em 0 var(--color-orange);"
+      >
+        {title}
+      </h1>
+
+      {tagline && (
+        <div class="mt-4 max-w-2xl">
+          <p
+            class="inline-block -rotate-1 bg-yellow px-2 font-display text-xl font-black uppercase tracking-tight text-ink lg:text-2xl"
+            style="box-decoration-break: clone; -webkit-box-decoration-break: clone;"
+          >
+            {tagline}
+          </p>
+        </div>
+      )}
+    </div>
+
+    {/* Torn paper bottom edge — section divider */}
+    <div
+      class="clip-torn-bottom absolute -bottom-2 left-0 right-0 h-6 bg-newsprint"
+      aria-hidden="true"
+    >
+    </div>
+  </div>
+</section>

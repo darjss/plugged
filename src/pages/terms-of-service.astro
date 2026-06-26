@@ -1,0 +1,104 @@
+---
+/**
+ * Terms of service — standard template, placeholder content.
+ * Prerendered.
+ */
+import StorefrontLayout from "../layouts/StorefrontLayout.astro";
+import InfoPageHeader from "../components/storefront/InfoPageHeader.astro";
+import LegalSections from "../components/storefront/LegalSections.astro";
+
+export const prerender = true;
+
+const sections = [
+  {
+    num: "01",
+    title: "Who we are",
+    body: [
+      "Plugged Audio (\"we\", \"us\") operates the plugged.mn online store, selling in-ear monitors, DAC amps, and related audio gear to customers in Mongolia.",
+    ],
+  },
+  {
+    num: "02",
+    title: "Using the store",
+    body: [
+      "You must be at least 16 years old to place an order, or have a guardian's permission. You agree to provide accurate account and delivery information and to keep your login credentials private.",
+      "You agree not to abuse the service — no reselling as a front, no fraudulent chargebacks, no scraping the catalog at scale. We reserve the right to refuse or cancel any order.",
+    ],
+  },
+  {
+    num: "03",
+    title: "Orders & pricing",
+    body: [
+      "All prices are in Mongolian tugrik (MNT) and include VAT where applicable. An order confirmation is not a binding contract — we may cancel an order before it ships if there's a pricing error, a stock issue, or a suspected fraudulent transaction. You'll be refunded in full in those cases.",
+    ],
+  },
+  {
+    num: "04",
+    title: "Payment",
+    body: [
+      "We accept QPay, bank transfer, and cash on delivery within Ulaanbaatar. Payment is due at the time of order unless COD is selected. COD orders must be paid in cash to the courier on delivery.",
+    ],
+  },
+  {
+    num: "05",
+    title: "Delivery",
+    body: [
+      "Delivery is a flat 6,000 MNT anywhere in Mongolia, free on orders over 150,000 MNT. Estimated delivery times are guidance, not guarantees. See the Shipping page for full details.",
+    ],
+  },
+  {
+    num: "06",
+    title: "Returns & refunds",
+    body: [
+      "You can return most items within 14 days of delivery, subject to the conditions on the Returns & Refunds page. Hygiene-sensitive items (foam tips) are non-returnable once opened.",
+    ],
+  },
+  {
+    num: "07",
+    title: "Warranty",
+    body: [
+      "IEMs carry a 12-month warranty against manufacturing defects on the driver and shell. Cables are covered for 3 months. Warranty does not cover damage from misuse, modification, or normal wear.",
+    ],
+  },
+  {
+    num: "08",
+    title: "Intellectual property",
+    body: [
+      "The Plugged name, logo, and all site content are our property or used with permission. You may not copy, redistribute, or impersonate the brand. Product imagery belongs to the respective manufacturers.",
+    ],
+  },
+  {
+    num: "09",
+    title: "Liability",
+    body: [
+      "To the extent permitted by law, our liability for any single order is limited to the amount you paid for that order. We are not liable for indirect or consequential damages arising from product use.",
+    ],
+  },
+  {
+    num: "10",
+    title: "Changes to these terms",
+    body: [
+      "We may update these terms at any time. The updated version applies from the date posted. Continued use of the store after that means you accept the new terms.",
+    ],
+  },
+  {
+    num: "11",
+    title: "Contact",
+    body: [
+      "Questions about these terms? Email yo@plugged.mn or call +976 11 00 00 00 during business hours.",
+    ],
+  },
+];
+---
+
+<StorefrontLayout
+  title="Terms of Service | Plugged"
+  description="The terms that govern your use of the Plugged Audio online store."
+>
+  <InfoPageHeader
+    kicker="Legal / file 02"
+    title="Terms of Service"
+    tagline="The rules of the wall"
+  />
+  <LegalSections sections={sections} />
+</StorefrontLayout>
