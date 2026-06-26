@@ -1,0 +1,76 @@
+---
+import StorefrontLayout from "../layouts/StorefrontLayout.astro";
+import ProductCard from "../components/storefront/ProductCard.tsx";
+import { searchProducts } from "../server/search/search";
+
+export const prerender = false;
+
+const url = new URL(Astro.request.url);
+const q = url.searchParams.get("q")?.trim() ?? "";
+const products = q ? await searchProducts({ q, limit: 24 }) : [];
+const title = q ? `Search: ${q} | Plugged` : "Search | Plugged";
+const description = "Search Plugged Audio by sound signature, brand, driver, category, and IEM specs.";
+---
+
+<StorefrontLayout title={title} description={description}>
+  <section class="mx-auto max-w-screen-2xl px-4 py-8 lg:px-8 lg:py-12">
+    <div class="mb-8 border-b-4 border-ink pb-6">
+      <p class="text-micro font-black uppercase tracking-widest text-orange">AI search</p>
+      <h1 class="font-display text-display font-black uppercase leading-none tracking-tight text-ink">
+        Find your sound
+      </h1>
+      <p class="mt-3 max-w-prose text-body-lg text-ink-muted">
+        Search by sound, brand, category, driver, connector, fit, or forum slang.
+      </p>
+    </div>
+
+    <form action="/search" method="get" class="mb-10 flex flex-col gap-3 md:flex-row">
+      <input
+        name="q"
+        value={q}
+        placeholder="bass iem, planar, gaming, bright..."
+        class="min-w-0 flex-1 border-4 border-ink bg-newsprint px-4 py-4 font-mono text-lg font-black uppercase tracking-tight shadow-hard outline-none placeholder:text-ink-muted focus:bg-yellow md:text-2xl"
+      />
+      <button
+        type="submit"
+        class="border-4 border-ink bg-orange px-8 py-4 font-display text-heading font-black uppercase tracking-tight text-ink shadow-hard transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+      >
+        Search
+      </button>
+    </form>
+
+    {q ? (
+      <div class="mb-6 flex items-center justify-between gap-4">
+        <p class="text-caption font-black uppercase tracking-wide text-ink-muted">
+          {products.length} result{products.length === 1 ? "" : "s"} stamped for “{q}”
+        </p>
+        <span class="rotate-[-2deg] border-2 border-ink bg-cyan px-3 py-1 text-micro font-black uppercase shadow-hard-sm">
+          hybrid scan
+        </span>
+      </div>
+    ) : null}
+
+    {products.length > 0 ? (
+      <div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+        {products.map((product) => <ProductCard product={product} />)}
+      </div>
+    ) : (
+      <div
+        class="rotate-[-1deg] border-4 border-ink bg-card px-6 py-10 shadow-hard"
+        style="clip-path: polygon(1% 0, 100% 2%, 98% 96%, 3% 100%);"
+      >
+        <p class="text-micro font-black uppercase tracking-widest text-orange">
+          {q ? "No matches" : "No query"}
+        </p>
+        <h2 class="mt-2 font-display text-heading-lg font-black uppercase leading-none text-ink">
+          {q ? "Nothing taped up" : "Type something noisy"}
+        </h2>
+        <p class="mt-3 max-w-prose text-body text-ink-muted">
+          {q
+            ? "Try a sound signature, brand, driver type, connector, or product category."
+            : "Start with bass iem, planar, neutral, gaming, DAC, wireless, or a brand name."}
+        </p>
+      </div>
+    )}
+  </section>
+</StorefrontLayout>

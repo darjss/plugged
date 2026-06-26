@@ -41,6 +41,15 @@
       "bucket_name": "plugged",
     },
   ],
+  "ai": {
+    "binding": "AI",
+  },
+  "vectorize": [
+    {
+      "binding": "VECTORIZE",
+      "index_name": "plugged-products",
+    },
+  ],
   "vars": {
     "BETTER_AUTH_URL": "",
     "GOOGLE_CLIENT_ID": "",

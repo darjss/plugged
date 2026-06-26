@@ -107,6 +107,29 @@ export const commerceQueries = {
       });
     },
 
+    async getProductsByIds(ids: string[], limit = DEFAULT_PAGE_SIZE) {
+      const uniqueIds = Array.from(new Set(ids)).slice(0, limit);
+      if (uniqueIds.length === 0) return [];
+
+      const rows = await db.query.product.findMany({
+        columns: publicProductColumns,
+        where: and(activeProduct(), inArray(product.id, uniqueIds)),
+        with: {
+          brand: true,
+          iemSpec: true,
+          images: {
+            orderBy: (image, { asc, desc }) => [desc(image.isPrimary), asc(image.sortOrder)],
+          },
+          variants: {
+            where: (variant, { eq }) => eq(variant.active, true),
+          },
+        },
+      });
+
+      const rank = new Map(uniqueIds.map((id, index) => [id, index]));
+      return rows.sort((a, b) => (rank.get(a.id) ?? 0) - (rank.get(b.id) ?? 0));
+    },
+
     /**
      * All categories, ordered by name. Used by the storefront filter bar
      * and category landing-page navigation.
