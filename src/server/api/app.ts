@@ -98,9 +98,11 @@ export const app = new Elysia()
     },
     { requireAdmin: true },
   )
-  .get("/products", async () => ({
-    products: await commerceQueries.store.getProducts(),
-  }))
+  .get("/products", async ({ query }) => {
+    const raw = query as Record<string, string | undefined>;
+    const featured = raw.featured === "true" ? { featured: true } : undefined;
+    return { products: await commerceQueries.store.getProducts(featured) };
+  })
   .get("/products/:slug", async ({ params }) => commerceQueries.store.getProductBySlug(params.slug))
   .post("/cart", async ({ user }) => commerceQueries.store.createCart(user?.id ?? null))
   .get("/cart/:cartToken", async ({ params }) =>

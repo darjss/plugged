@@ -35,11 +35,17 @@ const activeProduct = () => eq(product.status, "active");
 
 export const commerceQueries = {
   store: {
-    async getProducts() {
+    /**
+     * List active products. Pass `{ featured: true }` to restrict to
+     * products flagged for the homepage featured grid.
+     */
+    async getProducts(filter?: { featured?: boolean }) {
+      const featuredOnly = filter?.featured === true ? eq(product.featured, true) : undefined;
+
       return db.query.product.findMany({
         columns: publicProductColumns,
         orderBy: [desc(product.featured), desc(product.createdAt)],
-        where: activeProduct(),
+        where: featuredOnly ? and(activeProduct(), featuredOnly) : activeProduct(),
         with: {
           brand: true,
           iemSpec: true,

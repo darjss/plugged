@@ -1,0 +1,153 @@
+---
+/**
+ * Featured products grid — grunge product cards.
+ * Torn-edge cards, stamp-style price tags, halftone product images
+ * (B&W by default, color on hover). 4–8 products.
+ */
+import { commerceQueries } from "../../server/commerce/queries";
+import { formatMnt } from "../../lib/utils";
+
+type Product = Awaited<ReturnType<typeof commerceQueries.store.getProducts>>[number];
+
+interface Props {
+  products: Product[];
+}
+
+const { products } = Astro.props;
+const featured = products.slice(0, 8);
+
+function primaryImage(product: Product) {
+  return product.images[0];
+}
+
+function displayPrice(product: Product) {
+  const variant = product.variants[0];
+  const amount = variant?.priceMnt ?? product.basePriceMnt;
+  return formatMnt(amount);
+}
+
+function hasComparePrice(product: Product) {
+  const variant = product.variants[0];
+  const compare = variant?.compareAtPriceMnt ?? product.compareAtPriceMnt;
+  return Boolean(compare && compare > (variant?.priceMnt ?? product.basePriceMnt));
+}
+---
+
+<section
+  id="featured"
+  class="relative border-b-4 border-ink bg-newsprint bg-grid-subtle scroll-mt-20"
+  aria-labelledby="featured-title"
+>
+  <div class="mx-auto max-w-screen-2xl px-4 py-16 lg:px-8 lg:py-24">
+    {/* Section header — torn sticker label */}
+    <div class="mb-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <span
+          class="inline-block -rotate-1 border-2 border-ink bg-pink px-3 py-1 text-micro font-black uppercase tracking-widest text-newsprint shadow-hard-sm"
+        >
+          On the wall now
+        </span>
+        <h2
+          id="featured-title"
+          class="mt-3 font-display font-black uppercase leading-none tracking-tight text-ink"
+          style="font-size: var(--text-display);"
+        >
+          Featured drops
+        </h2>
+      </div>
+      <a
+        href="/products"
+        class="self-start border-2 border-ink bg-card px-4 py-2 text-caption font-black uppercase tracking-wider text-ink shadow-hard-sm transition-all hover:bg-yellow hover:shadow-hard sm:self-auto"
+      >
+        See everything →
+      </a>
+    </div>
+
+    {
+      featured.length === 0 ? (
+        <div class="border-2 border-dashed border-ink/40 bg-card p-10 text-center">
+          <p class="font-display text-2xl font-black uppercase tracking-tight text-ink-muted">
+            Wall's empty. Stock drops soon.
+          </p>
+          <p class="mt-2 text-sm font-medium text-muted-foreground">
+            Check back — featured IEMs get taped up here.
+          </p>
+        </div>
+      ) : (
+        <ul class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {featured.map((product, i) => {
+            const image = primaryImage(product);
+            const compare = hasComparePrice(product);
+            return (
+              <li
+                class="group relative"
+                style={`transform: rotate(${i % 2 === 0 ? "-1.2deg" : "1deg"});`}
+              >
+                <a
+                  href={`/products/${product.slug}`}
+                  class="block border-4 border-ink bg-card shadow-hard-lg transition-all duration-200 group-hover:rotate-0 group-hover:shadow-hard-xl"
+                  aria-label={`${product.name} — ${displayPrice(product)}`}
+                >
+                  {/* Image frame — halftone B&W default, color on hover */}
+                  <div class="relative aspect-square overflow-hidden border-b-4 border-ink bg-newsprint-dark">
+                    {image ? (
+                      <img
+                        src={image.url}
+                        alt={image.alt ?? `${product.name} product photo`}
+                        loading={i < 4 ? "eager" : "lazy"}
+                        decoding="async"
+                        class="absolute inset-0 size-full object-cover grayscale contrast-125 brightness-95 transition-all duration-300 group-hover:grayscale-0 group-hover:contrast-100 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div class="absolute inset-0 bg-halftone-lg opacity-40" aria-hidden="true" />
+                    )}
+                    {/* Halftone dot overlay on image */}
+                    <div
+                      class="pointer-events-none absolute inset-0 opacity-20 mix-blend-multiply"
+                      style="background-image: radial-gradient(var(--color-ink) 1px, transparent 1px); background-size: 6px 6px;"
+                      aria-hidden="true"
+                    />
+                    {/* Featured stamp — top corner */}
+                    {product.featured && (
+                      <span class="absolute right-2 top-2 -rotate-3 border-2 border-ink bg-orange px-2 py-0.5 text-micro font-black uppercase tracking-widest text-ink shadow-hard-sm">
+                        Pick
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Meta — name, brand, stamp price */}
+                  <div class="relative p-4">
+                    {product.brand && (
+                      <p class="text-micro font-black uppercase tracking-widest text-muted-foreground">
+                        {product.brand.name}
+                      </p>
+                    )}
+                    <h3 class="mt-1 line-clamp-2 font-display text-heading-lg font-black uppercase leading-tight tracking-tight text-ink">
+                      {product.name}
+                    </h3>
+                    {product.shortDescription && (
+                      <p class="mt-1 line-clamp-1 text-caption font-medium text-muted-foreground">
+                        {product.shortDescription}
+                      </p>
+                    )}
+                    {/* Price tag — rotated stamp */}
+                    <div class="mt-3 flex items-center gap-2">
+                      <span class="inline-block -rotate-2 border-2 border-ink bg-yellow px-2 py-1 font-mono text-caption font-bold text-ink shadow-hard-sm">
+                        {displayPrice(product)}
+                      </span>
+                      {compare && (
+                        <span class="text-micro font-black uppercase tracking-widest text-pink line-through">
+                          sale
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      )
+    }
+  </div>
+</section>
