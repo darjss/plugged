@@ -42,6 +42,12 @@ importers:
       '@mendable/firecrawl-js':
         specifier: ^4.28.2
         version: 4.28.2
+      '@solid-primitives/storage':
+        specifier: ^4.3.4
+        version: 4.3.4(solid-js@1.9.13)
+      '@solidjs/router':
+        specifier: ^0.16.1
+        version: 0.16.1(solid-js@1.9.13)
       '@t3-oss/env-core':
         specifier: ^0.13.11
         version: 0.13.11(typescript@5.9.3)(valibot@1.4.1(typescript@5.9.3))(zod@4.4.3)
@@ -1927,6 +1933,18 @@ packages:
     peerDependencies:
       solid-js: ^1.6.12
 
+  '@solid-primitives/storage@4.3.4':
+    resolution: {integrity: sha512-GSxPAIuyxhJWOcv7n10iv3aid5oHN3KUgyA9IV0GYWlPpgyGs43aS9E85b0VXDLoH+D4ThNK8+2WEJ8B/S6Ccg==}
+    peerDependencies:
+      '@tauri-apps/plugin-store': '*'
+      solid-js: ^1.6.12
+      solid-start: '*'
+    peerDependenciesMeta:
+      '@tauri-apps/plugin-store':
+        optional: true
+      solid-start:
+        optional: true
+
   '@solid-primitives/trigger@1.2.3':
     resolution: {integrity: sha512-Za2JebEiDyfamjmDwRaESYqBBYOlgYGzB8kHYH0QrkXyLf2qNADlKdGN+z3vWSLCTDcKxChS43Kssjuc0OZhng==}
     peerDependencies:
@@ -1936,6 +1954,11 @@ packages:
     resolution: {integrity: sha512-AeGTBg8Wtkh/0s+evyLtP8piQoS4wyqqQaAFs2HJcFMMjYAtUgo+ZPduRXLjPlqKVc2ejeR544oeqpbn8Egn8A==}
     peerDependencies:
       solid-js: ^1.6.12
+
+  '@solidjs/router@0.16.1':
+    resolution: {integrity: sha512-IhyjedgC6LRpw/8CPGGI89FrV+r0xTHzOl2c4CRyzYQ1bLepJxbVI1LLKvsavMWY5TRBRacV7hAeOhuTXkjiqg==}
+    peerDependencies:
+      solid-js: ^1.8.6
 
   '@speed-highlight/core@1.2.17':
     resolution: {integrity: sha512-Z92FwKpCtfaW1V0jTU/fh3QzYEZN8wDwrzRIBoADCJfn4mJCNcJN/XegifX7BDrQ8/h9Xh/JnbyMchL0FqXrkg==}
@@ -5476,12 +5499,21 @@ snapshots:
       '@solid-primitives/utils': 6.4.0(solid-js@1.9.13)
       solid-js: 1.9.13
 
+  '@solid-primitives/storage@4.3.4(solid-js@1.9.13)':
+    dependencies:
+      '@solid-primitives/utils': 6.4.0(solid-js@1.9.13)
+      solid-js: 1.9.13
+
   '@solid-primitives/trigger@1.2.3(solid-js@1.9.13)':
     dependencies:
       '@solid-primitives/utils': 6.4.0(solid-js@1.9.13)
       solid-js: 1.9.13
 
   '@solid-primitives/utils@6.4.0(solid-js@1.9.13)':
+    dependencies:
+      solid-js: 1.9.13
+
+  '@solidjs/router@0.16.1(solid-js@1.9.13)':
     dependencies:
       solid-js: 1.9.13
 

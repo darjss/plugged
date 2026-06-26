@@ -3,6 +3,10 @@ import DashboardApp from "../../components/dashboard/DashboardApp";
 import { requireAdmin } from "../../lib/server/require-admin";
 import Layout from "../../layouts/Layout.astro";
 
+// Catch-all for `/dashboard/*` sub-routes so deep links and full reloads
+// render the SolidJS SPA shell. Static siblings (`index.astro`, `login.astro`)
+// take priority in Astro routing, so this only matches deeper paths like
+// `/dashboard/products`. The admin guard runs server-side on every hit.
 export const prerender = false;
 
 const user = await requireAdmin(Astro);

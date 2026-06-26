@@ -1,0 +1,54 @@
+---
+import GoogleSignIn from "../../components/dashboard/GoogleSignIn";
+import Layout from "../../layouts/Layout.astro";
+
+export const prerender = false;
+
+// If already signed in as admin, bounce straight to the dashboard.
+const session = Astro.locals.session;
+const user = Astro.locals.user;
+if (session && user) {
+  const { isAdminUser } = await import("../../server/auth/guards");
+  if (await isAdminUser(user.id)) {
+    return Astro.redirect("/dashboard");
+  }
+}
+---
+
+<Layout title="Admin sign in | Plugged">
+  <section
+    class="min-h-svh flex flex-col items-center justify-center gap-10 px-6 py-16 bg-ink text-newsprint"
+  >
+    <div class="flex flex-col items-center gap-2 text-center">
+      <a
+        href="/"
+        class="font-display text-5xl uppercase text-orange sm:text-7xl"
+      >
+        Plugged
+      </a>
+      <p class="font-mono text-xs uppercase tracking-[0.3em] text-newsprint/60">
+        Admin Console
+      </p>
+    </div>
+
+    <div
+      class="w-full max-w-md border-2 border-orange bg-newsprint p-8 text-ink shadow-hard-orange"
+    >
+      <h1 class="font-display text-3xl uppercase leading-none">
+        Restricted access
+      </h1>
+      <p class="mt-2 font-body text-sm text-muted-foreground">
+        Sign in with an authorized Google account to manage products, orders,
+        and analytics.
+      </p>
+      <div class="mt-6">
+        <GoogleSignIn client:load next="/dashboard" />
+      </div>
+    </div>
+
+    <p class="max-w-sm text-center font-mono text-[0.7rem] text-newsprint/50">
+      Unauthorized accounts are rejected with 403. Access is granted by setting
+      <code class="text-orange">isAdmin = true</code> on your user record.
+    </p>
+  </section>
+</Layout>
