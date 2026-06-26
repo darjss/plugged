@@ -1,7 +1,9 @@
-import { Show } from "solid-js";
+import { Show, createSignal } from "solid-js";
+import { toast } from "solid-sonner";
 
 import { cart } from "@/store/cart";
 import { cn, formatMnt } from "@/lib/utils";
+import { scrollReveal } from "@/lib/scroll-reveal";
 import { firstVariant, primaryImage, type StoreProduct } from "./product-types";
 
 interface ProductCardProps {
@@ -29,6 +31,10 @@ export default function ProductCard(props: ProductCardProps) {
     return v ? v.stockQuantity - v.reservedQuantity <= 0 : true;
   };
 
+  // Stamp-press animation flag — flipped true on click, reset after the
+  // keyframe completes so the button can be pressed again.
+  const [pressing, setPressing] = createSignal(false);
+
   const handleAddToCart = (event: MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
@@ -43,10 +49,20 @@ export default function ProductCard(props: ProductCardProps) {
       slug: product().slug,
       quantity: 1,
     });
+    // Stamp-press keyframe (CSS) — motion-one not needed for a one-shot
+    // transform; the keyframe in global.css handles it. Reset after 400ms.
+    setPressing(true);
+    window.setTimeout(() => setPressing(false), 400);
+    // Toast slides in (solid-sonner handles the slide animation; the
+    // grunge toast styling comes from sonner.tsx theme overrides).
+    toast.success(`Stamped: ${product().name}`, {
+      description: "Added to your stash.",
+    });
   };
 
   return (
     <article
+      ref={(el) => scrollReveal(el)}
       class={cn(
         "group relative flex flex-col border-2 border-ink bg-card shadow-hard-sm",
         "transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-hard",
@@ -55,14 +71,22 @@ export default function ProductCard(props: ProductCardProps) {
       style={{ transform: `rotate(${hashRotation(product().id)}deg)` }}
       data-product-id={product().id}
     >
-      {/* Image — halftone B&W by default, color on hover */}
+      {/* Image — halftone B&W by default, color on hover.
+          `view-transition-name` enables the View Transition morph into
+          the product detail hero image when the detail page is built.
+          Set via inline style because SolidJS islands don't get Astro's
+          `transition:name` directive (that's .astro-only). */}
       <a
         href={href()}
         class="relative block aspect-square overflow-hidden border-b-2 border-ink bg-newsprint-dark"
         aria-hidden="true"
         tabindex="-1"
+        style={{ "view-transition-name": `product-image-${product().slug}` }}
       >
-        <div class="absolute inset-0 bg-halftone opacity-30" aria-hidden="true" />
+        <div
+          class="absolute inset-0 bg-halftone opacity-30 group-hover-halftone"
+          aria-hidden="true"
+        />
         <Show
           when={image()}
           fallback={
@@ -112,7 +136,11 @@ export default function ProductCard(props: ProductCardProps) {
             {product().brand!.name}
           </span>
         </Show>
-        <a href={href()} class="block">
+        <a
+          href={href()}
+          class="block"
+          style={{ "view-transition-name": `product-title-${product().slug}` }}
+        >
           <h3 class="line-clamp-2 font-display text-heading font-black uppercase leading-tight tracking-tight text-ink hover:text-orange">
             {product().name}
           </h3>
@@ -146,6 +174,7 @@ export default function ProductCard(props: ProductCardProps) {
             "flex size-10 shrink-0 items-center justify-center border-2 border-ink bg-ink text-newsprint shadow-hard-sm",
             "transition-all hover:bg-orange hover:text-ink active:translate-x-[2px] active:translate-y-[2px] active:shadow-none",
             "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-ink disabled:hover:text-newsprint",
+            pressing() && "animate-stamp-press",
           )}
         >
           <span class="font-display text-lg font-black leading-none">+</span>

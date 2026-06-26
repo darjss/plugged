@@ -80,16 +80,21 @@ function hasComparePrice(product: Product) {
             const compare = hasComparePrice(product);
             return (
               <li
-                class="group relative"
-                style={`transform: rotate(${i % 2 === 0 ? "-1.2deg" : "1deg"});`}
+                class="group relative stagger-fade-in-up"
+                style={`transform: rotate(${i % 2 === 0 ? "-1.2deg" : "1deg"}); --stagger-i: ${i};`}
               >
                 <a
                   href={`/products/${product.slug}`}
                   class="block border-4 border-ink bg-card shadow-hard-lg transition-all duration-200 group-hover:rotate-0 group-hover:shadow-hard-xl"
                   aria-label={`${product.name} — ${displayPrice(product)}`}
                 >
-                  {/* Image frame — halftone B&W default, color on hover */}
-                  <div class="relative aspect-square overflow-hidden border-b-4 border-ink bg-newsprint-dark">
+                  {/* Image frame — halftone B&W default, color on hover.
+                      transition:name enables the View Transition morph into
+                      the product detail hero image. */}
+                  <div
+                    class="relative aspect-square overflow-hidden border-b-4 border-ink bg-newsprint-dark"
+                    transition:name={`product-image-${product.slug}`}
+                  >
                     {image ? (
                       <img
                         src={image.url}
@@ -122,7 +127,10 @@ function hasComparePrice(product: Product) {
                         {product.brand.name}
                       </p>
                     )}
-                    <h3 class="mt-1 line-clamp-2 font-display text-heading-lg font-black uppercase leading-tight tracking-tight text-ink">
+                    <h3
+                      class="mt-1 line-clamp-2 font-display text-heading-lg font-black uppercase leading-tight tracking-tight text-ink"
+                      transition:name={`product-title-${product.slug}`}
+                    >
                       {product.name}
                     </h3>
                     {product.shortDescription && (

@@ -314,4 +314,257 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* =================================================================
+     Grunge keyframes — high energy, physical, chaotic (DESIGN.md)
+     Sharp ease-out with slight overshoot; never bounce or elastic.
+     ================================================================= */
+
+  /* torn-paper-reveal: element appears with torn-paper edge animation.
+     Mask wipes in from top-left with a jagged clip-path, settling flat. */
+  @keyframes torn-paper-reveal {
+    0% {
+      clip-path: polygon(0% 0%, 0% 0%, 0% 0%, 0% 0%);
+      opacity: 0;
+      transform: translateY(8px) rotate(-1.5deg);
+    }
+    60% {
+      clip-path: polygon(
+        0% 0%,
+        100% 0%,
+        100% 88%,
+        96% 92%,
+        92% 86%,
+        88% 94%,
+        84% 88%,
+        80% 96%,
+        76% 90%,
+        72% 95%,
+        68% 89%,
+        64% 96%,
+        60% 90%,
+        56% 95%,
+        52% 96%,
+        48% 89%,
+        44% 95%,
+        40% 90%,
+        36% 96%,
+        32% 90%,
+        28% 96%,
+        24% 89%,
+        20% 95%,
+        16% 90%,
+        12% 96%,
+        8% 90%,
+        4% 95%,
+        0% 88%
+      );
+      opacity: 1;
+      transform: translateY(0) rotate(0deg);
+    }
+    100% {
+      clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+      opacity: 1;
+      transform: translateY(0) rotate(0deg);
+    }
+  }
+
+  /* halftone-shimmer: halftone dot pattern shifts and pulses. */
+  @keyframes halftone-shimmer {
+    0%,
+    100% {
+      background-position: 0 0;
+      opacity: 0.5;
+    }
+    50% {
+      background-position: 8px 8px;
+      opacity: 0.85;
+    }
+  }
+
+  /* hazard-pulse: hazard-orange color pulses for CTAs and alerts. */
+  @keyframes hazard-pulse {
+    0%,
+    100% {
+      background-color: var(--color-orange);
+      box-shadow: 4px 4px 0px 0px var(--color-ink);
+    }
+    50% {
+      background-color: var(--color-orange-dark);
+      box-shadow: 6px 6px 0px 0px var(--color-ink);
+    }
+  }
+
+  /* stamp-press: element scales down then up like a stamp pressing. */
+  @keyframes stamp-press {
+    0% {
+      transform: scale(1) rotate(0deg);
+    }
+    35% {
+      transform: scale(0.88) rotate(-1.5deg);
+    }
+    70% {
+      transform: scale(1.08) rotate(1deg);
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+    }
+  }
+
+  /* slide-in: cart drawer slides in from right. */
+  @keyframes slide-in-right {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  /* fade-in-up: content fades in and moves up (page transitions). */
+  @keyframes fade-in-up {
+    0% {
+      opacity: 0;
+      transform: translateY(24px) rotate(-0.5deg);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) rotate(0deg);
+    }
+  }
+
+  /* scanline-sweep: scanline texture moves across element. */
+  @keyframes scanline-sweep {
+    0% {
+      background-position: 0 -100%;
+    }
+    100% {
+      background-position: 0 200%;
+    }
+  }
+
+  /* slide-down: search input slides down from top. */
+  @keyframes slide-down {
+    0% {
+      opacity: 0;
+      transform: translateY(-100%);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* fade-in: simple opacity fade (backdrops, QR codes). */
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  /* scale-up: element scales up from 0.9 (QR codes, stamps). */
+  @keyframes scale-up {
+    0% {
+      opacity: 0;
+      transform: scale(0.9) rotate(-2deg);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.04) rotate(1deg);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+  }
+
+  /* =================================================================
+     Animation utility classes — grunge defaults.
+     Durations short, easing sharp ease-out with overshoot.
+     ================================================================= */
+
+  .animate-torn-paper-reveal {
+    animation: torn-paper-reveal 0.6s var(--ease-out-expo) both;
+  }
+  .animate-halftone-shimmer {
+    animation: halftone-shimmer 1.2s var(--ease-out-quart) infinite;
+  }
+  .animate-hazard-pulse {
+    animation: hazard-pulse 1.6s var(--ease-out-quart) infinite;
+  }
+  .animate-stamp-press {
+    animation: stamp-press 0.4s var(--ease-out-quart) both;
+  }
+  .animate-slide-in-right {
+    animation: slide-in-right 0.35s var(--ease-out-expo) both;
+  }
+  .animate-fade-in-up {
+    animation: fade-in-up 0.5s var(--ease-out-expo) both;
+  }
+  .animate-scanline-sweep {
+    animation: scanline-sweep 2.4s linear infinite;
+  }
+  .animate-slide-down {
+    animation: slide-down 0.3s var(--ease-out-expo) both;
+  }
+  .animate-fade-in {
+    animation: fade-in 0.3s var(--ease-out-quart) both;
+  }
+  .animate-scale-up {
+    animation: scale-up 0.45s var(--ease-out-expo) both;
+  }
+
+  /* Stagger helpers — apply to grid children with --stagger-i set inline. */
+  .stagger-fade-in-up {
+    opacity: 0;
+    animation: fade-in-up 0.5s var(--ease-out-expo) both;
+    animation-delay: calc(var(--stagger-i, 0) * 60ms);
+  }
+
+  /* Halftone shimmer on hover for interactive elements. */
+  .hover-halftone-shimmer:hover {
+    animation: halftone-shimmer 1.2s var(--ease-out-quart) infinite;
+  }
+
+  /* Group-hover halftone shimmer — for product card halftone overlays
+     that sit behind the image and can't receive hover directly.
+     Plain class name (not Tailwind's group-hover: variant) so Tailwind
+     doesn't try to process it. */
+  .group:hover .group-hover-halftone {
+    animation: halftone-shimmer 1.2s var(--ease-out-quart) infinite;
+  }
+
+  /* Scanline sweep overlay element — use on a ::after or absolute child. */
+  .bg-scanlines {
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      oklch(0.15 0.01 85 / 0.06) 2px,
+      oklch(0.15 0.01 85 / 0.06) 3px
+    );
+  }
+}
+
+/* ===================================================================
+   View Transitions — grunge morph defaults.
+   Sharp ease-out with slight overshoot per DESIGN.md motion rules.
+   =================================================================== */
+@layer base {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.32s;
+    animation-timing-function: var(--ease-out-expo);
+  }
+
+  /* Morph targets — product image card -> product detail hero.
+     Pages opt in by setting transition:name on the image wrapper. */
+  ::view-transition-group(product-image),
+  ::view-transition-group(product-title) {
+    animation-duration: 0.4s;
+    animation-timing-function: var(--ease-out-expo);
+  }
 }
