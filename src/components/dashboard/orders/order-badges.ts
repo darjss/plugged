@@ -7,6 +7,7 @@ type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>["variant"]>;
 /** Order status → badge variant. Grunge palette, semantic color. */
 export const orderStatusBadgeVariant: Record<(typeof orderStatuses)[number], BadgeVariant> = {
   pending: "warning",
+  paid: "success",
   shipped: "highlighter",
   delivered: "success",
   cancelled: "destructive",

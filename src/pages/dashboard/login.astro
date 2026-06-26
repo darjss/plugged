@@ -13,6 +13,24 @@ if (session && user) {
     return Astro.redirect("/dashboard");
   }
 }
+
+// Allow a `?next=` deep-link back into the admin SPA after sign-in, but
+// only accept same-origin absolute paths under /dashboard. Anything else
+// (external URLs, protocol-relative, open-redirect payloads) is ignored
+// and the user lands on /dashboard. Without this allowlist, `next` is an
+// open redirect into arbitrary URLs.
+const rawNext = typeof Astro.url.searchParams.get("next") === "string"
+  ? Astro.url.searchParams.get("next")!
+  : "";
+const safeNext = (() => {
+  if (!rawNext) return "/dashboard";
+  // Must start with a single slash, no protocol-relative `//`, and must
+  // stay under /dashboard. Reject anything that escapes the admin shell.
+  if (!rawNext.startsWith("/")) return "/dashboard";
+  if (rawNext.startsWith("//")) return "/dashboard";
+  if (!rawNext.startsWith("/dashboard")) return "/dashboard";
+  return rawNext;
+})();
 ---
 
 <Layout title="Admin sign in | Plugged">
@@ -42,7 +60,7 @@ if (session && user) {
         and analytics.
       </p>
       <div class="mt-6">
-        <GoogleSignIn client:load next="/dashboard" />
+        <GoogleSignIn client:load next={safeNext} />
       </div>
     </div>
 

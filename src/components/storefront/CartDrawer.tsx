@@ -1,5 +1,5 @@
 import { Minus, Plus, ShoppingBag, X } from "lucide-solid";
-import { For, Show } from "solid-js";
+import { For, onMount, Show } from "solid-js";
 
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
@@ -8,10 +8,18 @@ import { cn, formatMnt } from "@/lib/utils";
 
 /**
  * Cart drawer island. `client:only="solid-js"` so it never touches
- * localStorage during SSR. `transition:persist` is applied by the
- * parent layout so the drawer survives Astro View Transitions.
+ * localStorage during SSR. The drawer renders through a Solid
+ * `<Portal>` into `document.body`, so it is NOT wrapped in
+ * `transition:persist` (persisting the wrapper would keep the empty
+ * shell while the portaled overlay/panel get torn down on swap,
+ * wedging the user). Instead we close the drawer on `astro:before-swap`
+ * so the next page starts with a clean state.
  */
 export default function CartDrawer() {
+  onMount(() => {
+    document.addEventListener("astro:before-swap", () => cart.closeDrawer());
+  });
+
   return (
     <Drawer
       open={cart.isDrawerOpen()}
