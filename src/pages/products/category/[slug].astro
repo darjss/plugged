@@ -1,0 +1,82 @@
+---
+import StorefrontLayout from "../../../layouts/StorefrontLayout.astro";
+import FilterBar from "../../../components/storefront/FilterBar.astro";
+import ProductsList from "../../../components/storefront/ProductsList.tsx";
+import ProductCard from "../../../components/storefront/ProductCard.tsx";
+import { commerceQueries } from "../../../server/commerce/queries";
+
+export const prerender = false;
+
+const slug = Astro.params.slug;
+
+// Resolve the category; 404 if the slug doesn't match a known category.
+const categories = await commerceQueries.store.getCategories();
+const category = categories.find((c) => c.slug === slug);
+
+if (!category) {
+  return Astro.redirect("/404");
+}
+
+const url = new URL(Astro.request.url);
+const brandSlug = url.searchParams.get("brand") ?? undefined;
+
+const PAGE_SIZE = 12;
+const brands = await commerceQueries.store.getBrands();
+
+const products = await commerceQueries.store.getProducts({
+  categorySlug: slug,
+  brandSlug,
+  limit: PAGE_SIZE,
+  offset: 0,
+});
+
+const title = `${category.name} | Plugged`;
+const description = `Browse ${category.name.toLowerCase()} — pocket audio from the wall.`;
+---
+
+<StorefrontLayout title={title} description={description}>
+  <section class="mx-auto max-w-screen-2xl px-4 py-8 lg:px-8 lg:py-12">
+    {/* Masthead */}
+    <div class="mb-6 flex flex-col gap-2 border-b-4 border-ink pb-6">
+      <p class="text-micro font-black uppercase tracking-widest text-orange">
+        Category
+      </p>
+      <h1
+        class="font-display text-display font-black uppercase leading-none tracking-tight text-ink"
+      >
+        {category.name}
+      </h1>
+      {category.description && (
+        <p class="max-w-prose text-body-lg text-ink-muted">{category.description}</p>
+      )}
+    </div>
+
+    {/* Filter bar — category is pinned, brand filter still active */}
+    <div class="mb-8">
+      <FilterBar
+        categories={categories}
+        brands={brands}
+        activeCategory={slug}
+        activeBrand={brandSlug}
+      />
+    </div>
+
+    {/* SSR grid — first 12 products for this category */}
+    <div id="products-ssr" class="mb-4">
+      <div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+        {products.map((product) => (
+          <ProductCard product={product} />
+        ))}
+      </div>
+    </div>
+
+    {/* Infinite-scroll island — pinned to this category slug */}
+    <ProductsList
+      client:only="solid-js"
+      initialProducts={products}
+      categorySlug={slug}
+      brandSlug={brandSlug}
+      pageSize={PAGE_SIZE}
+    />
+  </section>
+</StorefrontLayout>
