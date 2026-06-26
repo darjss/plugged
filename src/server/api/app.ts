@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import { eq } from "drizzle-orm";
-import { adminQueries } from "../admin/queries";
+import { adminQueries } from "../commerce/admin-queries";
+import { adminQueries as adminSettingsQueries } from "../admin/queries";
 import { adminUpdateUserSchema, adminUsersQuerySchema } from "../admin/validation";
 import { commerceQueries } from "../commerce/queries";
 import {
@@ -55,15 +56,37 @@ export const app = new Elysia()
       requireAdmin: true,
     },
   )
-  .get("/admin/settings", () => adminQueries.getSettings(), { requireAdmin: true })
+  .get("/admin/stats", () => adminQueries.getStats(), {
+    requireAdmin: true,
+  })
+  .get("/admin/settings", () => adminSettingsQueries.getSettings(), { requireAdmin: true })
+  .get(
+    "/admin/orders",
+    ({ query }) => {
+      const raw = query as Record<string, string | undefined>;
+      const parsed = Number(raw.limit ?? 10);
+      const limit = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 1), 50) : 10;
+      return adminQueries.getRecentOrders(limit);
+    },
+    { requireAdmin: true },
+  )
+  .get(
+    "/admin/products",
+    ({ query }) => {
+      const raw = query as Record<string, string | undefined>;
+      if (raw.lowStock !== "true") return { products: [] };
+      return adminQueries.getLowStockProducts().then((products) => ({ products }));
+    },
+    { requireAdmin: true },
+  )
   .get(
     "/admin/users",
     async ({ query }) => {
       const input = parseInput(adminUsersQuerySchema, query);
       if (input.search) {
-        return { users: await adminQueries.searchUsersByEmail(input.search) };
+        return { users: await adminSettingsQueries.searchUsersByEmail(input.search) };
       }
-      return { users: await adminQueries.listUsers() };
+      return { users: await adminSettingsQueries.listUsers() };
     },
     { requireAdmin: true },
   )
@@ -71,7 +94,7 @@ export const app = new Elysia()
     "/admin/users/:id",
     async ({ body, params, user }) => {
       const input = parseInput(adminUpdateUserSchema, body);
-      return adminQueries.updateIsAdmin(params.id, input.isAdmin, user!.id);
+      return adminSettingsQueries.updateIsAdmin(params.id, input.isAdmin, user!.id);
     },
     { requireAdmin: true },
   )
