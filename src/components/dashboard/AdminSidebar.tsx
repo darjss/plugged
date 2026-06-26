@@ -1,6 +1,7 @@
 import { A, useLocation } from "@solidjs/router";
+import { createQuery } from "@tanstack/solid-query";
 import { BarChart3, Box, Home, LogOut, Package, Settings } from "lucide-solid";
-import { createResource, For, Show, type Component, type JSX } from "solid-js";
+import { For, Show, type Component, type JSX } from "solid-js";
 import { authClient } from "@/lib/auth-client";
 import { api } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
@@ -40,17 +41,26 @@ type SessionUser = {
 export default function AdminSidebar() {
   const location = useLocation();
 
-  // Fetch the admin session once for the footer user block. The Astro page
-  // already gates on requireAdmin server-side; this is purely for display.
-  const [session] = createResource(async () => {
-    const { data, error } = await api.dashboard.session.get();
-    if (error || !data) return null;
-    return {
-      name: data.user?.name ?? "Admin",
-      email: data.user?.email ?? "",
-      image: data.user?.image ?? null,
-    } satisfies SessionUser;
-  });
+  // Reuse the same queryKey as AdminTopbar so TanStack Query dedups
+  // the network request across both components (the previous
+  // createResource here issued a second fetch independent of the
+  // topbar's createResource).
+  const session = createQuery(() => ({
+    queryKey: ["dashboard", "session"],
+    queryFn: async () => {
+      const { data, error } = await api.dashboard.session.get();
+      if (error || !data) return null;
+      // Eden treaty infers the dashboard/session response as the error
+      // shape (the success body is too deep for route-tree inference).
+      // Cast at the fetch boundary — documented escape hatch.
+      const user = (data as { user?: SessionUser }).user;
+      return {
+        name: user?.name ?? "Admin",
+        email: user?.email ?? "",
+        image: user?.image ?? null,
+      } satisfies SessionUser;
+    },
+  }));
 
   const isActive = (href: string) =>
     href === "/" ? location.pathname === "/" : location.pathname.startsWith(href);
@@ -89,7 +99,7 @@ export default function AdminSidebar() {
 
       <SidebarFooter class="border-t-2 border-newsprint/15 p-3">
         <Show
-          when={session()}
+          when={session.data}
           fallback={
             <div class="px-2 py-2 font-mono text-xs text-newsprint/50">Loading session…</div>
           }

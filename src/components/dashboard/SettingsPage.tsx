@@ -1,5 +1,5 @@
 import { createMutation, createQuery } from "@tanstack/solid-query";
-import { createSignal, createMemo, For, Show } from "solid-js";
+import { createSignal, createMemo, For, Show, onCleanup } from "solid-js";
 import { toast } from "solid-sonner";
 import { api } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
@@ -110,12 +110,27 @@ function ConfigRow(props: { label: string; status: boolean }) {
 }
 
 function AdminUsersSection(props: { currentUser: SessionUser | null }) {
+  // `search` is the immediate input value (updates on every keystroke
+  // for responsive UI). `debouncedSearch` is the value actually sent to
+  // the API — it lags 300ms behind the last keystroke so we don't fire
+  // a query per character.
   const [search, setSearch] = createSignal("");
+  const [debouncedSearch, setDebouncedSearch] = createSignal("");
+
+  let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+  const updateSearch = (value: string) => {
+    setSearch(value);
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => setDebouncedSearch(value), 300);
+  };
+  onCleanup(() => {
+    if (debounceTimer) clearTimeout(debounceTimer);
+  });
 
   const users = createQuery(() => ({
-    queryKey: ["admin", "users", { search: search() }],
+    queryKey: ["admin", "users", { search: debouncedSearch() }],
     queryFn: async () => {
-      const query = search() ? { search: search() } : undefined;
+      const query = debouncedSearch() ? { search: debouncedSearch() } : undefined;
       const { data, error } = await api.admin.users.get({ query });
       if (error) throw error;
       return (data as { users: AdminUser[] }).users;
@@ -159,10 +174,19 @@ function AdminUsersSection(props: { currentUser: SessionUser | null }) {
             id="admin-user-search"
             placeholder="email@example.com"
             value={search()}
-            onInput={(e) => setSearch(e.currentTarget.value)}
+            onInput={(e) => updateSearch(e.currentTarget.value)}
           />
           <Show when={search()}>
-            <Button variant="outline" size="sm" class="self-start" onClick={() => setSearch("")}>
+            <Button
+              variant="outline"
+              size="sm"
+              class="self-start"
+              onClick={() => {
+                setSearch("");
+                setDebouncedSearch("");
+                if (debounceTimer) clearTimeout(debounceTimer);
+              }}
+            >
               Clear search
             </Button>
           </Show>
@@ -178,7 +202,7 @@ function AdminUsersSection(props: { currentUser: SessionUser | null }) {
               when={rows().length > 0}
               fallback={
                 <div class="p-6 font-mono text-sm text-muted-foreground">
-                  No users match “{search()}”.
+                  No users match “{debouncedSearch()}”.
                 </div>
               }
             >

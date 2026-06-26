@@ -20,6 +20,7 @@ type PaymentStatus = (typeof paymentStatuses)[number];
 
 const ORDER_STATUS_BADGE: Record<OrderStatus, BadgeProps["variant"]> = {
   pending: "warning",
+  paid: "success",
   shipped: "highlighter",
   delivered: "success",
   cancelled: "destructive",
@@ -147,8 +148,21 @@ const DashboardHome: Component = () => {
     },
   }));
 
-  const primaryPaymentStatus = (payments: { status: PaymentStatus }[]): PaymentStatus | null =>
-    payments[0]?.status ?? null;
+  // Pick the most informative payment status rather than blindly
+  // taking `payments[0]` (which assumes insertion order and can show
+  // "pending" when a later payment on the same order is "success").
+  const PAYMENT_STATUS_PRIORITY: Record<PaymentStatus, number> = {
+    success: 0,
+    customer_claimed_paid: 1,
+    pending: 2,
+    failed: 3,
+  };
+  const primaryPaymentStatus = (payments: { status: PaymentStatus }[]): PaymentStatus | null => {
+    if (payments.length === 0) return null;
+    return payments.reduce((best, p) =>
+      PAYMENT_STATUS_PRIORITY[p.status] < PAYMENT_STATUS_PRIORITY[best.status] ? p : best,
+    ).status;
+  };
 
   return (
     <div class="mx-auto flex max-w-6xl flex-col gap-8">

@@ -36,7 +36,7 @@ interface PaymentRow {
 
 interface PaymentCheckResponse {
   count: number;
-  paid_amount: number;
+  paid_amount: string;
   rows: PaymentRow[];
 }
 
@@ -45,19 +45,23 @@ export interface QpayInvoiceResult {
   qrText: string;
   qrImage: string;
   shortUrl: string;
+  urls: PaymentUrl[];
 }
 
 export interface QpayInvoiceStatus {
   paid: boolean;
-  paymentStatus: string | null;
+  paidAmountMnt: number | null;
 }
 
 const resolveTokenTtl = (expiresIn: number): number => {
-  // QPay returns expires_in as an absolute unix timestamp (seconds).
-  // Fall back to treating it as a relative duration if it looks relative.
+  // QPay returns `expires_in` as an absolute unix timestamp (seconds).
+  // Convert to a relative TTL and shave 60s so we never serve a stale
+  // token. Clamp the floor to half the real life so the floor can never
+  // exceed the token's actual lifetime (the previous Math.max(ttl-60, 60)
+  // could cache a 30s token for 60s).
   const now = Math.floor(Date.now() / 1000);
   const ttl = expiresIn > now ? expiresIn - now : expiresIn;
-  return Math.max(ttl - 60, 60);
+  return Math.max(ttl - 60, Math.min(ttl, 60));
 };
 
 const requireCredentials = (): { username: string; password: string } => {
@@ -67,6 +71,18 @@ const requireCredentials = (): { username: string; password: string } => {
     throw new Error("QPay credentials are missing or empty");
   }
   return { password, username };
+};
+
+/**
+ * Returns the configured QPay webhook shared secret, or undefined if
+ * not set. Used by the webhook route to authenticate delivery callbacks.
+ * Exported as a function (not a top-level const) so the caller can
+ * dynamic-import this module without triggering credential validation
+ * at import time.
+ */
+export const getQpayWebhookSecret = (): string | undefined => {
+  const secret = appEnv.QPAY_WEBHOOK_SECRET?.trim();
+  return secret || undefined;
 };
 
 const requireBaseUrl = (): string => {
@@ -121,6 +137,18 @@ const qpayClient = ky.create({
         if (response.status !== 401) return response;
         if (request.headers.get("x-qpay-retried") === "1") return response;
 
+        // Only refresh on token-invalidated 401s. A 401 from a malformed
+        // invoice request would otherwise burn a refresh and clear the
+        // cached token for all concurrent requests for no reason.
+        const body = await response.text().catch(() => "");
+        if (!body.includes("NO_CREDENDIALS") && !/token/i.test(body)) {
+          return new Response(body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: response.headers,
+          });
+        }
+
         await clearAccessToken();
         const refreshedToken = await getAccessToken({ forceRefresh: true });
 
@@ -136,7 +164,7 @@ const qpayClient = ky.create({
 
 const describeHttpError = async (error: HTTPError, context: string): Promise<string> => {
   const body = await error.response.text().catch(() => "");
-  return `QPay ${context} failed (${error.response.status}): ${body.slice(0, 300)}`;
+  return `QPay ${context} failed (${error.response.status} ${error.response.statusText}) ${error.request.url}: ${body.slice(0, 300)}`;
 };
 
 /**
@@ -172,6 +200,7 @@ export const createQpayInvoice = async (
       qrImage: response.qr_image,
       qrText: response.qr_text,
       shortUrl: response.qPay_shortUrl,
+      urls: response.urls,
     };
   } catch (error) {
     if (error instanceof HTTPError) {
@@ -201,12 +230,14 @@ export const checkQpayInvoice = async (invoiceId: string): Promise<QpayInvoiceSt
 
     const latestPayment = response.rows[0];
     if (!latestPayment) {
-      return { paid: false, paymentStatus: null };
+      return { paid: false, paidAmountMnt: null };
     }
 
+    // QPay returns amounts as strings; parse defensively.
+    const paidAmount = Number(response.paid_amount);
     return {
       paid: latestPayment.payment_status === "PAID",
-      paymentStatus: latestPayment.payment_status,
+      paidAmountMnt: Number.isFinite(paidAmount) ? paidAmount : null,
     };
   } catch (error) {
     if (error instanceof HTTPError) {

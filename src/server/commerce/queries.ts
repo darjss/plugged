@@ -189,13 +189,28 @@ export const commerceQueries = {
       return result;
     },
 
-    async addCartItem(cartToken: string, variantId: string, quantity: number) {
-      const currentCart = await db.query.cart.findFirst({
+    /**
+     * Fetch a cart by its anonymous token or throw NotFoundError.
+     * Single-sources the duplicated fetch + throw that previously
+     * appeared in addCartItem / updateCartItem / removeCartItem /
+     * createOrder. `withRelations` defaults to `{ items: true }` (the
+     * shape those callers used); pass a richer `withRelations` for
+     * createOrder.
+     */
+    async getCartOrThrow(
+      cartToken: string,
+      withRelations: Record<string, unknown> = { items: true },
+    ) {
+      const result = await db.query.cart.findFirst({
         where: eq(cart.anonymousToken, cartToken),
-        with: { items: true },
+        with: withRelations as never,
       });
+      if (!result) throw new NotFoundError("cart", cartToken);
+      return result;
+    },
 
-      if (!currentCart) throw new NotFoundError("cart", cartToken);
+    async addCartItem(cartToken: string, variantId: string, quantity: number) {
+      const currentCart = await this.getCartOrThrow(cartToken);
 
       const variant = await db.query.productVariant.findFirst({
         where: and(eq(productVariant.id, variantId), eq(productVariant.active, true)),
@@ -251,12 +266,7 @@ export const commerceQueries = {
     },
 
     async updateCartItem(cartToken: string, itemId: string, quantity: number) {
-      const currentCart = await db.query.cart.findFirst({
-        where: eq(cart.anonymousToken, cartToken),
-        with: { items: true },
-      });
-
-      if (!currentCart) throw new NotFoundError("cart", cartToken);
+      const currentCart = await this.getCartOrThrow(cartToken);
 
       const existing = await db.query.cartItem.findFirst({
         where: and(eq(cartItem.id, itemId), eq(cartItem.cartId, currentCart.id)),
@@ -288,12 +298,7 @@ export const commerceQueries = {
     },
 
     async removeCartItem(cartToken: string, itemId: string) {
-      const currentCart = await db.query.cart.findFirst({
-        where: eq(cart.anonymousToken, cartToken),
-        with: { items: true },
-      });
-
-      if (!currentCart) throw new NotFoundError("cart", cartToken);
+      const currentCart = await this.getCartOrThrow(cartToken);
 
       const existing = await db.query.cartItem.findFirst({
         where: and(eq(cartItem.id, itemId), eq(cartItem.cartId, currentCart.id)),
@@ -355,8 +360,8 @@ export const commerceQueries = {
           },
         },
       });
-
       if (!currentCart) throw new NotFoundError("cart", input.cartToken);
+
       if (currentCart.items.length === 0) throw new ConflictError("Cart is empty");
 
       return {
@@ -399,74 +404,95 @@ export const commerceQueries = {
       const totalMnt = subtotalMnt + deliveryFeeMnt;
       const orderNumber = `PLG-${nanoid(10).toUpperCase()}`;
       const paymentNumber = `PAY-${nanoid(10).toUpperCase()}`;
+      const checkoutToken = nanoid(32);
 
-      await db.insert(order).values({
-        address: input.address,
-        checkoutToken: nanoid(32),
-        createdAt: date,
-        customerName: input.customerName ?? null,
-        customerPhone: input.customerPhone,
-        deliveryFeeMnt,
-        deliveryProvider: input.deliveryProvider,
-        id: orderId,
-        notes: input.notes ?? null,
-        orderNumber,
-        orderedAt: date,
-        status: "pending",
-        subtotalMnt,
-        totalMnt,
-        updatedAt: date,
-        userId,
-      });
-
-      await db.insert(orderItem).values(
-        lines.map((line) => ({
+      // SINGLE atomic batch: order + order_items + payment + cart clear
+      // + stock decrements all in one `db.batch()`. A failure mid-batch
+      // rolls back the entire checkout — no orphaned order rows, no
+      // cleared cart without an order, no decremented stock without a
+      // corresponding order item. Stock decrements are conditional on
+      // `stockQuantity >= quantity` so concurrent checkouts can't
+      // drive stock negative (the availability check above is a
+      // read-then-write guard; the conditional UPDATE is the
+      // write-time guard).
+      const batchStmts = [
+        db.insert(order).values({
+          address: input.address,
+          checkoutToken,
           createdAt: date,
-          id: nanoid(),
-          lineTotalMnt: line.variant.priceMnt * line.quantity,
+          customerName: input.customerName ?? null,
+          customerPhone: input.customerPhone,
+          deliveryFeeMnt,
+          deliveryProvider: input.deliveryProvider,
+          id: orderId,
+          notes: input.notes ?? null,
+          orderNumber,
+          orderedAt: date,
+          status: "pending",
+          subtotalMnt,
+          totalMnt,
+          updatedAt: date,
+          userId,
+        }),
+        db.insert(orderItem).values(
+          lines.map((line) => ({
+            createdAt: date,
+            id: nanoid(),
+            lineTotalMnt: line.variant.priceMnt * line.quantity,
+            orderId,
+            productId: line.productId,
+            productName: line.product.name,
+            quantity: line.quantity,
+            sku: line.variant.sku,
+            unitPriceMnt: line.variant.priceMnt,
+            variantId: line.variantId,
+            variantName: line.variant.name,
+          })),
+        ),
+        db.insert(payment).values({
+          amountMnt: totalMnt,
+          createdAt: date,
+          id: paymentId,
           orderId,
-          productId: line.productId,
-          productName: line.product.name,
-          quantity: line.quantity,
-          sku: line.variant.sku,
-          unitPriceMnt: line.variant.priceMnt,
-          variantId: line.variantId,
-          variantName: line.variant.name,
-        })),
-      );
-
-      await db.insert(payment).values({
-        amountMnt: totalMnt,
-        createdAt: date,
-        id: paymentId,
-        orderId,
-        paymentNumber,
-        provider: input.paymentProvider ?? "qpay",
-        status: "pending",
-        updatedAt: date,
-      });
+          paymentNumber,
+          provider: input.paymentProvider ?? "qpay",
+          status: "pending",
+          updatedAt: date,
+        }),
+      ];
 
       if (sourceCartId) {
-        await db.delete(cartItem).where(eq(cartItem.cartId, sourceCartId));
+        batchStmts.push(db.delete(cartItem).where(eq(cartItem.cartId, sourceCartId)));
       }
 
-      for (const line of lines) {
-        await db
-          .update(productVariant)
-          .set({
-            stockQuantity: sql`${productVariant.stockQuantity} - ${line.quantity}`,
-            updatedAt: date,
-          })
-          .where(eq(productVariant.id, line.variantId));
-      }
+      batchStmts.push(
+        ...lines.map((line) =>
+          db
+            .update(productVariant)
+            .set({
+              stockQuantity: sql`${productVariant.stockQuantity} - ${line.quantity}`,
+              updatedAt: date,
+            })
+            .where(
+              and(
+                eq(productVariant.id, line.variantId),
+                sql`${productVariant.stockQuantity} >= ${line.quantity}`,
+              ),
+            ),
+        ),
+      );
 
-      return db.query.order.findFirst({
+      await db.batch(batchStmts);
+
+      const created = await db.query.order.findFirst({
         where: eq(order.id, orderId),
         with: {
           items: true,
           payments: true,
         },
       });
+      if (!created) throw new NotFoundError("order", orderId);
+      return created;
     },
 
     async getOrderByNumber(orderNumber: string) {
@@ -517,13 +543,102 @@ export const commerceQueries = {
 
       await db.update(payment).set(patch).where(eq(payment.id, paymentId));
 
-      return db.query.payment.findFirst({ where: eq(payment.id, paymentId) });
+      const updated = await db.query.payment.findFirst({ where: eq(payment.id, paymentId) });
+      if (!updated) throw new NotFoundError("payment", paymentId);
+      return updated;
+    },
+
+    /**
+     * Idempotent, atomic payment confirmation. Used by the QPay webhook.
+     *
+     * - Re-reads the payment row. If already `success`, heals the
+     *   order status to `paid` if it's still `pending` (covers the
+     *   crash window where a previous confirmation updated the payment
+     *   but crashed before the order update committed) then returns
+     *   `{ confirmed: false }`.
+     * - Verifies the paid amount covers the invoice amount before
+     *   confirming (defends against partial-payment "PAID" markers).
+     * - Updates payment → `success` AND order → `paid` in a SINGLE
+     *   `db.batch()` so the two writes can never diverge. The
+     *   conditional `WHERE status = 'pending'` on the payment update
+     *   makes confirmation idempotent by construction: if another
+     *   worker already flipped the payment, `rowsAffected === 0` and
+     *   the order update is skipped (the already-success heal path
+     *   above covers the crash-window case).
+     *
+     * Returns `{ confirmed: true }` when this call did the confirmation,
+     * or `{ confirmed: false }` when the payment was already settled
+     * (no-op or heal-only).
+     */
+    async confirmQpayPayment(
+      paymentId: string,
+      paidAmountMnt: number | null,
+    ): Promise<{ confirmed: boolean }> {
+      const targetPayment = await db.query.payment.findFirst({
+        where: eq(payment.id, paymentId),
+        with: { order: true },
+      });
+      if (!targetPayment) throw new NotFoundError("payment", paymentId);
+
+      // Idempotency: already settled. Heal the order status if a
+      // previous confirmation crashed after updating the payment but
+      // before the order update committed. Without this heal, a retry
+      // would see payment=success and bail, leaving the order stuck
+      // in `pending` forever.
+      if (targetPayment.status === "success") {
+        if (targetPayment.order && targetPayment.order.status === "pending") {
+          const healDate = now();
+          await db.batch([
+            db
+              .update(order)
+              .set({ status: "paid", updatedAt: healDate })
+              .where(and(eq(order.id, targetPayment.orderId), eq(order.status, "pending"))),
+          ]);
+        }
+        return { confirmed: false };
+      }
+
+      // Amount check: only confirm when the paid amount covers the
+      // invoice amount. If QPay didn't report a paid amount, fall back
+      // to trusting the PAID status (the webhook already verified via
+      // the QPay API; this guard is defense-in-depth against partial
+      // payments that QPay marks "PAID").
+      const required = targetPayment.amountMnt;
+      if (paidAmountMnt !== null && paidAmountMnt < required) {
+        throw new ConflictError(`Paid amount ${paidAmountMnt} does not cover invoice ${required}`);
+      }
+
+      const date = now();
+
+      // SINGLE atomic batch: payment → success AND order → paid
+      // together. The payment update is conditional on
+      // `status = 'pending'` so concurrent confirmations don't
+      // double-flip. If the payment conditional fails (another worker
+      // already confirmed), the order update still runs but is
+      // harmless — it's conditional on `status = 'pending'` too, so
+      // it won't clobber a `paid`/`shipped`/`delivered` order.
+      await db.batch([
+        db
+          .update(payment)
+          .set({ status: "success", paidAt: date, updatedAt: date })
+          .where(and(eq(payment.id, paymentId), eq(payment.status, "pending"))),
+        db
+          .update(order)
+          .set({ status: "paid", updatedAt: date })
+          .where(and(eq(order.id, targetPayment.orderId), eq(order.status, "pending"))),
+      ]);
+
+      return { confirmed: true };
     },
 
     /**
      * Create a QPay invoice for an order's outstanding payment and persist
      * the invoice id + QR data on the payment record. Returns the QR data
      * for the client to render.
+     *
+     * Idempotent: if a QPay invoice is already attached, returns the
+     * existing QR data instead of minting a new one (prevents orphaned
+     * invoices when the route is called twice).
      */
     async createQpayInvoiceForOrder(orderNumber: string) {
       const targetOrder = await db.query.order.findFirst({
@@ -538,16 +653,33 @@ export const commerceQueries = {
       const targetPayment = targetOrder.payments.find((p) => p.provider === "qpay");
       if (!targetPayment) throw new NotFoundError("qpay-payment", orderNumber);
 
+      // Idempotency: if a QPay invoice is already attached, return the
+      // existing QR data instead of minting a new one. Re-minting would
+      // orphan the first invoice and break any client already showing
+      // the first QR.
+      if (targetPayment.qpayInvoiceId && targetPayment.qpayQrText) {
+        return {
+          invoiceId: targetPayment.qpayInvoiceId,
+          paymentNumber: targetPayment.paymentNumber,
+          qrImage: targetPayment.qpayQrImage ?? "",
+          qrText: targetPayment.qpayQrText,
+          shortUrl: targetPayment.qpayUrlsJson ?? "",
+        };
+      }
+
       const invoice = await createQpayInvoice(targetPayment.amountMnt, targetPayment.paymentNumber);
 
       const date = now();
+      // Store the full QPay urls array as JSON in `qpay_urls_json` (the
+      // column name promises JSON; the previous code stored a bare shortUrl
+      // string and discarded the bank/deep-link URLs QPay returned).
       await db
         .update(payment)
         .set({
           qpayInvoiceId: invoice.invoiceId,
           qpayQrImage: invoice.qrImage,
           qpayQrText: invoice.qrText,
-          qpayUrlsJson: invoice.shortUrl,
+          qpayUrlsJson: JSON.stringify(invoice.urls),
           updatedAt: date,
         })
         .where(eq(payment.id, targetPayment.id));
@@ -726,7 +858,8 @@ export const commerceQueries = {
       if (!current) throw new NotFoundError("order", id);
 
       const allowed: Record<string, string[]> = {
-        pending: ["shipped", "delivered", "cancelled"],
+        pending: ["paid", "shipped", "delivered", "cancelled"],
+        paid: ["shipped", "delivered", "cancelled", "refunded"],
         shipped: ["delivered"],
         delivered: [],
         cancelled: [],

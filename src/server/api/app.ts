@@ -1,5 +1,4 @@
 import { Elysia } from "elysia";
-import { eq } from "drizzle-orm";
 import * as v from "valibot";
 import { adminQueries } from "../commerce/admin-queries";
 import { adminQueries as adminSettingsQueries } from "../admin/queries";
@@ -13,8 +12,6 @@ import {
   createPaymentInputSchema,
   productListQuerySchema,
 } from "../commerce/validation";
-import { db } from "../db";
-import { order } from "../db/schema";
 import { checkQpayInvoice } from "../integrations/qpay";
 import { DomainError } from "../lib/errors";
 import { MONGOLIAN_PHONE_REGEX } from "../../lib/utils";
@@ -37,6 +34,10 @@ export const app = new Elysia()
         },
       });
     }
+
+    // Log the actual error so unexpected throws (Drizzle/D1, better-auth
+    // internals, Elysia ParseError) don't vanish in production.
+    console.error("[api] unhandled error", error);
 
     return status(500, {
       error: {
@@ -172,9 +173,26 @@ export const app = new Elysia()
   .get("/orders/:orderNumber", async ({ params }) =>
     commerceQueries.orders.getOrderByNumber(params.orderNumber),
   )
-  .post("/qpay/webhook", async ({ query, status }) => {
+  .post("/qpay/webhook", async ({ query, request, status }) => {
     const paymentNumber = typeof query.id === "string" ? query.id : null;
     if (!paymentNumber) return status(200, { ok: true });
+
+    // Webhook authentication: shared secret passed in the
+    // `x-qpay-webhook-secret` header (set in QPAY_CALLBACK_URL delivery
+    // config). If the secret is configured but missing/wrong, we still
+    // return 200 to avoid QPay retry storms, but do not process.
+    // The secret is read via a dynamic import of the qpay integration
+    // module to avoid importing t3-env at the top level (it inflates
+    // the Elysia app type chain and breaks Eden route-tree inference).
+    const { getQpayWebhookSecret } = await import("../integrations/qpay");
+    const expected = getQpayWebhookSecret();
+    if (expected) {
+      const presented = request.headers.get("x-qpay-webhook-secret");
+      if (presented !== expected) {
+        console.warn("qpay webhook rejected: bad shared secret", { paymentNumber });
+        return status(200, { ok: true });
+      }
+    }
 
     try {
       const targetPayment = await commerceQueries.payments.getPaymentByNumber(paymentNumber);
@@ -182,14 +200,17 @@ export const app = new Elysia()
 
       const invoiceStatus = await checkQpayInvoice(targetPayment.qpayInvoiceId);
       if (invoiceStatus.paid) {
-        await commerceQueries.payments.updatePaymentStatus(targetPayment.id, "success");
-        await db
-          .update(order)
-          .set({ status: "pending", updatedAt: new Date() })
-          .where(eq(order.id, targetPayment.orderId));
+        await commerceQueries.payments.confirmQpayPayment(
+          targetPayment.id,
+          invoiceStatus.paidAmountMnt,
+        );
       }
     } catch (error) {
+      // QPay-API failure (network, 5xx): return 502 so QPay retries the
+      // webhook. Returning 200 unconditionally would silently drop
+      // confirmations when QPay's /payment/check is down at delivery time.
       console.error("qpay webhook failed", { paymentNumber, error: String(error) });
+      return status(502, { ok: false });
     }
 
     return status(200, { ok: true });

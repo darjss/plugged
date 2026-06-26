@@ -36,10 +36,12 @@ const { title, description } = Astro.props;
     <MobileNav />
 
     {/* Cart drawer — client:only to avoid SSR/localStorage mismatch.
-        transition:persist keeps it mounted across View Transitions. */}
-    <div transition:persist>
-      <CartDrawer client:only="solid-js" />
-    </div>
+        No `transition:persist` wrapper: the drawer renders through a
+        Solid `<Portal>` into `document.body`, so persisting the wrapper
+        would keep the empty shell while the portaled overlay/panel get
+        torn down on swap, wedging the user. The drawer closes itself
+        on `astro:before-swap` (see CartDrawer.tsx). */}
+    <CartDrawer client:only="solid-js" />
 
     {/* Toast notifications — grunge-styled via sonner.tsx theme.
         transition:persist so toasts survive View Transitions. */}
