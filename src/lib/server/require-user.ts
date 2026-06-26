@@ -13,19 +13,6 @@ export function requireUser(context: RequireUserContext) {
   return context.redirect(`/auth/sign-in?next=${encodeURIComponent(next)}`);
 }
 
-export async function requireAdmin(context: RequireUserContext) {
-  const user = requireUser(context);
-
-  if (user instanceof Response) {
-    return user;
-  }
-
-  const { isAdminUser } = await import("../../server/auth/guards");
-  const isAdmin = await isAdminUser(user.id);
-
-  if (isAdmin) {
-    return user;
-  }
-
-  return new Response("Forbidden", { status: 403 });
-}
+// `requireAdmin` lives in `./require-admin` (admin Google login redirect +
+// DB-based isAdmin gate). Re-exported here for existing import sites.
+export { requireAdmin } from "./require-admin";
