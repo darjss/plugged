@@ -1,21 +1,24 @@
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import * as v from "valibot";
 import { db } from "../db";
 import {
+  brand,
   cart,
   cartItem,
+  category,
   deliveryFeeMnt,
   order,
   orderItem,
   payment,
   paymentStatuses,
   product,
+  productCategory,
   productVariant,
 } from "../db/schema";
 import { ConflictError, NotFoundError, OutOfStockError } from "../lib/errors";
 import { createQpayInvoice } from "../integrations/qpay";
-import { checkoutInputSchema } from "./validation";
+import { checkoutInputSchema, productListQuerySchema } from "./validation";
 
 const publicProductColumns = {
   id: true,
@@ -32,14 +35,63 @@ const publicProductColumns = {
 
 const now = () => new Date();
 const activeProduct = () => eq(product.status, "active");
+const DEFAULT_PAGE_SIZE = 12;
 
 export const commerceQueries = {
   store: {
-    async getProducts() {
+    /**
+     * List active products with optional category/brand/featured filters
+     * and limit/offset pagination. Category and brand are filtered by slug
+     * via subqueries so the relational `with` shape stays stable.
+     *
+     * Unknown slugs resolve to an always-false condition (instead of an
+     * early `return []`) so the function has a single return type and
+     * Eden Treaty can infer the response shape cleanly.
+     */
+    async getProducts(input: v.InferOutput<typeof productListQuerySchema> = {}) {
+      const limit = input.limit ?? DEFAULT_PAGE_SIZE;
+      const offset = input.offset ?? 0;
+
+      const conditions = [activeProduct()];
+
+      if (input.featured !== undefined) {
+        conditions.push(eq(product.featured, input.featured));
+      }
+
+      if (input.brandSlug) {
+        const brandRow = await db.query.brand.findFirst({
+          where: eq(brand.slug, input.brandSlug),
+          columns: { id: true },
+        });
+        // Unknown brand slug → match nothing.
+        conditions.push(brandRow ? eq(product.brandId, brandRow.id) : eq(product.id, ""));
+      }
+
+      if (input.categorySlug) {
+        const categoryRow = await db.query.category.findFirst({
+          where: eq(category.slug, input.categorySlug),
+          columns: { id: true },
+        });
+        let productIds: string[] = [];
+        if (categoryRow) {
+          const links = await db
+            .select({ productId: productCategory.productId })
+            .from(productCategory)
+            .where(eq(productCategory.categoryId, categoryRow.id));
+          productIds = links.map((row) => row.productId);
+        }
+        // Unknown category slug or no products in category → match nothing.
+        conditions.push(
+          productIds.length > 0 ? inArray(product.id, productIds) : eq(product.id, ""),
+        );
+      }
+
       return db.query.product.findMany({
         columns: publicProductColumns,
         orderBy: [desc(product.featured), desc(product.createdAt)],
-        where: activeProduct(),
+        where: and(...conditions),
+        limit,
+        offset,
         with: {
           brand: true,
           iemSpec: true,
@@ -51,6 +103,21 @@ export const commerceQueries = {
           },
         },
       });
+    },
+
+    /**
+     * All categories, ordered by name. Used by the storefront filter bar
+     * and category landing-page navigation.
+     */
+    async getCategories() {
+      return db.select().from(category).orderBy(category.name);
+    },
+
+    /**
+     * All brands, ordered by name. Used by the storefront filter bar.
+     */
+    async getBrands() {
+      return db.select().from(brand).orderBy(brand.name);
     },
 
     async getProductBySlug(slug: string) {

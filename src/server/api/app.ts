@@ -8,6 +8,7 @@ import {
   cartItemInputSchema,
   checkoutInputSchema,
   createPaymentInputSchema,
+  productListQuerySchema,
 } from "../commerce/validation";
 import { db } from "../db";
 import { order } from "../db/schema";
@@ -98,9 +99,27 @@ export const app = new Elysia()
     },
     { requireAdmin: true },
   )
-  .get("/products", async () => ({
-    products: await commerceQueries.store.getProducts(),
-  }))
+  .get("/products", async ({ query }) => {
+    // Elysia delivers query params as strings; coerce numeric/boolean
+    // fields and map the storefront-facing `category`/`brand` slug params
+    // to the schema's `categorySlug`/`brandSlug` fields.
+    const raw = query as Record<string, string | undefined>;
+    const coerced: Record<string, unknown> = {};
+    if (raw.categorySlug !== undefined) coerced.categorySlug = raw.categorySlug;
+    if (raw.category !== undefined) coerced.categorySlug = raw.category;
+    if (raw.brandSlug !== undefined) coerced.brandSlug = raw.brandSlug;
+    if (raw.brand !== undefined) coerced.brandSlug = raw.brand;
+    if (raw.status !== undefined) coerced.status = raw.status;
+    if (raw.limit !== undefined) coerced.limit = Number(raw.limit);
+    if (raw.offset !== undefined) coerced.offset = Number(raw.offset);
+    if (raw.featured !== undefined) {
+      coerced.featured = raw.featured === "true" || raw.featured === "1";
+    }
+    const input = parseInput(productListQuerySchema, coerced);
+    return { products: await commerceQueries.store.getProducts(input) };
+  })
+  .get("/categories", () => commerceQueries.store.getCategories())
+  .get("/brands", () => commerceQueries.store.getBrands())
   .get("/products/:slug", async ({ params }) => commerceQueries.store.getProductBySlug(params.slug))
   .post("/cart", async ({ user }) => commerceQueries.store.createCart(user?.id ?? null))
   .get("/cart/:cartToken", async ({ params }) =>
