@@ -127,10 +127,28 @@
     *,
     *::before,
     *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
+      /* Cancel ALL animations: duration, delay, iteration, and paused
+         state. Without canceling delay + play-state, elements that
+         start at opacity:0 (hero, staggered cards) stay invisible
+         because the keyframe never reaches the visible end-state. */
+      animation: none !important;
+      animation-delay: 0ms !important;
+      animation-play-state: running !important;
+      transition: none !important;
       scroll-behavior: auto !important;
+    }
+
+    /* Force reveal utilities to the visible end-state so elements
+       that start at opacity:0 / translated are shown immediately. */
+    .animate-torn-paper-reveal,
+    .animate-fade-in-up,
+    .animate-fade-in,
+    .animate-scale-up,
+    .animate-slide-down,
+    .animate-slide-in-right,
+    .stagger-fade-in-up {
+      opacity: 1 !important;
+      transform: none !important;
     }
   }
 }
@@ -316,5 +334,250 @@
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* =================================================================
+     Grunge keyframes — high energy, physical, chaotic (DESIGN.md)
+     Sharp ease-out with slight overshoot; never bounce or elastic.
+
+     Performance rule: animate ONLY opacity and transform. These are
+     compositor-only properties — no layout, no paint. Torn edges
+     (clip-path), halftone dots (background-image), colors, and shadows
+     are STATIC on the element; the keyframes animate opacity/transform
+     on top of those static properties for the "reveal" feel.
+     ================================================================= */
+
+  /* torn-paper-reveal: element fades + slides in with a slight rotation
+     settle. The torn-paper edge is a STATIC clip-path applied via the
+     .clip-torn-* utility classes on the element — not animated here. */
+  @keyframes torn-paper-reveal {
+    0% {
+      opacity: 0;
+      transform: translateY(8px) rotate(-1.5deg) scale(0.98);
+    }
+    60% {
+      opacity: 1;
+      transform: translateY(0) rotate(0.5deg) scale(1);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) rotate(0deg) scale(1);
+    }
+  }
+
+  /* halftone-shimmer: opacity pulses on the halftone overlay element.
+     The dot pattern (background-image) is static; only opacity animates. */
+  @keyframes halftone-shimmer {
+    0%,
+    100% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 0.85;
+    }
+  }
+
+  /* hazard-pulse: subtle scale pulse on the element. The hazard-orange
+     background-color and hard shadow are static on the element; the
+     keyframe only animates transform for a physical "throb". */
+  @keyframes hazard-pulse {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.04);
+    }
+  }
+
+  /* stamp-press: element scales down then up like a stamp pressing. */
+  @keyframes stamp-press {
+    0% {
+      transform: scale(1) rotate(0deg);
+    }
+    35% {
+      transform: scale(0.88) rotate(-1.5deg);
+    }
+    70% {
+      transform: scale(1.08) rotate(1deg);
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+    }
+  }
+
+  /* slide-in: cart drawer slides in from right. */
+  @keyframes slide-in-right {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  /* fade-in-up: content fades in and moves up (page transitions). */
+  @keyframes fade-in-up {
+    0% {
+      opacity: 0;
+      transform: translateY(24px) rotate(-0.5deg);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) rotate(0deg);
+    }
+  }
+
+  /* scanline-sweep: scanline overlay element translates vertically.
+     The scanline texture (background-image) is static on the element;
+     the keyframe animates transform: translateY to sweep it across. */
+  @keyframes scanline-sweep {
+    0% {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.6;
+    }
+    90% {
+      opacity: 0.6;
+    }
+    100% {
+      transform: translateY(200%);
+      opacity: 0;
+    }
+  }
+
+  /* slide-down: search input slides down from top. */
+  @keyframes slide-down {
+    0% {
+      opacity: 0;
+      transform: translateY(-100%);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* fade-in: simple opacity fade (backdrops, QR codes). */
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  /* scale-up: element scales up from 0.9 (QR codes, stamps). */
+  @keyframes scale-up {
+    0% {
+      opacity: 0;
+      transform: scale(0.9) rotate(-2deg);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.04) rotate(1deg);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+  }
+
+  /* =================================================================
+     Animation utility classes — grunge defaults.
+     Durations short, easing sharp ease-out with overshoot.
+     ================================================================= */
+
+  .animate-torn-paper-reveal {
+    animation: torn-paper-reveal 0.6s var(--ease-out-expo) both;
+  }
+  .animate-halftone-shimmer {
+    animation: halftone-shimmer 1.2s var(--ease-out-quart) infinite;
+  }
+  .animate-hazard-pulse {
+    animation: hazard-pulse 1.6s var(--ease-out-quart) infinite;
+  }
+  .animate-stamp-press {
+    animation: stamp-press 0.4s var(--ease-out-quart) both;
+  }
+  .animate-slide-in-right {
+    animation: slide-in-right 0.35s var(--ease-out-expo) both;
+  }
+  .animate-fade-in-up {
+    animation: fade-in-up 0.5s var(--ease-out-expo) both;
+  }
+  .animate-scanline-sweep {
+    animation: scanline-sweep 2.4s linear infinite;
+  }
+  .animate-slide-down {
+    animation: slide-down 0.3s var(--ease-out-expo) both;
+  }
+  .animate-fade-in {
+    animation: fade-in 0.3s var(--ease-out-quart) both;
+  }
+  .animate-scale-up {
+    animation: scale-up 0.45s var(--ease-out-expo) both;
+  }
+
+  /* Stagger helpers — apply to grid children with --stagger-i set inline. */
+  .stagger-fade-in-up {
+    opacity: 0;
+    animation: fade-in-up 0.5s var(--ease-out-expo) both;
+    animation-delay: calc(var(--stagger-i, 0) * 60ms);
+  }
+
+  /* Halftone shimmer on hover for interactive elements. */
+  .hover-halftone-shimmer:hover {
+    animation: halftone-shimmer 1.2s var(--ease-out-quart) infinite;
+  }
+
+  /* Group-hover halftone shimmer — for product card halftone overlays
+     that sit behind the image and can't receive hover directly.
+     Plain class name (not Tailwind's group-hover: variant) so Tailwind
+     doesn't try to process it. */
+  .group:hover .group-hover-halftone {
+    animation: halftone-shimmer 1.2s var(--ease-out-quart) infinite;
+  }
+
+  /* Scanline sweep overlay element — use on a ::after or absolute child. */
+  .bg-scanlines {
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      oklch(0.15 0.01 85 / 0.06) 2px,
+      oklch(0.15 0.01 85 / 0.06) 3px
+    );
+  }
+}
+
+/* ===================================================================
+   View Transitions — grunge morph defaults.
+   Sharp ease-out with slight overshoot per DESIGN.md motion rules.
+
+   Naming convention (MUST be consistent across listing + detail pages):
+     product-image-{slug}  — product image element
+     product-title-{slug}  — product title element
+   The slug-based names are dynamic, so we use the universal selector
+   `::view-transition-group(*)` to apply the grunge timing to ALL
+   named morphs, not just literal `product-image` / `product-title`.
+   =================================================================== */
+@layer base {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.32s;
+    animation-timing-function: var(--ease-out-expo);
+  }
+
+  /* All named morph groups (product-image-{slug}, product-title-{slug},
+     header, footer, etc.) get the same grunge timing. The universal
+     selector catches dynamic slug-based names without needing to
+     generate a selector per slug. */
+  ::view-transition-group(*) {
+    animation-duration: 0.4s;
+    animation-timing-function: var(--ease-out-expo);
   }
 }

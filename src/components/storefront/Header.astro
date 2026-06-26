@@ -63,11 +63,14 @@ const navLinks = [
       {/* Auth cluster — sign-in / profile / logout (SolidJS island) */}
       <HeaderAuth client:idle />
 
-      {/* Search trigger — styled button, overlay comes in issue #12 */}
+      {/* Search trigger — opens the search overlay.
+          The overlay itself uses fade-in (backdrop) + slide-down (input)
+          keyframes from global.css. Full search wiring lands in issue #12. */}
       <button
         type="button"
         aria-label="Search"
         class="flex size-11 items-center justify-center border-2 border-ink bg-card shadow-hard-sm transition-all hover:bg-cyan hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+        data-search-toggle
       >
         <Search class="size-5" />
       </button>
@@ -82,3 +85,165 @@ const navLinks = [
     </div>
   </div>
 </header>
+  <div
+    id="mobile-menu"
+    class="fixed inset-0 z-50 hidden flex-col bg-newsprint bg-noise md:hidden"
+    data-mobile-menu
+  >
+    <div class="flex items-center justify-between border-b-4 border-ink bg-hazard-stripes p-4">
+      <span class="font-display text-2xl font-black uppercase tracking-tight text-ink">
+        Menu
+      </span>
+      <button
+        type="button"
+        aria-label="Close menu"
+        class="flex size-10 items-center justify-center border-2 border-ink bg-newsprint shadow-hard-sm"
+        data-mobile-menu-close
+      >
+        <span class="text-xl font-black">×</span>
+      </button>
+    </div>
+    <nav class="flex flex-col gap-2 p-4" aria-label="Mobile primary">
+      {navLinks.map((link, i) => (
+        <a
+          href={link.href}
+          class:list={[
+            "border-2 border-ink bg-card px-4 py-4 text-heading font-black uppercase tracking-tight shadow-hard-sm transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none",
+            i % 2 === 0 ? "-rotate-1" : "rotate-1",
+          ]}
+          data-mobile-menu-link
+        >
+          {link.label}
+        </a>
+      ))}
+      <a
+        href="/auth/sign-in"
+        class="border-2 border-ink bg-orange px-4 py-4 text-heading font-black uppercase tracking-tight text-ink shadow-hard-sm transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none -rotate-1"
+        data-mobile-menu-link
+      >
+        Sign in
+      </a>
+      <a
+        href="/track"
+        class="border-2 border-ink bg-card px-4 py-4 text-heading font-black uppercase tracking-tight shadow-hard-sm transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none rotate-1"
+        data-mobile-menu-link
+      >
+        Track order
+      </a>
+    </nav>
+  </div>
+
+  {/* Search overlay — fade-in backdrop + slide-down input panel.
+      Full search wiring lands in issue #12; this is the animated shell. */}
+  <div
+    id="search-overlay"
+    class="animate-fade-in fixed inset-0 z-50 hidden flex-col bg-ink/50 backdrop-blur-sm"
+    data-search-overlay
+  >
+    <div
+      class="animate-slide-down border-b-4 border-ink bg-newsprint-2 bg-noise p-4 shadow-hard-lg"
+    >
+      <div class="mx-auto flex max-w-screen-2xl items-center gap-3">
+        <Search class="size-6 shrink-0 text-ink" />
+        <input
+          type="search"
+          placeholder="Search the wall…"
+          class="flex-1 border-2 border-ink bg-newsprint px-4 py-3 font-display text-2xl font-black uppercase tracking-tight text-ink placeholder:text-ink-muted/50 focus:outline-none focus:shadow-hard-sm"
+          data-search-input
+          aria-label="Search products"
+        />
+        <button
+          type="button"
+          aria-label="Close search"
+          class="flex size-11 shrink-0 items-center justify-center border-2 border-ink bg-newsprint shadow-hard-sm transition-all hover:bg-pink hover:text-newsprint active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+          data-search-close
+        >
+          <span class="text-xl font-black">×</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  // AbortController per setup — aborted on astro:before-swap so
+  // listeners from the previous page don't accumulate across View
+  // Transition page loads.
+  let mobileMenuController: AbortController | null = null;
+  let searchOverlayController: AbortController | null = null;
+
+  function setupMobileMenu() {
+    mobileMenuController?.abort();
+    mobileMenuController = new AbortController();
+    const { signal } = mobileMenuController;
+
+    const menu = document.getElementById("mobile-menu");
+    const toggle = document.querySelector("[data-mobile-menu-toggle]");
+    const close = document.querySelector("[data-mobile-menu-close]");
+    const links = document.querySelectorAll("[data-mobile-menu-link]");
+    if (!menu || !toggle) return;
+
+    function open() {
+      menu.classList.remove("hidden");
+      menu.classList.add("flex");
+      document.body.style.overflow = "hidden";
+    }
+    function closeMenu() {
+      menu.classList.add("hidden");
+      menu.classList.remove("flex");
+      document.body.style.overflow = "";
+    }
+
+    toggle.addEventListener("click", open, { signal });
+    close?.addEventListener("click", closeMenu, { signal });
+    links.forEach((link) => link.addEventListener("click", closeMenu, { signal }));
+  }
+
+  function setupSearchOverlay() {
+    searchOverlayController?.abort();
+    searchOverlayController = new AbortController();
+    const { signal } = searchOverlayController;
+
+    const overlay = document.getElementById("search-overlay");
+    const toggle = document.querySelector("[data-search-toggle]");
+    const close = document.querySelector("[data-search-close]");
+    const input = document.querySelector("[data-search-input]");
+    if (!overlay || !toggle) return;
+
+    function open() {
+      overlay.classList.remove("hidden");
+      overlay.classList.add("flex");
+      document.body.style.overflow = "hidden";
+      // Focus the input after the slide-down animation starts.
+      requestAnimationFrame(() => input?.focus());
+    }
+    function closeSearch() {
+      overlay.classList.add("hidden");
+      overlay.classList.remove("flex");
+      document.body.style.overflow = "";
+    }
+
+    toggle.addEventListener("click", open, { signal });
+    close?.addEventListener("click", closeSearch, { signal });
+    // Click on the backdrop (not the panel) closes the overlay.
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) closeSearch();
+    }, { signal });
+    // Escape closes.
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !overlay.classList.contains("hidden")) closeSearch();
+    }, { signal });
+  }
+
+  // Re-bind on Astro View Transition page swaps.
+  document.addEventListener("astro:page-load", setupMobileMenu);
+  document.addEventListener("astro:page-load", setupSearchOverlay);
+
+  // Abort all listeners before the next page swap so they don't
+  // accumulate across navigations.
+  document.addEventListener("astro:before-swap", () => {
+    mobileMenuController?.abort();
+    searchOverlayController?.abort();
+  });
+</script>
+

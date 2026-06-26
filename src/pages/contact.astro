@@ -1,0 +1,183 @@
+---
+/**
+ * Contact — phone, email, social links, non-functional form placeholder.
+ * Prerendered. Placeholder content.
+ */
+import StorefrontLayout from "../layouts/StorefrontLayout.astro";
+import InfoPageHeader from "../components/storefront/InfoPageHeader.astro";
+
+export const prerender = true;
+
+const channels = [
+  { label: "Phone", value: "+976 11 00 00 00", href: "tel:+97611000000" },
+  { label: "Email", value: "yo@plugged.mn", href: "mailto:yo@plugged.mn" },
+  { label: "Warehouse", value: "Ulaanbaatar, Khan-Uul 17000", href: null },
+];
+
+const socials = [
+  { label: "Instagram", href: "#" },
+  { label: "Facebook", href: "#" },
+  { label: "X", href: "#" },
+];
+
+const hours = [
+  { day: "Mon–Fri", time: "10:00 – 19:00" },
+  { day: "Sat", time: "11:00 – 16:00" },
+  { day: "Sun", time: "Closed" },
+];
+---
+
+<StorefrontLayout
+  title="Contact | Plugged"
+  description="Get in touch — phone, email, socials, and the warehouse address."
+>
+  <InfoPageHeader
+    kicker="Channels / open"
+    title="Contact"
+    tagline="We answer fast"
+  />
+
+  <section class="mx-auto max-w-screen-2xl px-4 py-14 lg:px-8 lg:py-20">
+    <div class="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[1.1fr_1fr] lg:gap-14">
+      {/* Left — channels + hours */}
+      <div class="flex flex-col gap-10">
+        {/* Channels — stamped cards */}
+        <div>
+          <h2 class="mb-5 font-display text-heading-lg font-black uppercase tracking-tight text-ink">
+            Reach us
+          </h2>
+          <ul class="flex flex-col gap-4">
+            {
+              channels.map((channel, i) => (
+                <li
+                  class="flex items-center justify-between gap-4 border-4 border-ink bg-card p-4 shadow-hard-sm transition-all hover:border-orange"
+                  style={`transform: rotate(${i % 2 === 0 ? "0.4deg" : "-0.4deg"});`}
+                >
+                  <span class="text-micro font-black uppercase tracking-widest text-ink-muted">
+                    {channel.label}
+                  </span>
+                  {channel.href ? (
+                    <a
+                      href={channel.href}
+                      class="font-display text-heading font-black uppercase tracking-tight text-ink transition-colors hover:text-orange"
+                    >
+                      {channel.value}
+                    </a>
+                  ) : (
+                    <span class="text-right font-display text-heading font-black uppercase tracking-tight text-ink">
+                      {channel.value}
+                    </span>
+                  )}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        {/* Hours — taped list */}
+        <div>
+          <h2 class="mb-5 font-display text-heading-lg font-black uppercase tracking-tight text-ink">
+            Hours
+          </h2>
+          <ul class="flex flex-col gap-2">
+            {
+              hours.map((row) => (
+                <li class="flex items-center justify-between border-l-4 border-ink bg-newsprint-2 bg-noise px-4 py-2.5">
+                  <span class="text-body font-bold text-ink">{row.day}</span>
+                  <span class="font-display text-body font-black uppercase tracking-tight text-ink">
+                    {row.time}
+                  </span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        {/* Socials — sticker row */}
+        <div>
+          <h2 class="mb-4 font-display text-heading-lg font-black uppercase tracking-tight text-ink">
+            Follow
+          </h2>
+          <div class="flex flex-wrap gap-3">
+            {
+              socials.map((social) => (
+                <a
+                  href={social.href}
+                  class="inline-flex items-center border-2 border-ink bg-yellow px-4 py-2 text-sm font-black uppercase tracking-wider text-ink shadow-hard-sm transition-all hover:-rotate-1 hover:bg-orange hover:shadow-hard active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                >
+                  {social.label}
+                </a>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+
+      {/* Right — non-functional form placeholder */}
+      <div class="relative">
+        <div
+          class="border-4 border-ink bg-card p-6 shadow-hard-lg lg:p-8"
+          style="transform: rotate(-0.6deg);"
+        >
+          <div class="mb-5 flex items-center justify-between gap-2">
+            <h2 class="font-display text-heading-lg font-black uppercase tracking-tight text-ink">
+              Drop a line
+            </h2>
+            <span
+              class="inline-flex items-center border-2 border-ink bg-pink px-2 py-0.5 text-micro font-black uppercase tracking-widest text-ink shadow-hard-sm"
+              style="transform: rotate(3deg);"
+            >
+              Soon
+            </span>
+          </div>
+          <p class="mb-5 text-body font-medium leading-relaxed text-ink-muted">
+            The form below isn't wired up yet. For now, email or call us
+            directly — we read everything.
+          </p>
+          <form class="flex flex-col gap-4" aria-disabled="true">
+            <label class="flex flex-col gap-1.5">
+              <span class="text-micro font-black uppercase tracking-widest text-ink-muted">
+                Name
+              </span>
+              <input
+                type="text"
+                disabled
+                placeholder="Your name"
+                class="border-2 border-ink bg-newsprint px-3 py-2.5 text-body font-medium text-ink placeholder:text-ink-muted/60 focus:outline-none focus:ring-2 focus:ring-orange disabled:opacity-60"
+              />
+            </label>
+            <label class="flex flex-col gap-1.5">
+              <span class="text-micro font-black uppercase tracking-widest text-ink-muted">
+                Email
+              </span>
+              <input
+                type="email"
+                disabled
+                placeholder="you@example.com"
+                class="border-2 border-ink bg-newsprint px-3 py-2.5 text-body font-medium text-ink placeholder:text-ink-muted/60 focus:outline-none focus:ring-2 focus:ring-orange disabled:opacity-60"
+              />
+            </label>
+            <label class="flex flex-col gap-1.5">
+              <span class="text-micro font-black uppercase tracking-widest text-ink-muted">
+                Message
+              </span>
+              <textarea
+                disabled
+                rows="4"
+                placeholder="What's up?"
+                class="border-2 border-ink bg-newsprint px-3 py-2.5 text-body font-medium text-ink placeholder:text-ink-muted/60 focus:outline-none focus:ring-2 focus:ring-orange disabled:opacity-60"
+              ></textarea>
+            </label>
+            <button
+              type="button"
+              disabled
+              class="inline-flex items-center justify-center gap-2 border-2 border-ink bg-ink px-5 py-3 text-sm font-black uppercase tracking-wider text-newsprint shadow-hard transition-all hover:bg-orange hover:text-ink disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Send (soon)
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</StorefrontLayout>

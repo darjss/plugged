@@ -1,0 +1,47 @@
+---
+import StorefrontLayout from "../layouts/StorefrontLayout.astro";
+import CheckoutForm from "../components/storefront/CheckoutForm.tsx";
+
+export const prerender = false;
+
+// Middleware already resolves the session into Astro.locals. Guest checkout
+// is allowed, so a missing user just leaves the form fields blank.
+const user = Astro.locals.user
+  ? { phoneNumber: Astro.locals.user.phoneNumber, name: Astro.locals.user.name }
+  : null;
+---
+
+<StorefrontLayout title="Checkout | Plugged" description="Place your order and pay with QPay.">
+  <section class="relative mx-auto max-w-5xl px-4 py-10 lg:px-8">
+    {/* Page masthead — torn-paper headline */}
+    <div class="mb-8 flex flex-col gap-2">
+      <p class="text-micro font-black uppercase tracking-widest text-orange">
+        Checkout / no receipt no problem
+      </p>
+      <h1
+        class="font-display text-display font-black uppercase leading-none tracking-tight text-ink"
+        style="clip-path: polygon(0 0, 100% 0, 98% 100%, 1% 96%);"
+      >
+        Seal the deal
+      </h1>
+    </div>
+
+    {/* Checkout island — client:only so it can read the cart store without
+        SSR/localStorage mismatch. Fallback is a grunge skeleton. */}
+    <CheckoutForm user={user} client:only="solid-js">
+      <div slot="fallback" class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <div class="flex flex-col gap-4 border-2 border-ink bg-card p-5 shadow-hard-lg">
+          <div class="h-6 w-40 animate-pulse bg-ink/10"></div>
+          <div class="h-11 animate-pulse border-2 border-ink bg-newsprint-dark/40"></div>
+          <div class="h-11 animate-pulse border-2 border-ink bg-newsprint-dark/40"></div>
+          <div class="h-24 animate-pulse border-2 border-ink bg-newsprint-dark/40"></div>
+          <div class="h-24 animate-pulse border-2 border-ink bg-newsprint-dark/40"></div>
+          <div class="h-14 animate-pulse border-2 border-ink bg-yellow/40 shadow-hard-sm"></div>
+        </div>
+        <div class="border-2 border-ink bg-newsprint-2 p-4 shadow-hard-lg">
+          <div class="h-5 w-32 animate-pulse bg-ink/10"></div>
+        </div>
+      </div>
+    </CheckoutForm>
+  </section>
+</StorefrontLayout>
