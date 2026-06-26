@@ -27,6 +27,8 @@
     "@elysiajs/eden": "^1.4.9",
     "@kobalte/core": "^0.13.11",
     "@mendable/firecrawl-js": "^4.28.2",
+    "@solid-primitives/storage": "^4.3.4",
+    "@solidjs/router": "^0.16.1",
     "@t3-oss/env-core": "^0.13.11",
     "@tailwindcss/vite": "^4.3.1",
     "@tanstack/solid-query": "^5.101.0",
