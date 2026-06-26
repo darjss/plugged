@@ -11,6 +11,7 @@ import { order } from "../db/schema";
 import { checkQpayInvoice } from "../integrations/qpay";
 import { DomainError } from "../lib/errors";
 import { authPlugin } from "./plugins/auth";
+import { adminRoutes } from "./routes/admin";
 import { parseInput } from "./validation";
 
 export const app = new Elysia()
@@ -33,6 +34,7 @@ export const app = new Elysia()
     });
   })
   .use(authPlugin)
+  .use(adminRoutes)
   .get("/health", () => ({
     ok: true,
     service: "plugged-api",
