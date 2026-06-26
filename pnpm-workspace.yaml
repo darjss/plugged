@@ -6,6 +6,7 @@ allowBuilds:
   esbuild: true
   workerd: true
   sharp: true
+  core-js: false
 catalog:
   vite: npm:@voidzero-dev/vite-plus-core@latest
   vitest: npm:@voidzero-dev/vite-plus-test@latest

@@ -64,7 +64,7 @@ const ScrollArea = (props: ScrollAreaProps) => {
         <div
           class="size-full overflow-auto outline-none [-ms-overflow-style:none] [scrollbar-width:none] focus-visible:ring-2 focus-visible:ring-ring/50 [&::-webkit-scrollbar]:hidden"
           data-slot="scroll-area-viewport"
-          ref={viewportRef}
+          ref={(el) => (viewportRef = el)}
         >
           {local.children}
         </div>
@@ -222,7 +222,7 @@ const ScrollBar = (rawProps: ScrollBarProps) => {
   return (
     <Show when={visible()}>
       <div
-        ref={scrollbarRef}
+        ref={(el) => (scrollbarRef = el)}
         data-slot="scroll-area-scrollbar"
         data-orientation={local.orientation}
         class={cn(
@@ -237,7 +237,7 @@ const ScrollBar = (rawProps: ScrollBarProps) => {
         {...others}
       >
         <div
-          ref={thumbRef}
+          ref={(el) => (thumbRef = el)}
           data-slot="scroll-area-thumb"
           class="relative flex-1 bg-ink/40"
           style={

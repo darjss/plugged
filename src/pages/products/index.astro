@@ -3,6 +3,7 @@ import StorefrontLayout from "../../layouts/StorefrontLayout.astro";
 import FilterBar from "../../components/storefront/FilterBar.astro";
 import ProductsList from "../../components/storefront/ProductsList.tsx";
 import ProductCard from "../../components/storefront/ProductCard.tsx";
+import AnalyticsEvent from "../../components/storefront/AnalyticsEvent.tsx";
 import { commerceQueries } from "../../server/commerce/queries";
 
 export const prerender = false;
@@ -32,6 +33,18 @@ const description = "Browse the wall — IEMs, DAC amps, and wireless earbuds.";
 ---
 
 <StorefrontLayout title={title} description={description}>
+  <AnalyticsEvent
+    client:load
+    event="product_listed"
+    properties={{
+      category_slug: categorySlug ?? null,
+      brand_slug: brandSlug ?? null,
+      result_count: products.length,
+    }}
+  />
+  {categorySlug && (
+    <AnalyticsEvent client:load event="category_viewed" properties={{ category_slug: categorySlug }} />
+  )}
   <section class="mx-auto max-w-screen-2xl px-4 py-8 lg:px-8 lg:py-12">
     {/* Masthead */}
     <div class="mb-6 flex flex-col gap-2 border-b-4 border-ink pb-6">

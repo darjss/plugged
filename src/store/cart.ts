@@ -1,6 +1,7 @@
 import { makePersisted } from "@solid-primitives/storage";
 import { createEffect, createMemo, createRoot, createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
+import { cartAnalyticsProperties, trackAnalytics } from "@/lib/analytics";
 
 export interface CartItem {
   variantId: string;
@@ -9,6 +10,7 @@ export interface CartItem {
   price: number;
   image: string;
   slug: string;
+  variantName?: string;
   quantity: number;
 }
 
@@ -112,15 +114,45 @@ export const cart = createRoot(() => {
       } else {
         setCart("items", cartStore.items.length, item);
       }
+      trackAnalytics("cart_add", {
+        ...cartAnalyticsProperties(),
+        product_slug: item.slug,
+        variant: item.variantName ?? item.variantId,
+        variant_id: item.variantId,
+        quantity: item.quantity,
+        price: item.price,
+      });
       setIsDrawerOpen(true);
     },
 
     remove: (variantId: string) => {
+      const item = cartStore.items.find((i) => i.variantId === variantId);
+      if (item) {
+        trackAnalytics("cart_remove", {
+          ...cartAnalyticsProperties(),
+          product_slug: item.slug,
+          variant: item.variantName ?? item.variantId,
+          variant_id: item.variantId,
+          quantity: item.quantity,
+          price: item.price,
+        });
+      }
       setCart("items", (items) => items.filter((i) => i.variantId !== variantId));
     },
 
     updateQuantity: (variantId: string, quantity: number) => {
       if (quantity <= 0) {
+        const item = cartStore.items.find((i) => i.variantId === variantId);
+        if (item) {
+          trackAnalytics("cart_remove", {
+            ...cartAnalyticsProperties(),
+            product_slug: item.slug,
+            variant: item.variantName ?? item.variantId,
+            variant_id: item.variantId,
+            quantity: item.quantity,
+            price: item.price,
+          });
+        }
         setCart("items", (items) => items.filter((i) => i.variantId !== variantId));
         return;
       }

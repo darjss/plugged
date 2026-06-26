@@ -1,6 +1,6 @@
 import { Loader2, MapPin, Phone, StickyNote, User } from "lucide-solid";
 import * as v from "valibot";
-import { createMemo, createSignal, For, Match, Show, Switch, type JSX } from "solid-js";
+import { createMemo, createSignal, For, Match, onMount, Show, Switch, type JSX } from "solid-js";
 import { toast } from "solid-sonner";
 
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cart } from "@/store/cart";
 import { api } from "@/lib/api-client";
 import { formatMnt, MONGOLIAN_PHONE_REGEX } from "@/lib/utils";
+import { cartAnalyticsProperties, trackAnalytics } from "@/lib/analytics";
 import { deliveryFeeMnt } from "@/server/db/schema";
 import QpayQR from "./QpayQR";
 
@@ -97,6 +98,16 @@ export default function CheckoutForm(props: { user: CheckoutUser | null }) {
   const isEmpty = createMemo(() => cart.isHydrated() && items().length === 0);
   const subtotal = createMemo(() => cart.total());
   const total = createMemo(() => subtotal() + deliveryFeeMnt);
+
+  onMount(() => {
+    queueMicrotask(() => {
+      trackAnalytics("checkout_started", {
+        ...cartAnalyticsProperties(),
+        cart_total: total(),
+        item_count: cart.count(),
+      });
+    });
+  });
 
   const update = (field: keyof FormValues, value: string) => {
     setValues((prev) => ({ ...prev, [field]: value }));

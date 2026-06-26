@@ -13,6 +13,7 @@ import {
   productListQuerySchema,
 } from "../commerce/validation";
 import { checkQpayInvoice } from "../integrations/qpay";
+import { captureServerEvent, getAnalyticsOverview } from "../integrations/posthog";
 import { DomainError } from "../lib/errors";
 import { MONGOLIAN_PHONE_REGEX } from "../../lib/utils";
 import { authPlugin } from "./plugins/auth";
@@ -77,6 +78,7 @@ export const app = new Elysia()
   .get("/admin/stats", () => adminQueries.getStats(), {
     requireAdmin: true,
   })
+  .get("/admin/analytics/overview", () => getAnalyticsOverview(), { requireAdmin: true })
   .get("/admin/settings", () => adminSettingsQueries.getSettings(), { requireAdmin: true })
   .get(
     "/admin/orders",
@@ -217,6 +219,14 @@ export const app = new Elysia()
           targetPayment.id,
           invoiceStatus.paidAmountMnt,
         );
+        // Server-side order_completed event — uses order id (not phone) as
+        // distinct_id to avoid sending PII to PostHog. This is the canonical
+        // source; the client-side confirmation page does NOT re-capture.
+        await captureServerEvent(targetPayment.orderId, "order_completed", {
+          order_number: targetPayment.order.orderNumber,
+          total: targetPayment.order.totalMnt,
+          payment_method: targetPayment.provider,
+        });
       }
     } catch (error) {
       // QPay-API failure (network, 5xx): return 502 so QPay retries the

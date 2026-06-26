@@ -1,4 +1,5 @@
 import { and, desc, eq, gte, inArray, like, lte, or, sql } from "drizzle-orm";
+import type { BatchItem } from "drizzle-orm/batch";
 import { nanoid } from "nanoid";
 import * as v from "valibot";
 import { db } from "../db";
@@ -438,7 +439,7 @@ export const commerceQueries = {
       // drive stock negative (the availability check above is a
       // read-then-write guard; the conditional UPDATE is the
       // write-time guard).
-      const batchStmts = [
+      const batchStmts: BatchItem<"sqlite">[] = [
         db.insert(order).values({
           address: input.address,
           checkoutToken,
@@ -505,7 +506,9 @@ export const commerceQueries = {
         ),
       );
 
-      await db.batch(batchStmts);
+      await db.batch(
+        batchStmts as unknown as readonly [BatchItem<"sqlite">, ...BatchItem<"sqlite">[]],
+      );
 
       const created = await db.query.order.findFirst({
         where: eq(order.id, orderId),

@@ -3,6 +3,7 @@ import StorefrontLayout from "../../layouts/StorefrontLayout.astro";
 import ProductBreadcrumb from "../../components/storefront/ProductBreadcrumb.astro";
 import ProductImageCarousel from "../../components/storefront/ProductImageCarousel.tsx";
 import ProductBuyBox from "../../components/storefront/ProductBuyBox.tsx";
+import AnalyticsEvent from "../../components/storefront/AnalyticsEvent.tsx";
 import ProductSpecs from "../../components/storefront/ProductSpecs.astro";
 import ProductSoundSignature from "../../components/storefront/ProductSoundSignature.astro";
 
@@ -189,6 +190,18 @@ const seoDescription =
 ---
 
 <StorefrontLayout title={seoTitle} description={seoDescription}>
+  <AnalyticsEvent
+    client:load
+    event="product_viewed"
+    properties={{
+      product_slug: product.slug,
+      product_name: product.name,
+      product_id: product.id,
+      brand: product.brand?.name ?? null,
+      price: product.basePriceMnt,
+      currency: product.currency,
+    }}
+  />
   <div class="relative mx-auto max-w-screen-2xl px-4 py-6 lg:px-8 lg:py-10">
     {/* Breadcrumb */}
     <ProductBreadcrumb items={breadcrumbItems} />
