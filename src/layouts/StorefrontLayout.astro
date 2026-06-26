@@ -41,8 +41,11 @@ const { title, description } = Astro.props;
       <CartDrawer client:only="solid-js" />
     </div>
 
-    {/* Toast notifications — grunge-styled via sonner.tsx theme overrides. */}
-    <Toaster client:only="solid-js" />
+    {/* Toast notifications — grunge-styled via sonner.tsx theme.
+        transition:persist so toasts survive View Transitions. */}
+    <div transition:persist>
+      <Toaster client:only="solid-js" />
+    </div>
 
     {/* Spacer for mobile bottom nav so content isn't hidden */}
     <div class="h-16 md:hidden" aria-hidden="true"></div>
