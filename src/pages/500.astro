@@ -1,10 +1,10 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import StaticLayout from "../layouts/StaticLayout.astro";
 
 export const prerender = true;
 ---
 
-<Layout title="500 — Tape broke | Plugged" description="The cassette chewed itself. We're splicing it back together.">
+<StaticLayout title="500 — Tape broke | Plugged" description="The cassette chewed itself. We're splicing it back together.">
   <main class="relative mx-auto flex min-h-svh max-w-3xl flex-col items-center justify-center px-4 py-16">
     {/* Broken-cassette card — tangled tape, hazard-orange accents */}
     <article
@@ -99,15 +99,14 @@ export const prerender = true;
           <a
             href="/"
             class="inline-flex flex-1 items-center justify-center gap-2 border-2 border-ink bg-orange px-6 py-4 font-display text-lg font-black uppercase tracking-wide text-ink shadow-hard-lg transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-hard"
-            onclick="window.location.reload(); return false;"
           >
-            ↻ Retry
+            ↻ Back to homepage
           </a>
           <a
-            href="/"
+            href="mailto:support@pluggedaudio.store"
             class="inline-flex flex-1 items-center justify-center gap-2 border-2 border-ink bg-newsprint px-6 py-4 font-display text-lg font-black uppercase tracking-wide text-ink shadow-hard-lg transition-all hover:bg-yellow hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-hard"
           >
-            ← Back to homepage
+            Contact support
           </a>
         </div>
       </div>
@@ -132,4 +131,4 @@ export const prerender = true;
       Error 500 — internal server error. The warehouse deck is being repaired.
     </p>
   </main>
-</Layout>
+</StaticLayout>

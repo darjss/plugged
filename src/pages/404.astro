@@ -1,10 +1,10 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import StaticLayout from "../layouts/StaticLayout.astro";
 
 export const prerender = true;
 ---
 
-<Layout title="404 — Lost in the warehouse | Plugged" description="This page wandered off behind the shelves.">
+<StaticLayout title="404 — Lost in the warehouse | Plugged" description="This page wandered off behind the shelves.">
   <main class="relative mx-auto flex min-h-svh max-w-3xl flex-col items-center justify-center px-4 py-16">
     {/* Missing-person-flyer card — torn paper, hazard-orange accents */}
     <article
@@ -110,4 +110,4 @@ export const prerender = true;
       owes you a tape.
     </p>
   </main>
-</Layout>
+</StaticLayout>

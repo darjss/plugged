@@ -93,9 +93,11 @@ export default function SignInForm(props: { next?: string }) {
     window.location.assign(next());
   }
 
-  // Auto-submit when OTP reaches 4 digits (server otpLength).
+  // Auto-submit when OTP reaches 4 digits (server otpLength). Gated on
+  // `!expired()` so a stale code sitting in the field after the 60s timer
+  // ran out doesn't fire a verify against an expired OTP.
   createEffect(() => {
-    if (otp().length === 4 && !verifying()) {
+    if (otp().length === 4 && !verifying() && !expired()) {
       void handleVerifyOtp(otp());
     }
   });

@@ -1,10 +1,10 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import StaticLayout from "../layouts/StaticLayout.astro";
 
 export const prerender = true;
 ---
 
-<Layout title="403 — Access denied | Plugged" description="This door is locked. Admins only.">
+<StaticLayout title="403 — Access denied | Plugged" description="This door is locked. Admins only.">
   <main class="relative mx-auto flex min-h-svh max-w-3xl flex-col items-center justify-center px-4 py-16">
     {/* Access-denied card — stamped DENIED, hazard-orange */}
     <article
@@ -104,4 +104,4 @@ export const prerender = true;
       Error 403 — forbidden. Non-admin accounts can't reach the dashboard.
     </p>
   </main>
-</Layout>
+</StaticLayout>
