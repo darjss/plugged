@@ -1,14 +1,12 @@
-import { and, eq } from "drizzle-orm";
-import { getDb } from "../db";
-import { account } from "../db/schema";
-import { isApprovedAdminAccount } from "./admin";
+import { eq } from "drizzle-orm";
+import { db } from "../db";
+import { user } from "../db/schema";
 
 export async function isAdminUser(userId: string) {
-  const rows = await getDb()
-    .select({ accountId: account.accountId })
-    .from(account)
-    .where(and(eq(account.userId, userId), eq(account.providerId, "google")))
+  const row = await db
+    .select({ isAdmin: user.isAdmin })
+    .from(user)
+    .where(eq(user.id, userId))
     .limit(1);
-
-  return isApprovedAdminAccount(rows[0]?.accountId);
+  return row[0]?.isAdmin ?? false;
 }

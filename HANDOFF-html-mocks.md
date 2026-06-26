@@ -69,7 +69,6 @@ Feel free to invent new palettes. The user wants to see distinct options.
 
 ## Required sections per mock
 
-
 ## Product content (use realistic placeholder data)
 
 - Tanchjim Zero — €19 — Warm, Vocal-forward
@@ -103,7 +102,7 @@ Each file must:
 
 - Must NOT look like a Shopify theme
 - Must NOT look like generic AI slop (no glassmorphism, no gradient text, no side-stripe card borders, no identical card grids)
-- Must not look like and have ai generated template 
+- Must not look like and have ai generated template
 - Must feel intentionally raw, collaged, and human
 - Must still be usable as a store (readable prices, clear CTAs, working links)
 
