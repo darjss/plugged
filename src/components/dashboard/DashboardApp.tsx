@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import DashboardProviders from "./DashboardProviders";
 import DashboardLayout from "./DashboardLayout";
 import DashboardHome from "./DashboardHome";
+import SettingsPage from "./SettingsPage";
 
 /**
  * Admin SPA. Mounted at `/dashboard/*` via `client:load` in
@@ -40,9 +41,6 @@ function OrdersList() {
 function Analytics() {
   return <Placeholder label="Analytics" issue="17" />;
 }
-function Settings() {
-  return <Placeholder label="Settings" issue="18" />;
-}
 
 export default function DashboardApp() {
   return (
@@ -52,7 +50,7 @@ export default function DashboardApp() {
         <Route path="/products" component={ProductsList} />
         <Route path="/orders" component={OrdersList} />
         <Route path="/analytics" component={Analytics} />
-        <Route path="/settings" component={Settings} />
+        <Route path="/settings" component={SettingsPage} />
         {/* Fallthrough — unknown sub-routes render the home placeholder. */}
         <Route path="*" component={DashboardHome} />
       </Router>
