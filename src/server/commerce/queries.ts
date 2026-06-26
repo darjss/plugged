@@ -9,10 +9,12 @@ import {
   order,
   orderItem,
   payment,
+  paymentStatuses,
   product,
   productVariant,
 } from "../db/schema";
 import { ConflictError, NotFoundError, OutOfStockError } from "../lib/errors";
+import { createQpayInvoice } from "../integrations/qpay";
 import { checkoutInputSchema } from "./validation";
 
 const publicProductColumns = {
@@ -345,6 +347,85 @@ export const commerceQueries = {
           payments: true,
         },
       });
+    },
+  },
+
+  payments: {
+    /**
+     * Fetch a payment (with its order) by payment number.
+     */
+    async getPaymentByNumber(paymentNumber: string) {
+      const result = await db.query.payment.findFirst({
+        where: eq(payment.paymentNumber, paymentNumber),
+        with: {
+          order: true,
+        },
+      });
+
+      if (!result) throw new NotFoundError("payment", paymentNumber);
+      return result;
+    },
+
+    /**
+     * Update a payment's status. Throws on invalid status to keep the
+     * picklist values shared from the server schema.
+     */
+    async updatePaymentStatus(paymentId: string, nextStatus: (typeof paymentStatuses)[number]) {
+      if (!paymentStatuses.includes(nextStatus)) {
+        throw new ConflictError(`Invalid payment status: ${nextStatus}`);
+      }
+
+      const date = now();
+      const patch: Record<string, unknown> = {
+        status: nextStatus,
+        updatedAt: date,
+      };
+      if (nextStatus === "success") patch.paidAt = date;
+
+      await db.update(payment).set(patch).where(eq(payment.id, paymentId));
+
+      return db.query.payment.findFirst({ where: eq(payment.id, paymentId) });
+    },
+
+    /**
+     * Create a QPay invoice for an order's outstanding payment and persist
+     * the invoice id + QR data on the payment record. Returns the QR data
+     * for the client to render.
+     */
+    async createQpayInvoiceForOrder(orderNumber: string) {
+      const targetOrder = await db.query.order.findFirst({
+        where: eq(order.orderNumber, orderNumber),
+        with: {
+          payments: true,
+        },
+      });
+
+      if (!targetOrder) throw new NotFoundError("order", orderNumber);
+
+      const targetPayment = targetOrder.payments.find((p) => p.provider === "qpay");
+      if (!targetPayment) throw new NotFoundError("qpay-payment", orderNumber);
+
+      const invoice = await createQpayInvoice(targetPayment.amountMnt, targetPayment.paymentNumber);
+
+      const date = now();
+      await db
+        .update(payment)
+        .set({
+          qpayInvoiceId: invoice.invoiceId,
+          qpayQrImage: invoice.qrImage,
+          qpayQrText: invoice.qrText,
+          qpayUrlsJson: invoice.shortUrl,
+          updatedAt: date,
+        })
+        .where(eq(payment.id, targetPayment.id));
+
+      return {
+        invoiceId: invoice.invoiceId,
+        paymentNumber: targetPayment.paymentNumber,
+        qrImage: invoice.qrImage,
+        qrText: invoice.qrText,
+        shortUrl: invoice.shortUrl,
+      };
     },
   },
 };
