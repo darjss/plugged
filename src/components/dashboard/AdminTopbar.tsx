@@ -33,7 +33,9 @@ export default function AdminTopbar() {
   const location = useLocation();
   const [session] = createResource(async () => {
     const { data } = await api.dashboard.session.get();
-    return data?.user ?? null;
+    // Eden treaty infers dashboard/session as the error shape; cast at
+    // the fetch boundary (documented escape hatch).
+    return (data as { user?: { name: string; email: string } } | null)?.user ?? null;
   });
 
   return (

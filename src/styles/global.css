@@ -104,13 +104,16 @@
     background-blend-mode: multiply;
   }
 
-  /* Scanline overlay — subtle horizontal lines mimicking cheap scanning */
+  /* Scanline overlay — subtle horizontal lines mimicking cheap scanning.
+     z-index sits above page content but below drawers/menus/dialogs
+     (which use z-40+). The old 9998 covered every overlay including
+     the cart drawer and mobile menu. */
   body::before {
     content: "";
     position: fixed;
     inset: 0;
     pointer-events: none;
-    z-index: 9998;
+    z-index: 1;
     background-image: repeating-linear-gradient(
       0deg,
       transparent,

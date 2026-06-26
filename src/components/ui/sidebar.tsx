@@ -80,7 +80,7 @@ type SidebarProviderProps = ComponentProps<"div"> & {
 };
 
 const SidebarProvider = (props: SidebarProviderProps) => {
-  const mergedProps = mergePropsDefaults({ defaultOpen: true }, props);
+  const mergedProps = mergeProps({ defaultOpen: true }, props);
   const [local, others] = splitProps(mergedProps, [
     "defaultOpen",
     "open",
@@ -385,11 +385,6 @@ const SidebarMenuButton = <T extends ValidComponent = "button">(
     </button>
   );
 };
-
-// Local helper — mergeProps with typed defaults, kept private to this module.
-function mergePropsDefaults<T extends object, D extends Partial<T>>(defaults: D, props: T): T & D {
-  return mergeProps(defaults, props) as T & D;
-}
 
 export {
   Sidebar,

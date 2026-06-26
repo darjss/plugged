@@ -15,6 +15,7 @@ export const env = createEnv({
     QPAY_PASSWORD: v.optional(v.string()),
     QPAY_CALLBACK_URL: v.optional(v.string()),
     QPAY_INVOICE_CODE: v.optional(v.string()),
+    QPAY_WEBHOOK_SECRET: v.optional(v.string()),
     POSTHOG_KEY: v.optional(v.string()),
     POSTHOG_HOST: v.optional(v.string()),
     POSTHOG_PROJECT_ID: v.optional(v.string()),

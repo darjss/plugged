@@ -1,10 +1,10 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { phoneNumber } from "better-auth/plugins/phone-number";
-import { env } from "cloudflare:workers";
 import { MONGOLIAN_PHONE_REGEX } from "../../lib/utils";
 import { db } from "../db";
 import * as schema from "../db/schema";
+import { env } from "./env";
 import { sendSmsAndWait } from "../integrations/sms";
 
 function createAuth() {
@@ -19,9 +19,12 @@ function createAuth() {
       enabled: false,
     },
     socialProviders: {
+      // t3-env guarantees these are non-empty required strings; no `|| ""`
+      // fallback needed (the previous fallback papered over the real
+      // invariant and hid a misconfigured deploy).
       google: {
-        clientId: env.GOOGLE_CLIENT_ID || "",
-        clientSecret: env.GOOGLE_CLIENT_SECRET || "",
+        clientId: env.GOOGLE_CLIENT_ID,
+        clientSecret: env.GOOGLE_CLIENT_SECRET,
       },
     },
     plugins: [
@@ -31,10 +34,17 @@ function createAuth() {
         otpLength: 4,
         phoneNumberValidator: (phone) => MONGOLIAN_PHONE_REGEX.test(phone),
         sendOTP: async ({ phoneNumber, code }) => {
-          const result = await sendSmsAndWait(env, {
-            message: `Tanii nevtreh kod ${code}`,
-            phoneNumbers: [phoneNumber],
-          });
+          const result = await sendSmsAndWait(
+            {
+              SMS_GATEWAY_BASE_URL: env.SMS_GATEWAY_BASE_URL,
+              SMS_GATEWAY_LOGIN: env.SMS_GATEWAY_LOGIN,
+              SMS_GATEWAY_PASSWORD: env.SMS_GATEWAY_PASSWORD,
+            },
+            {
+              message: `Tanii nevtreh kod ${code}`,
+              phoneNumbers: [phoneNumber],
+            },
+          );
 
           if (result.state === "Failed") {
             throw new Error(result.recipients[0]?.error ?? "SMS failed");

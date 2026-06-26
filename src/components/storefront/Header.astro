@@ -1,7 +1,8 @@
 ---
-import { Menu, Search } from "lucide-solid";
+import { Search } from "lucide-solid";
 import CartButton from "./CartButton.tsx";
 import HeaderAuth from "./HeaderAuth.tsx";
+import MobileMenu from "./MobileMenu.tsx";
 
 const navLinks = [
   { label: "IEMs", href: "/products?category=iems" },
@@ -12,7 +13,7 @@ const navLinks = [
 ---
 
 <header
-  class="sticky top-0 z-40 border-b-4 border-ink bg-newsprint/95 backdrop-blur-sm transition:persist"
+  class="sticky top-0 z-40 border-b-4 border-ink bg-newsprint/95 backdrop-blur-sm"
   transition:name="header"
   transition:persist
 >
@@ -77,19 +78,13 @@ const navLinks = [
       {/* Cart button — SolidJS island */}
       <CartButton client:idle />
 
-      {/* Mobile hamburger — opens mobile nav */}
-      <button
-        type="button"
-        aria-label="Open menu"
-        class="flex size-11 items-center justify-center border-2 border-ink bg-card shadow-hard-sm transition-all hover:bg-primary hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none md:hidden"
-        data-mobile-menu-toggle
-      >
-        <Menu class="size-5" />
-      </button>
+      {/* Mobile menu — SolidJS island (replaces inline script that
+          leaked listeners on every astro:page-load against a
+          transition:persist header). */}
+      <MobileMenu client:idle />
     </div>
   </div>
-
-  {/* Mobile menu overlay — flyer wall style */}
+</header>
   <div
     id="mobile-menu"
     class="fixed inset-0 z-50 hidden flex-col bg-newsprint bg-noise md:hidden"
@@ -251,3 +246,4 @@ const navLinks = [
     searchOverlayController?.abort();
   });
 </script>
+
