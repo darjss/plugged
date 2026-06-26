@@ -7,6 +7,8 @@ import DashboardHome from "./DashboardHome";
 import SettingsPage from "./SettingsPage";
 import ProductsList from "./products/ProductsList";
 import ProductForm from "./products/ProductForm";
+import OrdersList from "./orders/OrdersList";
+import OrderDetail from "./orders/OrderDetail";
 
 /**
  * Admin SPA. Mounted at `/dashboard/*` via `client:load` in
@@ -34,9 +36,6 @@ function Placeholder(props: ParentProps & { label: string; issue: string }) {
   );
 }
 
-function OrdersList() {
-  return <Placeholder label="Orders" issue="15" />;
-}
 function Analytics() {
   return <Placeholder label="Analytics" issue="17" />;
 }
@@ -50,6 +49,7 @@ export default function DashboardApp() {
         <Route path="/products/new" component={ProductForm} />
         <Route path="/products/:id" component={ProductForm} />
         <Route path="/orders" component={OrdersList} />
+        <Route path="/orders/:id" component={OrderDetail} />
         <Route path="/analytics" component={Analytics} />
         <Route path="/settings" component={SettingsPage} />
         {/* Fallthrough — unknown sub-routes render the home placeholder. */}
