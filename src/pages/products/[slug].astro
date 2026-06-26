@@ -1,0 +1,299 @@
+---
+import StorefrontLayout from "../../layouts/StorefrontLayout.astro";
+import ProductBreadcrumb from "../../components/storefront/ProductBreadcrumb.astro";
+import ProductImageCarousel from "../../components/storefront/ProductImageCarousel.tsx";
+import ProductBuyBox from "../../components/storefront/ProductBuyBox.tsx";
+import ProductSpecs from "../../components/storefront/ProductSpecs.astro";
+import ProductSoundSignature from "../../components/storefront/ProductSoundSignature.astro";
+
+export const prerender = true;
+
+/**
+ * Build-time API base. In dev, hit the local Astro server. In build,
+ * hit the deployed site (Astro.site). If the fetch fails, we emit zero
+ * paths — the build still succeeds, pages prerender once the API is
+ * reachable.
+ */
+function apiBase(): string {
+  if (import.meta.env.DEV) return "http://localhost:4321";
+  return Astro.site?.origin ?? "https://pluggedaudio.store";
+}
+
+interface ProductImage {
+  id: string;
+  url: string;
+  alt: string | null;
+  isPrimary: boolean;
+}
+
+interface ProductVariant {
+  id: string;
+  sku: string;
+  name: string;
+  priceMnt: number;
+  compareAtPriceMnt: number | null;
+  stockQuantity: number;
+  reservedQuantity: number;
+  active: boolean;
+}
+
+interface ProductSummary {
+  id: string;
+  slug: string;
+  name: string;
+  oldSlugs: string | null;
+}
+
+interface ProductDetail {
+  id: string;
+  slug: string;
+  name: string;
+  shortDescription: string | null;
+  description: string | null;
+  status: string;
+  basePriceMnt: number;
+  compareAtPriceMnt: number | null;
+  currency: string;
+  featured: boolean;
+  oldSlugs: string | null;
+  brand: {
+    id: string;
+    slug: string;
+    name: string;
+  } | null;
+  categories: Array<{
+    category: { id: string; slug: string; name: string };
+  }>;
+  iemSpec: {
+    driverType: string | null;
+    driverConfig: string | null;
+    impedanceOhms: number | null;
+    sensitivityDb: string | null;
+    frequencyResponse: string | null;
+    connector: string | null;
+    cable: string | null;
+    mic: boolean | null;
+    shellMaterial: string | null;
+    nozzleMaterial: string | null;
+    soundSignature: string | null;
+    fit: string | null;
+    includedAccessories: string | null;
+  } | null;
+  images: ProductImage[];
+  variants: ProductVariant[];
+}
+
+/** Parse the comma-separated oldSlugs text field into a clean array. */
+function parseOldSlugs(raw: string | null): string[] {
+  if (!raw) return [];
+  return raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+}
+
+export async function getStaticPaths() {
+  // Astro hoists getStaticPaths — frontmatter functions are not available.
+  // Inline the API base: localhost in dev, production URL in build.
+  const base = import.meta.env.DEV
+    ? "http://localhost:4321"
+    : "https://pluggedaudio.store";
+  let products: ProductSummary[] = [];
+  try {
+    const res = await fetch(`${base}/api/products`);
+    if (res.ok) {
+      const data = (await res.json()) as { products: ProductSummary[] };
+      products = data.products ?? [];
+    }
+  } catch (error) {
+    console.warn("[products/[slug]] getStaticPaths: fetch failed, 0 pages", error);
+  }
+
+  const paths: Array<{
+    params: { slug: string };
+    props: { redirectTo: string | null };
+  }> = [];
+
+  for (const product of products) {
+    // Canonical slug path
+    paths.push({ params: { slug: product.slug }, props: { redirectTo: null } });
+
+    // Old slug redirect paths — 301 to canonical
+    for (const oldSlug of parseOldSlugs(product.oldSlugs)) {
+      if (oldSlug && oldSlug !== product.slug) {
+        paths.push({
+          params: { slug: oldSlug },
+          props: { redirectTo: product.slug },
+        });
+      }
+    }
+  }
+
+  return paths;
+}
+
+const { slug } = Astro.params;
+const { redirectTo } = Astro.props as { redirectTo: string | null };
+
+// Old-slug 301 redirect — preserves SEO link equity.
+if (redirectTo) {
+  return Astro.redirect(`/products/${redirectTo}`, 301);
+}
+
+// Fetch full product detail at build time.
+let product: ProductDetail | null = null;
+try {
+  const res = await fetch(`${apiBase()}/api/products/${slug}`);
+  if (res.ok) {
+    product = (await res.json()) as ProductDetail;
+  }
+} catch (error) {
+  console.warn(`[products/[slug]] product fetch failed for ${slug}`, error);
+}
+
+if (!product) {
+  return Astro.redirect("/404");
+}
+
+const primaryImage =
+  product.images.find((img) => img.isPrimary)?.url ?? product.images[0]?.url ?? "";
+
+// Breadcrumb: Home > Category > Brand > Product
+const firstCategory = product.categories[0]?.category;
+const breadcrumbItems = [
+  { label: "Home", href: "/" },
+  { label: "Products", href: "/products" },
+  ...(firstCategory
+    ? [
+        {
+          label: firstCategory.name,
+          href: `/products?category=${firstCategory.slug}`,
+        },
+      ]
+    : []),
+  ...(product.brand
+    ? [
+        {
+          label: product.brand.name,
+          href: `/products?brand=${product.brand.slug}`,
+        },
+      ]
+    : []),
+  { label: product.name, href: null },
+];
+
+const seoTitle = `${product.name} — Plugged`;
+const seoDescription =
+  product.shortDescription ??
+  `${product.name}${product.brand ? ` by ${product.brand.name}` : ""}. IEM audio from Plugged.`;
+---
+
+<StorefrontLayout title={seoTitle} description={seoDescription}>
+  <div class="relative mx-auto max-w-screen-2xl px-4 py-6 lg:px-8 lg:py-10">
+    {/* Breadcrumb */}
+    <ProductBreadcrumb items={breadcrumbItems} />
+
+    {/* Main grid — images + info */}
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
+      {/* Image carousel */}
+      <div transition:name={`product-image-${product.id}`}>
+        <ProductImageCarousel
+          client:visible
+          images={product.images}
+          productName={product.name}
+        />
+      </div>
+
+      {/* Product info */}
+      <div class="flex flex-col gap-5">
+        {/* Brand link — stamped tag */}
+        {
+          product.brand && (
+            <a
+              href={`/products?brand=${product.brand.slug}`}
+              class="inline-flex w-fit items-center gap-2 -rotate-1 border-2 border-ink bg-card px-3 py-1.5 font-mono text-caption font-black uppercase tracking-wide text-ink shadow-hard-sm transition-all hover:bg-orange hover:rotate-0 hover:shadow-hard"
+            >
+              {product.brand.name}
+            </a>
+          )
+        }
+
+        {/* Product name — poster headline */}
+        <h1
+          class="font-display text-display font-black uppercase leading-[0.88] tracking-tight text-ink"
+          transition:name={`product-name-${product.id}`}
+        >
+          {product.name}
+        </h1>
+
+        {/* Short description — lead paragraph */}
+        {
+          product.shortDescription && (
+            <p class="max-w-prose text-body-lg text-ink-muted">{product.shortDescription}</p>
+          )
+        }
+
+        {/* Buy box — variant selector, price, quantity, add to cart */}
+        <div class="clip-torn-edges border-2 border-ink bg-card p-5 shadow-hard-lg sm:p-6">
+          <ProductBuyBox
+            client:visible
+            productId={product.id}
+            productSlug={product.slug}
+            productName={product.name}
+            basePriceMnt={product.basePriceMnt}
+            compareAtPriceMnt={product.compareAtPriceMnt}
+            primaryImage={primaryImage}
+            variants={product.variants}
+          />
+        </div>
+
+        {/* Full description — torn paper panel */}
+        {
+          product.description && (
+            <div class="clip-torn-edges relative border-2 border-ink bg-newsprint p-5 shadow-hard sm:p-6">
+              <div class="bg-noise pointer-events-none absolute inset-0 opacity-15" aria-hidden="true" />
+              <div class="relative z-10">
+                <h2 class="mb-3 font-display text-heading-lg font-black uppercase tracking-tight text-ink">
+                  The rundown
+                </h2>
+                <div class="max-w-prose space-y-3 text-body text-ink" set:html={product.description} />
+              </div>
+            </div>
+          )
+        }
+      </div>
+    </div>
+
+    {/* IEM specs table */}
+    {product.iemSpec && <ProductSpecs spec={product.iemSpec} />}
+
+    {/* Sound signature */}
+    {product.iemSpec && <ProductSoundSignature soundSignature={product.iemSpec.soundSignature} />}
+
+    {/* Base price fallback (for SEO / no-JS) */}
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: product.name,
+        description: seoDescription,
+        brand: {
+          "@type": "Brand",
+          name: product.brand?.name ?? "Plugged",
+        },
+        image: product.images.map((img) => img.url),
+        offers: {
+          "@type": "Offer",
+          priceCurrency: product.currency,
+          price: product.basePriceMnt,
+          availability: product.variants.some(
+            (v) => v.stockQuantity - v.reservedQuantity > 0,
+          )
+            ? "https://schema.org/InStock"
+            : "https://schema.org/OutOfStock",
+        },
+      })}
+    />
+  </div>
+</StorefrontLayout>
