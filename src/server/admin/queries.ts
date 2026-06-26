@@ -35,6 +35,9 @@ export const adminQueries = {
   },
 
   async listUsers(): Promise<AdminUserRow[]> {
+    // Bounded result set — without an explicit LIMIT the no-search
+    // path selects every user row, which is unbounded as the user
+    // table grows. 50 matches the search path's cap.
     const rows = await db
       .select({
         id: user.id,
@@ -43,7 +46,8 @@ export const adminQueries = {
         isAdmin: user.isAdmin,
       })
       .from(user)
-      .orderBy(desc(user.isAdmin), desc(user.createdAt));
+      .orderBy(desc(user.isAdmin), desc(user.createdAt))
+      .limit(50);
     return rows;
   },
 

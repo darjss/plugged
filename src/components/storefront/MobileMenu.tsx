@@ -1,5 +1,5 @@
 import { Menu, X } from "lucide-solid";
-import { createSignal, For, onCleanup, onMount, Show } from "solid-js";
+import { createEffect, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import { cn } from "@/lib/utils";
 
 /**
@@ -22,7 +22,22 @@ export default function MobileMenu() {
 
   const close = () => setOpen(false);
 
-  // Lock body scroll while the menu is open; restore on close/unmount.
+  // Lock body scroll while the menu is open. Driven from a single
+  // createEffect keyed on `open()` so every close path — Escape,
+  // astro:before-swap, link click, X button — releases the scroll
+  // lock. The previous code had separate `closeMenu`/`close` helpers;
+  // Escape used `close()` which didn't clear `body.style.overflow`,
+  // leaving the page scroll-locked.
+  createEffect(() => {
+    if (typeof document === "undefined") return;
+    document.body.style.overflow = open() ? "hidden" : "";
+    // Restore on cleanup so HMR / unmount doesn't leave the page
+    // scroll-locked.
+    onCleanup(() => {
+      if (typeof document !== "undefined") document.body.style.overflow = "";
+    });
+  });
+
   onMount(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") close();
@@ -36,21 +51,6 @@ export default function MobileMenu() {
     onCleanup(() => document.removeEventListener("astro:before-swap", close));
   });
 
-  // Toggle body scroll lock based on open state.
-  const toggleScrollLock = (locked: boolean) => {
-    if (typeof document === "undefined") return;
-    document.body.style.overflow = locked ? "hidden" : "";
-  };
-
-  const openMenu = () => {
-    setOpen(true);
-    toggleScrollLock(true);
-  };
-  const closeMenu = () => {
-    close();
-    toggleScrollLock(false);
-  };
-
   return (
     <>
       <button
@@ -59,7 +59,7 @@ export default function MobileMenu() {
         aria-expanded={open()}
         aria-controls="mobile-menu"
         class="flex size-11 items-center justify-center border-2 border-ink bg-card shadow-hard-sm transition-all hover:bg-primary hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none md:hidden"
-        onClick={openMenu}
+        onClick={() => setOpen(true)}
       >
         <Menu class="size-5" />
       </button>
@@ -80,7 +80,7 @@ export default function MobileMenu() {
               type="button"
               aria-label="Close menu"
               class="flex size-10 items-center justify-center border-2 border-ink bg-newsprint shadow-hard-sm"
-              onClick={closeMenu}
+              onClick={close}
             >
               <X class="size-5" />
             </button>
@@ -94,7 +94,7 @@ export default function MobileMenu() {
                     "border-2 border-ink bg-card px-4 py-4 text-heading font-black uppercase tracking-tight shadow-hard-sm transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none",
                     i() % 2 === 0 ? "-rotate-1" : "rotate-1",
                   )}
-                  onClick={closeMenu}
+                  onClick={close}
                 >
                   {link.label}
                 </a>
@@ -103,14 +103,14 @@ export default function MobileMenu() {
             <a
               href="/auth/sign-in"
               class="border-2 border-ink bg-orange px-4 py-4 text-heading font-black uppercase tracking-tight text-ink shadow-hard-sm transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none -rotate-1"
-              onClick={closeMenu}
+              onClick={close}
             >
               Sign in
             </a>
             <a
               href="/track"
               class="border-2 border-ink bg-card px-4 py-4 text-heading font-black uppercase tracking-tight shadow-hard-sm transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none rotate-1"
-              onClick={closeMenu}
+              onClick={close}
             >
               Track order
             </a>
