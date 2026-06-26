@@ -1,0 +1,38 @@
+---
+import { Home, Package, ShoppingCart, Search } from "lucide-solid";
+import CartButton from "./CartButton.tsx";
+---
+
+<nav
+  class="fixed bottom-0 left-0 right-0 z-30 flex items-stretch border-t-4 border-ink bg-newsprint/95 backdrop-blur-sm md:hidden transition:persist"
+  transition:name="mobile-nav"
+  transition:persist
+  aria-label="Mobile bottom navigation"
+>
+  <a
+    href="/"
+    class="flex flex-1 flex-col items-center gap-1 py-2 text-micro font-black uppercase tracking-wide text-ink transition-colors hover:bg-yellow"
+  >
+    <Home class="size-5" />
+    Home
+  </a>
+  <a
+    href="/products"
+    class="flex flex-1 flex-col items-center gap-1 py-2 text-micro font-black uppercase tracking-wide text-ink transition-colors hover:bg-yellow"
+  >
+    <Package class="size-5" />
+    Shop
+  </a>
+  <button
+    type="button"
+    aria-label="Search"
+    class="flex flex-1 flex-col items-center gap-1 py-2 text-micro font-black uppercase tracking-wide text-ink transition-colors hover:bg-cyan"
+  >
+    <Search class="size-5" />
+    Search
+  </button>
+  <div class="flex flex-1 flex-col items-center gap-1 py-1">
+    <CartButton client:idle />
+    <span class="text-micro font-black uppercase tracking-wide text-ink">Cart</span>
+  </div>
+</nav>

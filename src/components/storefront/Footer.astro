@@ -1,0 +1,119 @@
+---
+const currentYear = new Date().getFullYear();
+
+const infoLinks = [
+  { label: "FAQ", href: "/faq" },
+  { label: "Shipping", href: "/shipping" },
+  { label: "Contact", href: "/contact" },
+  { label: "Returns & Refunds", href: "/returns-refunds" },
+];
+
+const legalLinks = [
+  { label: "Privacy Policy", href: "/privacy-policy" },
+  { label: "Terms of Service", href: "/terms-of-service" },
+];
+
+const socials = [
+  { label: "Instagram", href: "#" },
+  { label: "Facebook", href: "#" },
+  { label: "X", href: "#" },
+];
+---
+
+<footer
+  class="relative z-10 mt-16 border-t-4 border-ink bg-newsprint-dark bg-noise transition:persist"
+  transition:name="footer"
+  transition:persist
+>
+  {/* Torn-paper top edge */}
+  <div
+    class="absolute -top-1 left-0 right-0 h-1 bg-ink"
+    style="clip-path: polygon(0% 100%, 3% 70%, 7% 90%, 11% 50%, 15% 85%, 20% 40%, 25% 80%, 30% 55%, 35% 90%, 40% 45%, 45% 85%, 50% 50%, 55% 90%, 60% 40%, 65% 85%, 70% 55%, 75% 90%, 80% 45%, 85% 80%, 90% 50%, 94% 90%, 98% 55%, 100% 85%, 100% 100%);"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="mx-auto max-w-screen-2xl px-4 py-10 lg:px-8">
+    <div class="grid gap-8 md:grid-cols-3 lg:grid-cols-4">
+      {/* Brand column */}
+      <div class="md:col-span-1">
+        <div class="mb-3 flex items-center gap-2">
+          <div class="flex size-9 items-center justify-center border-2 border-ink bg-orange font-display text-lg font-black text-ink shadow-hard-sm">
+            P
+          </div>
+          <span class="font-display text-lg font-black uppercase tracking-tight text-ink">
+            Plugged
+          </span>
+        </div>
+        <p class="max-w-xs text-sm font-medium leading-relaxed text-muted-foreground">
+          Pocket audio for kids who dress like the venue lost power and still
+          know exactly where the bass is buried.
+        </p>
+      </div>
+
+      {/* Info links */}
+      <div>
+        <h3 class="mb-3 text-micro font-black uppercase tracking-widest text-muted-foreground">
+          Info
+        </h3>
+        <ul class="flex flex-col gap-2">
+          {infoLinks.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="w-fit text-sm font-bold text-ink transition-colors hover:text-orange hover:underline"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Legal links */}
+      <div>
+        <h3 class="mb-3 text-micro font-black uppercase tracking-widest text-muted-foreground">
+          Legal
+        </h3>
+        <ul class="flex flex-col gap-2">
+          {legalLinks.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="w-fit text-sm font-bold text-ink transition-colors hover:text-orange hover:underline"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Socials */}
+      <div>
+        <h3 class="mb-3 text-micro font-black uppercase tracking-widest text-muted-foreground">
+          Follow
+        </h3>
+        <ul class="flex flex-col gap-2">
+          {socials.map((social) => (
+            <li>
+              <a
+                href={social.href}
+                class="w-fit text-sm font-bold text-ink transition-colors hover:text-orange hover:underline"
+              >
+                {social.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    {/* Bottom bar */}
+    <div class="mt-8 border-t-2 border-ink/20 pt-4">
+      <p class="text-caption font-black uppercase tracking-widest text-muted-foreground">
+        &copy; {currentYear} Plugged Audio
+      </p>
+    </div>
+  </div>
+</footer>
