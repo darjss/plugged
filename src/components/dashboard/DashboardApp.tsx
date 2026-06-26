@@ -3,6 +3,8 @@ import type { ParentProps } from "solid-js";
 import { cn } from "@/lib/utils";
 import DashboardProviders from "./DashboardProviders";
 import DashboardLayout from "./DashboardLayout";
+import OrdersList from "./orders/OrdersList";
+import OrderDetail from "./orders/OrderDetail";
 
 /**
  * Admin SPA. Mounted at `/dashboard/*` via `client:load` in
@@ -36,9 +38,6 @@ function DashboardHome() {
 function ProductsList() {
   return <Placeholder label="Products" issue="14" />;
 }
-function OrdersList() {
-  return <Placeholder label="Orders" issue="15" />;
-}
 function Analytics() {
   return <Placeholder label="Analytics" issue="17" />;
 }
@@ -53,6 +52,7 @@ export default function DashboardApp() {
         <Route path="/" component={DashboardHome} />
         <Route path="/products" component={ProductsList} />
         <Route path="/orders" component={OrdersList} />
+        <Route path="/orders/:id" component={OrderDetail} />
         <Route path="/analytics" component={Analytics} />
         <Route path="/settings" component={Settings} />
         {/* Fallthrough — unknown sub-routes render the home placeholder. */}

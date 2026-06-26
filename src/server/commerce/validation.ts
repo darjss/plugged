@@ -119,3 +119,26 @@ export const paymentUpdateSchema = v.object({
 export const createPaymentInputSchema = v.object({
   orderNumber: v.pipe(v.string(), v.minLength(1)),
 });
+
+/**
+ * Admin order list filters. All fields optional; pagination defaults
+ * applied at the query layer.
+ */
+export const adminListOrdersSchema = v.object({
+  status: v.optional(v.picklist(orderStatuses)),
+  paymentStatus: v.optional(v.picklist(paymentStatuses)),
+  dateFrom: v.optional(v.pipe(v.string(), v.minLength(1))),
+  dateTo: v.optional(v.pipe(v.string(), v.minLength(1))),
+  search: v.optional(v.pipe(v.string(), v.minLength(1))),
+  limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(100))),
+  offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
+});
+
+/**
+ * Admin order status update. The set of allowed values is the full
+ * orderStatuses picklist; transition validity is enforced at the query
+ * layer (throws ConflictError on invalid transitions).
+ */
+export const adminUpdateOrderStatusSchema = v.object({
+  status: v.picklist(orderStatuses),
+});
