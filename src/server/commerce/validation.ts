@@ -1,4 +1,5 @@
 import * as v from "valibot";
+import { MONGOLIAN_PHONE_REGEX } from "../../lib/utils";
 import {
   deliveryProviders,
   orderStatuses,
@@ -12,7 +13,7 @@ const optionalText = v.optional(v.nullable(v.string()));
 const moneyMnt = v.pipe(v.number(), v.integer(), v.minValue(0), v.finite());
 const stockQuantity = v.pipe(v.number(), v.integer(), v.minValue(0), v.finite());
 const positiveQuantity = v.pipe(v.number(), v.integer(), v.minValue(1), v.finite());
-const mongolianPhone = v.pipe(v.string(), v.regex(/^\+976[6-9]\d{7}$/));
+const mongolianPhone = v.pipe(v.string(), v.regex(MONGOLIAN_PHONE_REGEX));
 
 export const productListQuerySchema = v.object({
   status: v.optional(v.picklist(productStatuses)),

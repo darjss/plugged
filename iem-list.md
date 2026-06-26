@@ -1,19 +1,19 @@
 Tangzu waner 2 red lion
-Tangzu wanger sg 2 
-truthear 
+Tangzu wanger sg 2
+truthear
 moondrop chu 2
-gk gunten 
-KZ Duonic bass 
+gk gunten
+KZ Duonic bass
 Tanchjim Bunny
 7hz x Crinacle Zero 2
 Kz edx pro x
-Kiwi Ears Cadenza 
+Kiwi Ears Cadenza
 KZ EDC Pro
 Simgot EW100P
 Moondrop Space Travel 2
- KBear Rosefinch 
- Dunu Titan X
- Kiwi Ears Cadenza 
+KBear Rosefinch
+Dunu Titan X
+Kiwi Ears Cadenza
 Kefine Klean SV
 
 DAC:

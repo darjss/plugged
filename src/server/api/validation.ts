@@ -1,14 +1,5 @@
 import * as v from "valibot";
-
-export class ValidationError extends Error {
-  constructor(
-    message: string,
-    readonly issues: v.InferIssue<v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>>[],
-  ) {
-    super(message);
-    this.name = "ValidationError";
-  }
-}
+import { ValidationError as DomainValidationError } from "../lib/errors";
 
 export function parseInput<TSchema extends v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>>(
   schema: TSchema,
@@ -17,20 +8,16 @@ export function parseInput<TSchema extends v.BaseSchema<unknown, unknown, v.Base
   const result = v.safeParse(schema, input);
 
   if (!result.success) {
-    throw new ValidationError("Invalid input.", result.issues);
+    const details: Record<string, unknown> = {
+      issues: result.issues.map((issue) => ({
+        path: v.getDotPath(issue),
+        message: issue.message,
+        kind: issue.kind,
+      })),
+    };
+
+    throw new DomainValidationError("Invalid input.", details);
   }
 
   return result.output;
-}
-
-export function validationFailure(error: unknown) {
-  if (error instanceof ValidationError) {
-    return {
-      error: error.message,
-      issues: error.issues,
-      ok: false,
-    };
-  }
-
-  return null;
 }

@@ -16,6 +16,7 @@ export const user = sqliteTable("user", {
   image: text("image"),
   phoneNumber: text("phone_number").unique(),
   phoneNumberVerified: integer("phone_number_verified", { mode: "boolean" }),
+  isAdmin: integer("is_admin", { mode: "boolean" }).notNull().default(false),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
@@ -101,6 +102,7 @@ export const product = sqliteTable(
     compareAtPriceMnt: integer("compare_at_price_mnt"),
     currency: text("currency").notNull(),
     featured: integer("featured", { mode: "boolean" }).notNull(),
+    oldSlugs: text("old_slugs"),
     createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
     updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
   },
@@ -187,6 +189,7 @@ export const iemSpec = sqliteTable("iem_spec", {
   soundSignature: text("sound_signature"),
   fit: text("fit"),
   includedAccessories: text("included_accessories"),
+  squiglinkFile: text("squiglink_file"),
 });
 
 export const cart = sqliteTable(
