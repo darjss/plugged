@@ -3,8 +3,8 @@ import { createEffect, createMemo, createRoot, createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
 
 export interface CartItem {
-  variantId: number;
-  productId: number;
+  variantId: string;
+  productId: string;
   name: string;
   price: number;
   image: string;
@@ -115,11 +115,11 @@ export const cart = createRoot(() => {
       setIsDrawerOpen(true);
     },
 
-    remove: (variantId: number) => {
+    remove: (variantId: string) => {
       setCart("items", (items) => items.filter((i) => i.variantId !== variantId));
     },
 
-    updateQuantity: (variantId: number, quantity: number) => {
+    updateQuantity: (variantId: string, quantity: number) => {
       if (quantity <= 0) {
         setCart("items", (items) => items.filter((i) => i.variantId !== variantId));
         return;

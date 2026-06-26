@@ -1,0 +1,31 @@
+---
+import StorefrontLayout from "../layouts/StorefrontLayout.astro";
+import OrderTracking from "../components/storefront/OrderTracking.tsx";
+
+export const prerender = false;
+
+// Optional deep-link prefill: `/track?phone=88889999` (8 digits, no +976).
+// Used by the profile page order links.
+const initialPhone = Astro.url.searchParams.get("phone") ?? undefined;
+---
+
+<StorefrontLayout
+  title="Захиалга хянах | Plugged"
+  description="Утасны дугаараа оруулан захиалгынхаа төлөвийг хянаарай."
+>
+  <section class="mx-auto max-w-2xl px-4 py-12 md:py-16">
+    {/* Header — stamp-style */}
+    <div class="mb-8">
+      <div class="inline-block -rotate-1 border-2 border-ink bg-orange px-4 py-2 shadow-hard-sm">
+        <h1 class="font-display text-4xl uppercase leading-none text-ink md:text-5xl">
+          Захиалга хянах
+        </h1>
+      </div>
+      <p class="mt-3 max-w-md font-mono text-xs uppercase tracking-wider text-ink-muted">
+        Захиалга хийсэн утасны дугаараа оруулан төлөв, хаяг, төлбөрийн мэдээллийг хянаарай. Нэвтрэх шаардлагагүй.
+      </p>
+    </div>
+
+    <OrderTracking client:only="solid-js" initialPhone={initialPhone} />
+  </section>
+</StorefrontLayout>
