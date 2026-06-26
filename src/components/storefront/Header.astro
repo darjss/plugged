@@ -62,11 +62,11 @@ const navLinks = [
       {/* Auth cluster — sign-in / profile / logout (SolidJS island) */}
       <HeaderAuth client:idle />
 
-      {/* Search trigger — styled button, overlay comes in issue #12 */}
       <button
         type="button"
         aria-label="Search"
         class="flex size-11 items-center justify-center border-2 border-ink bg-card shadow-hard-sm transition-all hover:bg-cyan hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+        data-search-toggle
       >
         <Search class="size-5" />
       </button>
@@ -160,6 +160,15 @@ const navLinks = [
     links.forEach((link) => link.addEventListener("click", closeMenu));
   }
 
+  function setupSearchToggle() {
+    document.querySelectorAll("[data-search-toggle]").forEach((button) => {
+      button.addEventListener("click", () => window.dispatchEvent(new CustomEvent("plugged:open-search")));
+    });
+  }
+
   // Re-bind on Astro View Transition page swaps
-  document.addEventListener("astro:page-load", setupMobileMenu);
+  document.addEventListener("astro:page-load", () => {
+    setupMobileMenu();
+    setupSearchToggle();
+  });
 </script>

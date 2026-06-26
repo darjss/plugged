@@ -6,6 +6,11 @@ import {
   adminListProductsSchema,
   adminUpdateProductSchema,
 } from "../../commerce/validation";
+import {
+  indexProduct,
+  rebuildSearchIndex,
+  removeProductFromIndex,
+} from "../../search/index-builder";
 import { authPlugin } from "../plugins/auth";
 import { parseInput } from "../validation";
 
@@ -40,23 +45,34 @@ export const adminRoutes = new Elysia({ name: "admin-routes" })
   })
   .post(
     "/admin/products",
-    ({ body }) => {
+    async ({ body }) => {
       const input = parseInput(adminCreateProductSchema, body);
-      return adminCommerceQueries.createProduct(input);
+      const result = await adminCommerceQueries.createProduct(input);
+      await syncProductSearchIndex(result.id);
+      return result;
     },
     { requireAdmin: true },
   )
   .patch(
     "/admin/products/:id",
-    ({ params, body }) => {
+    async ({ params, body }) => {
       const input = parseInput(adminUpdateProductSchema, body);
-      return adminCommerceQueries.updateProduct(params.id, input);
+      const result = await adminCommerceQueries.updateProduct(params.id, input);
+      await syncProductSearchIndex(result.id);
+      return result;
     },
     { requireAdmin: true },
   )
-  .delete("/admin/products/:id", ({ params }) => adminCommerceQueries.archiveProduct(params.id), {
-    requireAdmin: true,
-  })
+  .delete(
+    "/admin/products/:id",
+    async ({ params }) => {
+      const result = await adminCommerceQueries.archiveProduct(params.id);
+      await removeProductFromSearchIndex(params.id);
+      return result;
+    },
+    { requireAdmin: true },
+  )
+  .post("/admin/search/reindex", () => rebuildSearchIndex(), { requireAdmin: true })
   .post(
     "/admin/products/:id/images",
     async ({ params, body, status }) => {
@@ -109,3 +125,19 @@ export const adminRoutes = new Elysia({ name: "admin-routes" })
 
     return new Response(object.body, { headers });
   });
+
+async function syncProductSearchIndex(productId: string) {
+  try {
+    await indexProduct(productId);
+  } catch (error) {
+    console.warn("search index sync failed", { productId, error: String(error) });
+  }
+}
+
+async function removeProductFromSearchIndex(productId: string) {
+  try {
+    await removeProductFromIndex(productId);
+  } catch (error) {
+    console.warn("search index delete failed", { productId, error: String(error) });
+  }
+}

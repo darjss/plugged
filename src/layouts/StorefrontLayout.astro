@@ -4,6 +4,7 @@ import Header from "../components/storefront/Header.astro";
 import Footer from "../components/storefront/Footer.astro";
 import MobileNav from "../components/storefront/MobileNav.astro";
 import CartDrawer from "../components/storefront/CartDrawer.tsx";
+import SearchOverlay from "../components/storefront/SearchOverlay.tsx";
 import { Toaster } from "../components/ui/sonner";
 
 interface Props {
@@ -39,6 +40,10 @@ const { title, description } = Astro.props;
         transition:persist keeps it mounted across View Transitions. */}
     <div transition:persist>
       <CartDrawer client:only="solid-js" />
+    </div>
+
+    <div transition:persist>
+      <SearchOverlay client:only="solid-js" />
     </div>
 
     {/* Toast notifications — grunge-styled via sonner.tsx theme overrides. */}
