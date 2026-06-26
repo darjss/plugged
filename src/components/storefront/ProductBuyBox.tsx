@@ -96,6 +96,7 @@ export default function ProductBuyBox(props: Props) {
       price: displayPrice(),
       image: props.primaryImage,
       slug: props.productSlug,
+      variantName: variant?.name,
       quantity: quantity(),
     };
 

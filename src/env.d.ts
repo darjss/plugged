@@ -10,3 +10,12 @@ declare namespace App {
 }
 
 /// <reference types="astro/client" />
+
+declare module "astro:middleware" {
+  type MiddlewareContext = import("astro").APIContext & { isPrerendered?: boolean };
+  type MiddlewareHandler = (
+    context: MiddlewareContext,
+    next: () => Promise<Response>,
+  ) => Response | Promise<Response>;
+  export const defineMiddleware: (handler: MiddlewareHandler) => MiddlewareHandler;
+}

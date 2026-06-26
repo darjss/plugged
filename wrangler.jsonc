@@ -64,8 +64,11 @@
     "QPAY_INVOICE_CODE": "",
     "QPAY_WEBHOOK_SECRET": "",
     "POSTHOG_KEY": "",
-    "POSTHOG_HOST": "",
+    "POSTHOG_HOST": "https://us.posthog.com",
+    "POSTHOG_PERSONAL_API_KEY": "",
     "POSTHOG_PROJECT_ID": "",
+    "PUBLIC_POSTHOG_KEY": "phc_XXX",
+    "PUBLIC_POSTHOG_HOST": "https://us.posthog.com",
     "AI_SEARCH_INDEX_ID": "",
   },
 }
