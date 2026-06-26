@@ -1,0 +1,83 @@
+---
+import StorefrontLayout from "../../layouts/StorefrontLayout.astro";
+import FilterBar from "../../components/storefront/FilterBar.astro";
+import ProductsList from "../../components/storefront/ProductsList.tsx";
+import ProductCard from "../../components/storefront/ProductCard.tsx";
+import { commerceQueries } from "../../server/commerce/queries";
+
+export const prerender = false;
+
+const url = new URL(Astro.request.url);
+const categorySlug = url.searchParams.get("category") ?? undefined;
+const brandSlug = url.searchParams.get("brand") ?? undefined;
+
+const PAGE_SIZE = 12;
+
+// SSR first page + filter-bar options in parallel.
+const [products, categories, brands] = await Promise.all([
+  commerceQueries.store.getProducts({
+    categorySlug,
+    brandSlug,
+    limit: PAGE_SIZE,
+    offset: 0,
+  }),
+  commerceQueries.store.getCategories(),
+  commerceQueries.store.getBrands(),
+]);
+
+const title = categorySlug
+  ? `${categories.find((c) => c.slug === categorySlug)?.name ?? "Products"} | Plugged`
+  : "All products | Plugged";
+const description = "Browse the wall — IEMs, DAC amps, and wireless earbuds.";
+---
+
+<StorefrontLayout title={title} description={description}>
+  <section class="mx-auto max-w-screen-2xl px-4 py-8 lg:px-8 lg:py-12">
+    {/* Masthead */}
+    <div class="mb-6 flex flex-col gap-2 border-b-4 border-ink pb-6">
+      <p class="text-micro font-black uppercase tracking-widest text-orange">
+        The wall
+      </p>
+      <h1
+        class="font-display text-display font-black uppercase leading-none tracking-tight text-ink"
+      >
+        {categorySlug
+          ? (categories.find((c) => c.slug === categorySlug)?.name ?? "Products")
+          : "All products"}
+      </h1>
+      <p class="max-w-prose text-body-lg text-ink-muted">{description}</p>
+    </div>
+
+    {/* Filter bar */}
+    <div class="mb-8">
+      <FilterBar
+        categories={categories}
+        brands={brands}
+        activeCategory={categorySlug}
+        activeBrand={brandSlug}
+      />
+    </div>
+
+    {/* SSR grid — first 12 products rendered server-side for first paint.
+        No client directive: these are static HTML cards. The ProductsList
+        island removes this grid on mount and re-renders the same first
+        page from initialData (no flash) then appends infinite-scroll pages. */}
+    <div id="products-ssr" class="mb-4">
+      <div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+        {products.map((product) => (
+          <ProductCard product={product} />
+        ))}
+      </div>
+    </div>
+
+    {/* Infinite-scroll island — client:only to read URL params on mount.
+        initialProducts matches the SSR grid above so hydration is seamless. */}
+    <ProductsList
+      client:only="solid-js"
+      initialProducts={products}
+      categorySlug={categorySlug}
+      brandSlug={brandSlug}
+      pageSize={PAGE_SIZE}
+    />
+  </section>
+</StorefrontLayout>
