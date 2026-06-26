@@ -69,14 +69,6 @@ Feel free to invent new palettes. The user wants to see distinct options.
 
 ## Required sections per mock
 
-Every mock homepage should include:
-
-1. **Navigation** — sticky, raw, possibly torn/skewed
-2. **Hero** — massive headline, subhead, primary CTA
-3. **3 "why" blocks** — curated, compared, bundled
-4. **Featured product grid** — 3 IEM tiles with image, name, price, tags
-5. **Bundle teaser** — IEM + DAC bundle
-6. **Footer** — shipping, returns, terms, privacy, contact
 
 ## Product content (use realistic placeholder data)
 
@@ -103,7 +95,6 @@ Example:
 Each file must:
 
 - Be fully self-contained (inline CSS, no build step)
-- Use only system fonts + Google Fonts if needed
 - Use placeholder images from Unsplash or CSS shapes
 - Be openable directly in a browser
 - Include the logo at `logo.png` in the nav
@@ -112,9 +103,9 @@ Each file must:
 
 - Must NOT look like a Shopify theme
 - Must NOT look like generic AI slop (no glassmorphism, no gradient text, no side-stripe card borders, no identical card grids)
+- Must not look like and have ai generated template 
 - Must feel intentionally raw, collaged, and human
 - Must still be usable as a store (readable prices, clear CTAs, working links)
-- Must respect `prefers-reduced-motion`
 
 ## Deliverables
 
