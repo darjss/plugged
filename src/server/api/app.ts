@@ -1,5 +1,6 @@
 import { Elysia } from "elysia";
 import { eq } from "drizzle-orm";
+import * as v from "valibot";
 import { adminQueries } from "../commerce/admin-queries";
 import { adminQueries as adminSettingsQueries } from "../admin/queries";
 import { adminUpdateUserSchema, adminUsersQuerySchema } from "../admin/validation";
@@ -13,8 +14,13 @@ import { db } from "../db";
 import { order } from "../db/schema";
 import { checkQpayInvoice } from "../integrations/qpay";
 import { DomainError } from "../lib/errors";
+import { MONGOLIAN_PHONE_REGEX } from "../../lib/utils";
 import { authPlugin } from "./plugins/auth";
 import { parseInput } from "./validation";
+
+const ordersPhoneQuerySchema = v.object({
+  phone: v.pipe(v.string(), v.regex(MONGOLIAN_PHONE_REGEX)),
+});
 
 export const app = new Elysia()
   .onError(({ error, status }) => {
@@ -132,6 +138,17 @@ export const app = new Elysia()
       status: result.status,
     };
   })
+  .get("/orders", async ({ query }) => {
+    // Public lookup by phone — the phone number is the access key. This
+    // supports the /track page for guest checkouts (no login required).
+    // The profile page reuses the same endpoint for the logged-in
+    // customer's own phone.
+    const input = parseInput(ordersPhoneQuerySchema, query);
+    return { orders: await commerceQueries.orders.getOrdersByPhone(input.phone) };
+  })
+  .get("/orders/:orderNumber", async ({ params }) =>
+    commerceQueries.orders.getOrderByNumber(params.orderNumber),
+  )
   .post("/qpay/webhook", async ({ query, status }) => {
     const paymentNumber = typeof query.id === "string" ? query.id : null;
     if (!paymentNumber) return status(200, { ok: true });

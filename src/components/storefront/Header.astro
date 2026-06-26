@@ -1,6 +1,7 @@
 ---
 import { Menu, Search } from "lucide-solid";
 import CartButton from "./CartButton.tsx";
+import HeaderAuth from "./HeaderAuth.tsx";
 
 const navLinks = [
   { label: "IEMs", href: "/products?category=iems" },
@@ -58,6 +59,9 @@ const navLinks = [
 
     {/* Right actions */}
     <div class="flex items-center gap-2">
+      {/* Auth cluster — sign-in / profile / logout (SolidJS island) */}
+      <HeaderAuth client:idle />
+
       {/* Search trigger — styled button, overlay comes in issue #12 */}
       <button
         type="button"
@@ -114,6 +118,20 @@ const navLinks = [
           {link.label}
         </a>
       ))}
+      <a
+        href="/auth/sign-in"
+        class="border-2 border-ink bg-orange px-4 py-4 text-heading font-black uppercase tracking-tight text-ink shadow-hard-sm transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none -rotate-1"
+        data-mobile-menu-link
+      >
+        Sign in
+      </a>
+      <a
+        href="/track"
+        class="border-2 border-ink bg-card px-4 py-4 text-heading font-black uppercase tracking-tight shadow-hard-sm transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none rotate-1"
+        data-mobile-menu-link
+      >
+        Track order
+      </a>
     </nav>
   </div>
 </header>

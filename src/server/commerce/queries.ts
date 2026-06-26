@@ -428,4 +428,39 @@ export const commerceQueries = {
       };
     },
   },
+
+  orders: {
+    /**
+     * List orders for a phone number. Used by the profile page (logged-in
+     * customer's own phone) and the public tracking page (guest lookups by
+     * phone). Orders are returned newest-first with items + payments.
+     */
+    async getOrdersByPhone(phone: string) {
+      return db.query.order.findMany({
+        where: eq(order.customerPhone, phone),
+        orderBy: [desc(order.createdAt)],
+        with: {
+          items: true,
+          payments: true,
+        },
+      });
+    },
+
+    /**
+     * Fetch a single order by its public order number, including line items
+     * and payment records. Throws NotFoundError if no order matches.
+     */
+    async getOrderByNumber(orderNumber: string) {
+      const result = await db.query.order.findFirst({
+        where: eq(order.orderNumber, orderNumber),
+        with: {
+          items: true,
+          payments: true,
+        },
+      });
+
+      if (!result) throw new NotFoundError("order", orderNumber);
+      return result;
+    },
+  },
 };
