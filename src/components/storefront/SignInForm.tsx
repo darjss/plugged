@@ -1,6 +1,7 @@
 import { createEffect, createSignal, onCleanup, Show } from "solid-js";
 import { authClient } from "@/lib/auth-client";
 import { cn, MONGOLIAN_PHONE_REGEX } from "@/lib/utils";
+import { trackAnalytics } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -86,6 +87,7 @@ export default function SignInForm(props: { next?: string }) {
       setOtp("");
       return;
     }
+    trackAnalytics("sign_in_completed", { method: "phone_otp" });
     // Session cookie is now set; redirect to next.
     window.location.assign(next());
   }

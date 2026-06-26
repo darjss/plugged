@@ -1,6 +1,7 @@
 ---
 import StorefrontLayout from "../../../layouts/StorefrontLayout.astro";
 import ClearCart from "../../../components/storefront/ClearCart.tsx";
+import AnalyticsEvent from "../../../components/storefront/AnalyticsEvent.tsx";
 import { commerceQueries } from "../../../server/commerce/queries";
 import { formatMnt } from "../../../lib/utils";
 
@@ -21,6 +22,17 @@ if (orderNumber) {
 ---
 
 <StorefrontLayout title="Order confirmed | Plugged" description="Your order is confirmed.">
+  {order && (
+    <AnalyticsEvent
+      client:load
+      event="order_completed"
+      properties={{
+        order_number: order.orderNumber,
+        total: order.totalMnt,
+        payment_method: "qpay",
+      }}
+    />
+  )}
   {/* Clear the cart now that the order is placed and paid. */}
   <ClearCart client:only="solid-js" />
 

@@ -16,6 +16,7 @@ import {
 import { db } from "../db";
 import { order } from "../db/schema";
 import { checkQpayInvoice } from "../integrations/qpay";
+import { captureServerEvent, getAnalyticsOverview } from "../integrations/posthog";
 import { DomainError } from "../lib/errors";
 import { MONGOLIAN_PHONE_REGEX } from "../../lib/utils";
 import { authPlugin } from "./plugins/auth";
@@ -70,6 +71,7 @@ export const app = new Elysia()
   .get("/admin/stats", () => adminQueries.getStats(), {
     requireAdmin: true,
   })
+  .get("/admin/analytics/overview", () => getAnalyticsOverview(), { requireAdmin: true })
   .get("/admin/settings", () => adminSettingsQueries.getSettings(), { requireAdmin: true })
   .get(
     "/admin/orders",
@@ -187,6 +189,11 @@ export const app = new Elysia()
           .update(order)
           .set({ status: "pending", updatedAt: new Date() })
           .where(eq(order.id, targetPayment.orderId));
+        await captureServerEvent(targetPayment.order.customerPhone, "order_completed", {
+          order_number: targetPayment.order.orderNumber,
+          total: targetPayment.order.totalMnt,
+          payment_method: targetPayment.provider,
+        });
       }
     } catch (error) {
       console.error("qpay webhook failed", { paymentNumber, error: String(error) });

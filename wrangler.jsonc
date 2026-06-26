@@ -53,9 +53,11 @@
     "QPAY_PASSWORD": "",
     "QPAY_CALLBACK_URL": "",
     "QPAY_INVOICE_CODE": "",
-    "POSTHOG_KEY": "",
-    "POSTHOG_HOST": "",
+    "POSTHOG_KEY": "phc_XXX",
+    "POSTHOG_HOST": "https://us.posthog.com",
     "POSTHOG_PROJECT_ID": "",
+    "PUBLIC_POSTHOG_KEY": "phc_XXX",
+    "PUBLIC_POSTHOG_HOST": "https://us.posthog.com",
     "AI_SEARCH_INDEX_ID": "",
   },
 }
