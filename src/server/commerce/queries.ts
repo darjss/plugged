@@ -1,21 +1,25 @@
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, like, lte, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import * as v from "valibot";
 import { db } from "../db";
 import {
+  brand,
   cart,
   cartItem,
+  category,
   deliveryFeeMnt,
   order,
   orderItem,
+  orderStatuses,
   payment,
   paymentStatuses,
   product,
+  productCategory,
   productVariant,
 } from "../db/schema";
 import { ConflictError, NotFoundError, OutOfStockError } from "../lib/errors";
 import { createQpayInvoice } from "../integrations/qpay";
-import { checkoutInputSchema } from "./validation";
+import { adminListOrdersSchema, checkoutInputSchema, productListQuerySchema } from "./validation";
 
 const publicProductColumns = {
   id: true,
@@ -32,20 +36,63 @@ const publicProductColumns = {
 
 const now = () => new Date();
 const activeProduct = () => eq(product.status, "active");
+const DEFAULT_PAGE_SIZE = 12;
 
 export const commerceQueries = {
   store: {
     /**
-     * List active products. Pass `{ featured: true }` to restrict to
-     * products flagged for the homepage featured grid.
+     * List active products with optional category/brand/featured filters
+     * and limit/offset pagination. Category and brand are filtered by slug
+     * via subqueries so the relational `with` shape stays stable.
+     *
+     * Unknown slugs resolve to an always-false condition (instead of an
+     * early `return []`) so the function has a single return type and
+     * Eden Treaty can infer the response shape cleanly.
      */
-    async getProducts(filter?: { featured?: boolean }) {
-      const featuredOnly = filter?.featured === true ? eq(product.featured, true) : undefined;
+    async getProducts(input: v.InferOutput<typeof productListQuerySchema> = {}) {
+      const limit = input.limit ?? DEFAULT_PAGE_SIZE;
+      const offset = input.offset ?? 0;
+
+      const conditions = [activeProduct()];
+
+      if (input.featured !== undefined) {
+        conditions.push(eq(product.featured, input.featured));
+      }
+
+      if (input.brandSlug) {
+        const brandRow = await db.query.brand.findFirst({
+          where: eq(brand.slug, input.brandSlug),
+          columns: { id: true },
+        });
+        // Unknown brand slug → match nothing.
+        conditions.push(brandRow ? eq(product.brandId, brandRow.id) : eq(product.id, ""));
+      }
+
+      if (input.categorySlug) {
+        const categoryRow = await db.query.category.findFirst({
+          where: eq(category.slug, input.categorySlug),
+          columns: { id: true },
+        });
+        let productIds: string[] = [];
+        if (categoryRow) {
+          const links = await db
+            .select({ productId: productCategory.productId })
+            .from(productCategory)
+            .where(eq(productCategory.categoryId, categoryRow.id));
+          productIds = links.map((row) => row.productId);
+        }
+        // Unknown category slug or no products in category → match nothing.
+        conditions.push(
+          productIds.length > 0 ? inArray(product.id, productIds) : eq(product.id, ""),
+        );
+      }
 
       return db.query.product.findMany({
         columns: publicProductColumns,
         orderBy: [desc(product.featured), desc(product.createdAt)],
-        where: featuredOnly ? and(activeProduct(), featuredOnly) : activeProduct(),
+        where: and(...conditions),
+        limit,
+        offset,
         with: {
           brand: true,
           iemSpec: true,
@@ -57,6 +104,21 @@ export const commerceQueries = {
           },
         },
       });
+    },
+
+    /**
+     * All categories, ordered by name. Used by the storefront filter bar
+     * and category landing-page navigation.
+     */
+    async getCategories() {
+      return db.select().from(category).orderBy(category.name);
+    },
+
+    /**
+     * All brands, ordered by name. Used by the storefront filter bar.
+     */
+    async getBrands() {
+      return db.select().from(brand).orderBy(brand.name);
     },
 
     async getProductBySlug(slug: string) {
@@ -432,6 +494,160 @@ export const commerceQueries = {
         qrText: invoice.qrText,
         shortUrl: invoice.shortUrl,
       };
+    },
+  },
+
+  admin: {
+    /**
+     * List orders for the admin console with filters + pagination.
+     * Uses the relational query API so each order carries its primary
+     * payment (most recently updated) and optional customer account.
+     */
+    async listOrders(rawFilters: v.InferOutput<typeof adminListOrdersSchema>) {
+      const filters = rawFilters;
+      const limit = filters.limit ?? 25;
+      const offset = filters.offset ?? 0;
+
+      const conditions = [];
+
+      if (filters.status) conditions.push(eq(order.status, filters.status));
+
+      if (filters.dateFrom) {
+        const from = new Date(filters.dateFrom);
+        if (!Number.isNaN(from.getTime())) conditions.push(gte(order.orderedAt, from));
+      }
+      if (filters.dateTo) {
+        const to = new Date(filters.dateTo);
+        if (!Number.isNaN(to.getTime())) conditions.push(lte(order.orderedAt, to));
+      }
+
+      if (filters.search) {
+        const term = `%${filters.search}%`;
+        conditions.push(or(like(order.orderNumber, term), like(order.customerPhone, term))!);
+      }
+
+      if (filters.paymentStatus) {
+        // Subquery: orders that have at least one payment with the given status.
+        conditions.push(
+          sql`${order.id} IN (
+            SELECT ${payment.orderId} FROM ${payment}
+            WHERE ${payment.status} = ${filters.paymentStatus}
+          )`,
+        );
+      }
+
+      const where = conditions.length > 0 ? and(...conditions) : undefined;
+
+      const rows = await db.query.order.findMany({
+        where,
+        orderBy: desc(order.orderedAt),
+        limit,
+        offset,
+        with: {
+          user: {
+            columns: { email: true, name: true, phoneNumber: true },
+          },
+          payments: {
+            orderBy: (p, { desc }) => [desc(p.updatedAt)],
+            limit: 1,
+            columns: {
+              status: true,
+              provider: true,
+              paymentNumber: true,
+            },
+          },
+        },
+      });
+
+      const [{ count }] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(order)
+        .where(where);
+
+      return {
+        orders: rows,
+        total: Number(count),
+        limit,
+        offset,
+      };
+    },
+
+    /**
+     * Full order for the admin detail view: items (with product image +
+     * variant), payments, and the optional customer account.
+     */
+    async getOrder(id: string) {
+      const result = await db.query.order.findFirst({
+        where: eq(order.id, id),
+        with: {
+          items: {
+            with: {
+              product: {
+                with: {
+                  images: {
+                    orderBy: (image, { asc, desc }) => [
+                      desc(image.isPrimary),
+                      asc(image.sortOrder),
+                    ],
+                    limit: 1,
+                  },
+                },
+              },
+              variant: true,
+            },
+          },
+          payments: {
+            orderBy: (p, { desc }) => [desc(p.updatedAt)],
+          },
+          user: true,
+        },
+      });
+
+      if (!result) throw new NotFoundError("order", id);
+      return result;
+    },
+
+    /**
+     * Update an order's status. Allowed transitions:
+     *   pending → shipped → delivered
+     *   pending → cancelled
+     * Throws ConflictError for any other transition.
+     */
+    async updateOrderStatus(id: string, nextStatus: (typeof orderStatuses)[number]) {
+      if (!orderStatuses.includes(nextStatus)) {
+        throw new ConflictError(`Invalid order status: ${nextStatus}`);
+      }
+
+      const current = await db.query.order.findFirst({
+        where: eq(order.id, id),
+        columns: { id: true, status: true },
+      });
+
+      if (!current) throw new NotFoundError("order", id);
+
+      const allowed: Record<string, string[]> = {
+        pending: ["shipped", "delivered", "cancelled"],
+        shipped: ["delivered"],
+        delivered: [],
+        cancelled: [],
+        refunded: [],
+      };
+
+      const allowedNext = allowed[current.status] ?? [];
+      if (!allowedNext.includes(nextStatus)) {
+        throw new ConflictError(`Cannot transition order from ${current.status} to ${nextStatus}`);
+      }
+
+      const date = now();
+      const patch: Record<string, unknown> = {
+        status: nextStatus,
+        updatedAt: date,
+      };
+      if (nextStatus === "cancelled") patch.cancelledAt = date;
+
+      await db.update(order).set(patch).where(eq(order.id, id));
+
+      return this.getOrder(id);
     },
   },
 };
