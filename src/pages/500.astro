@@ -1,0 +1,135 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+export const prerender = true;
+---
+
+<Layout title="500 — Tape broke | Plugged" description="The cassette chewed itself. We're splicing it back together.">
+  <main class="relative mx-auto flex min-h-svh max-w-3xl flex-col items-center justify-center px-4 py-16">
+    {/* Broken-cassette card — tangled tape, hazard-orange accents */}
+    <article
+      class="relative w-full max-w-xl rotate-1 border-4 border-ink bg-newsprint-2 shadow-hard-xl clip-torn-edges"
+    >
+      {/* Header strip — "ERROR" stamp on hazard stripes */}
+      <div class="border-b-4 border-ink bg-hazard-stripes px-6 py-4">
+        <div class="flex items-center justify-between">
+          <span class="font-mono text-micro font-black uppercase tracking-[0.3em] text-ink">
+            System error / tape deck #500
+          </span>
+          <span
+            class="-rotate-2 border-2 border-ink bg-pink px-2 py-0.5 font-mono text-micro font-black uppercase tracking-wider text-newsprint shadow-hard-sm"
+          >
+            Broken
+          </span>
+        </div>
+      </div>
+
+      {/* Body */}
+      <div class="flex flex-col gap-6 p-8">
+        {/* Headline — poster scale */}
+        <div class="flex flex-col gap-2">
+          <p class="font-mono text-micro font-black uppercase tracking-widest text-orange">
+            Something went wrong on our end
+          </p>
+          <h1
+            class="font-display font-black uppercase leading-[0.82] tracking-tight text-ink"
+            style="font-size: clamp(3.5rem, 12vw, 8rem);"
+          >
+            The tape<br />broke
+          </h1>
+        </div>
+
+        {/* Cassette tape illustration — pure CSS, tangled tape spilling out */}
+        <div class="flex flex-col items-center gap-3 border-2 border-ink bg-newsprint p-6 shadow-hard-sm">
+          <div
+            class="relative flex h-24 w-full max-w-xs items-center justify-center border-2 border-ink bg-ink"
+            aria-hidden="true"
+          >
+            {/* Two reels */}
+            <div class="flex w-full items-center justify-between px-6">
+              <div
+                class="size-12 rounded-full border-4 border-newsprint/40 bg-newsprint-2"
+                style="background-image: repeating-conic-gradient(var(--color-newsprint-dark) 0deg 30deg, transparent 30deg 60deg);"
+              ></div>
+              <div
+                class="size-12 rounded-full border-4 border-newsprint/40 bg-newsprint-2"
+                style="background-image: repeating-conic-gradient(var(--color-newsprint-dark) 0deg 30deg, transparent 30deg 60deg);"
+              ></div>
+            </div>
+            {/* Tangled tape spilling out the bottom */}
+            <div class="absolute -bottom-6 left-1/2 -translate-x-1/2">
+              <svg width="120" height="60" viewBox="0 0 120 60" fill="none">
+                <path
+                  d="M60 0 C 30 15, 90 25, 50 40 S 80 55, 60 60"
+                  stroke="oklch(0.72 0.28 355)"
+                  stroke-width="3"
+                  fill="none"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M60 0 C 75 20, 40 30, 70 45 S 45 58, 60 60"
+                  stroke="oklch(0.72 0.28 355)"
+                  stroke-width="2"
+                  fill="none"
+                  stroke-linecap="round"
+                  opacity="0.6"
+                />
+              </svg>
+            </div>
+          </div>
+          <p class="mt-4 font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
+            The deck ate the tape. We're splicing it.
+          </p>
+        </div>
+
+        {/* Description — photocopy report */}
+        <div class="border-2 border-ink bg-newsprint p-4 shadow-hard-sm">
+          <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
+            Incident report
+          </p>
+          <p class="mt-1 text-body text-ink">
+            The server hit a snag and the request got chewed up. Our side, not
+            yours. Try again in a moment — if it keeps happening, holler at
+            support and we'll hand-splice it.
+          </p>
+        </div>
+
+        {/* CTAs — retry + support */}
+        <div class="flex flex-col gap-3 sm:flex-row">
+          <a
+            href="/"
+            class="inline-flex flex-1 items-center justify-center gap-2 border-2 border-ink bg-orange px-6 py-4 font-display text-lg font-black uppercase tracking-wide text-ink shadow-hard-lg transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-hard"
+            onclick="window.location.reload(); return false;"
+          >
+            ↻ Retry
+          </a>
+          <a
+            href="/"
+            class="inline-flex flex-1 items-center justify-center gap-2 border-2 border-ink bg-newsprint px-6 py-4 font-display text-lg font-black uppercase tracking-wide text-ink shadow-hard-lg transition-all hover:bg-yellow hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-hard"
+          >
+            ← Back to homepage
+          </a>
+        </div>
+      </div>
+
+      {/* Tape strips */}
+      <div
+        aria-hidden="true"
+        class="absolute -top-3 right-12 rotate-3 bg-tape px-6 py-1.5 font-mono text-micro font-black uppercase tracking-widest text-ink shadow-hard-sm"
+      >
+        DO NOT EAT
+      </div>
+      <div
+        aria-hidden="true"
+        class="absolute -left-3 top-40 -rotate-6 bg-tape px-4 py-1 font-mono text-micro font-black uppercase tracking-widest text-ink shadow-hard-sm"
+      >
+        splice here
+      </div>
+    </article>
+
+    {/* Footer note */}
+    <p class="mt-8 max-w-md text-center font-mono text-micro font-black uppercase tracking-wider text-ink-muted">
+      Error 500 — internal server error. The warehouse deck is being repaired.
+    </p>
+  </main>
+</Layout>

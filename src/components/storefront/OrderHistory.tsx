@@ -121,10 +121,26 @@ export default function OrderHistory() {
       </Show>
 
       <Show when={ordersQuery.isError}>
-        <div class="border-2 border-pink bg-pink/10 p-4 shadow-hard-sm">
-          <p class="font-mono text-xs font-black uppercase text-pink">
-            Захиалга татахад алдаа гарлаа. Дахин оролдоно уу.
+        <div class="flex flex-col gap-3 border-2 border-ink bg-pink p-4 shadow-hard-sm">
+          <div class="flex items-center gap-2">
+            <span class="rotate-[-2deg] border-2 border-ink bg-newsprint px-2 py-0.5 font-mono text-micro font-black uppercase tracking-wider text-pink shadow-hard-sm">
+              Error
+            </span>
+            <span class="font-display text-lg font-black uppercase tracking-tight text-newsprint">
+              Татахад алдаа
+            </span>
+          </div>
+          <p class="font-mono text-xs font-bold text-newsprint/90">
+            Захиалга татахад алдаа гарлаа. Сүлжээний асуудал байж магадгүй — дахин оролдоно уу.
           </p>
+          <button
+            type="button"
+            onClick={() => void ordersQuery.refetch()}
+            disabled={ordersQuery.isFetching}
+            class="inline-flex items-center justify-center gap-2 border-2 border-ink bg-hazard-stripes px-5 py-3 font-display text-sm font-black uppercase tracking-wide text-ink shadow-hard-sm transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none disabled:opacity-50"
+          >
+            {ordersQuery.isFetching ? "ТАТАЖ БАЙНА…" : "↻ Дахин оролдох"}
+          </button>
         </div>
       </Show>
 

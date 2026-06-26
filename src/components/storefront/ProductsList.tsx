@@ -131,9 +131,18 @@ export default function ProductsList(props: ProductsListProps) {
 }
 
 /**
- * Grunge empty state — torn-paper "no products found" flyer.
+ * Grunge empty state — torn-paper "no products found" flyer with
+ * suggestions (popular categories) so the user has somewhere to go
+ * instead of a dead end.
  */
 function EmptyState() {
+  // Popular category suggestions — static slugs that match the catalog.
+  const suggestions = [
+    { label: "IEMs", href: "/products?category=iems" },
+    { label: "DAC amps", href: "/products?category=dac-amps" },
+    { label: "Wireless", href: "/products?category=wireless" },
+  ];
+
   return (
     <div class="flex flex-col items-center gap-6 py-20 text-center">
       <div
@@ -142,12 +151,32 @@ function EmptyState() {
       >
         <p class="text-micro font-black uppercase tracking-widest text-orange">Empty wall</p>
         <h2 class="mt-2 font-display text-display font-black uppercase leading-none tracking-tight text-ink">
-          Nothin' taped up
+          No products found
         </h2>
         <p class="mt-3 max-w-sm text-body text-ink-muted">
-          No products match these filters yet. Try a different category or brand, or come back when
+          Nothin' taped up under these filters. Try a different category or brand, or come back when
           the next drop lands.
         </p>
+
+        {/* Suggestions — popular categories as stamped links */}
+        <div class="mt-5 flex flex-col gap-3">
+          <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
+            Try the popular walls
+          </p>
+          <div class="flex flex-wrap justify-center gap-2">
+            <For each={suggestions}>
+              {(s) => (
+                <a
+                  href={s.href}
+                  class="rotate-1 border-2 border-ink bg-yellow px-4 py-2 font-mono text-caption font-black uppercase tracking-wide text-ink shadow-hard-sm transition-all hover:-rotate-1 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
+                >
+                  {s.label}
+                </a>
+              )}
+            </For>
+          </div>
+        </div>
+
         <a
           href="/products"
           class="mt-5 inline-block border-2 border-ink bg-orange px-6 py-3 text-sm font-black uppercase tracking-wide text-ink shadow-hard-sm transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"

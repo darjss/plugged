@@ -1,0 +1,113 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+export const prerender = true;
+---
+
+<Layout title="404 — Lost in the warehouse | Plugged" description="This page wandered off behind the shelves.">
+  <main class="relative mx-auto flex min-h-svh max-w-3xl flex-col items-center justify-center px-4 py-16">
+    {/* Missing-person-flyer card — torn paper, hazard-orange accents */}
+    <article
+      class="relative w-full max-w-xl -rotate-1 border-4 border-ink bg-newsprint-2 shadow-hard-xl clip-torn-edges"
+    >
+      {/* Hazard-orange header strip — "MISSING" stamp */}
+      <div class="border-b-4 border-ink bg-hazard-stripes px-6 py-4">
+        <div class="flex items-center justify-between">
+          <span class="font-mono text-micro font-black uppercase tracking-[0.3em] text-ink">
+            File #404 / lost property
+          </span>
+          <span
+            class="rotate-2 border-2 border-ink bg-orange px-2 py-0.5 font-mono text-micro font-black uppercase tracking-wider text-ink shadow-hard-sm"
+          >
+            Urgent
+          </span>
+        </div>
+      </div>
+
+      {/* Flyer body */}
+      <div class="flex flex-col gap-6 p-8">
+        {/* "MISSING PAGE" headline — poster scale */}
+        <div class="flex flex-col gap-2">
+          <p class="font-mono text-micro font-black uppercase tracking-widest text-orange">
+            Have you seen this page?
+          </p>
+          <h1
+            class="font-display text-poster font-black uppercase leading-[0.82] tracking-tight text-ink"
+            style="font-size: clamp(3.5rem, 12vw, 8rem);"
+          >
+            Lost in<br />the warehouse
+          </h1>
+        </div>
+
+        {/* Description block — photocopy report */}
+        <div class="border-2 border-ink bg-newsprint p-4 shadow-hard-sm">
+          <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
+            Last seen
+          </p>
+          <p class="mt-1 text-body text-ink">
+            Somewhere between the IEM wall and the cassette bin. The URL you followed
+            either never existed, sold out, or got taped over by the next drop.
+          </p>
+        </div>
+
+        {/* Stats row — flyer-style metadata */}
+        <div class="grid grid-cols-3 gap-2">
+          <div class="border-2 border-ink bg-newsprint p-3 text-center shadow-hard-sm">
+            <p class="font-mono text-micro font-black uppercase tracking-wider text-ink-muted">
+              Status
+            </p>
+            <p class="font-display text-2xl font-black uppercase text-pink">404</p>
+          </div>
+          <div class="border-2 border-ink bg-newsprint p-3 text-center shadow-hard-sm">
+            <p class="font-mono text-micro font-black uppercase tracking-wider text-ink-muted">
+              Found
+            </p>
+            <p class="font-display text-2xl font-black uppercase text-ink">No</p>
+          </div>
+          <div class="border-2 border-ink bg-yellow p-3 text-center shadow-hard-sm">
+            <p class="font-mono text-micro font-black uppercase tracking-wider text-ink">
+              Reward
+            </p>
+            <p class="font-display text-2xl font-black uppercase text-ink">Good audio</p>
+          </div>
+        </div>
+
+        {/* CTA — back to the wall */}
+        <div class="flex flex-col gap-3 sm:flex-row">
+          <a
+            href="/"
+            class="inline-flex flex-1 items-center justify-center gap-2 border-2 border-ink bg-orange px-6 py-4 font-display text-lg font-black uppercase tracking-wide text-ink shadow-hard-lg transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-hard"
+          >
+            ← Back to homepage
+          </a>
+          <a
+            href="/products"
+            class="inline-flex flex-1 items-center justify-center gap-2 border-2 border-ink bg-newsprint px-6 py-4 font-display text-lg font-black uppercase tracking-wide text-ink shadow-hard-lg transition-all hover:bg-yellow hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-hard"
+          >
+            Browse the wall
+          </a>
+        </div>
+      </div>
+
+      {/* Tape strips holding the flyer up */}
+      <div
+        aria-hidden="true"
+        class="absolute -top-3 left-10 -rotate-3 bg-tape px-8 py-1.5 font-mono text-micro font-black uppercase tracking-widest text-ink shadow-hard-sm"
+      >
+        MISSING
+      </div>
+      <div
+        aria-hidden="true"
+        class="absolute -right-3 top-32 rotate-6 bg-tape px-4 py-1 font-mono text-micro font-black uppercase tracking-widest text-ink shadow-hard-sm"
+      >
+        please return
+      </div>
+    </article>
+
+    {/* Footer note — marker scribble */}
+    <p class="mt-8 max-w-md text-center font-mono text-micro font-black uppercase tracking-wider text-ink-muted">
+      If you think this page should exist, the warehouse manager probably
+      owes you a tape.
+    </p>
+  </main>
+</Layout>

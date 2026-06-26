@@ -1,0 +1,107 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+export const prerender = true;
+---
+
+<Layout title="403 — Access denied | Plugged" description="This door is locked. Admins only.">
+  <main class="relative mx-auto flex min-h-svh max-w-3xl flex-col items-center justify-center px-4 py-16">
+    {/* Access-denied card — stamped DENIED, hazard-orange */}
+    <article
+      class="relative w-full max-w-xl -rotate-1 border-4 border-ink bg-newsprint-2 shadow-hard-xl clip-torn-edges"
+    >
+      {/* Header strip — hazard stripes + DENIED stamp */}
+      <div class="border-b-4 border-ink bg-hazard-stripes px-6 py-4">
+        <div class="flex items-center justify-between">
+          <span class="font-mono text-micro font-black uppercase tracking-[0.3em] text-ink">
+            Restricted area / door #403
+          </span>
+          <span
+            class="rotate-2 border-2 border-ink bg-pink px-2 py-0.5 font-mono text-micro font-black uppercase tracking-wider text-newsprint shadow-hard-sm"
+          >
+            Denied
+          </span>
+        </div>
+      </div>
+
+      {/* Body */}
+      <div class="flex flex-col gap-6 p-8">
+        {/* Headline */}
+        <div class="flex flex-col gap-2">
+          <p class="font-mono text-micro font-black uppercase tracking-widest text-orange">
+            You don't have a key to this door
+          </p>
+          <h1
+            class="font-display font-black uppercase leading-[0.82] tracking-tight text-ink"
+            style="font-size: clamp(3.5rem, 12vw, 8rem);"
+          >
+            Access<br />denied
+          </h1>
+        </div>
+
+        {/* Big red ink stamp — DENIED */}
+        <div class="flex justify-center">
+          <div
+            class="rotate-[-6deg] border-4 border-pink bg-pink/10 px-8 py-3"
+            style="border-style: double;"
+          >
+            <span
+              class="font-display text-4xl font-black uppercase tracking-wider text-pink"
+              style="-webkit-text-stroke: 1px var(--color-pink);"
+            >
+              No entry
+            </span>
+          </div>
+        </div>
+
+        {/* Description */}
+        <div class="border-2 border-ink bg-newsprint p-4 shadow-hard-sm">
+          <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
+            Incident
+          </p>
+          <p class="mt-1 text-body text-ink">
+            This part of the warehouse is for store operators only. Your account
+            doesn't have the admin stamp. If you think this is a mistake, ask
+            someone with <code class="font-mono text-orange">isAdmin = true</code>
+            to let you in.
+          </p>
+        </div>
+
+        {/* CTAs */}
+        <div class="flex flex-col gap-3 sm:flex-row">
+          <a
+            href="/"
+            class="inline-flex flex-1 items-center justify-center gap-2 border-2 border-ink bg-orange px-6 py-4 font-display text-lg font-black uppercase tracking-wide text-ink shadow-hard-lg transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-hard"
+          >
+            ← Back to storefront
+          </a>
+          <a
+            href="/dashboard/login"
+            class="inline-flex flex-1 items-center justify-center gap-2 border-2 border-ink bg-newsprint px-6 py-4 font-display text-lg font-black uppercase tracking-wide text-ink shadow-hard-lg transition-all hover:bg-yellow hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-hard"
+          >
+            Admin sign in
+          </a>
+        </div>
+      </div>
+
+      {/* Tape strips */}
+      <div
+        aria-hidden="true"
+        class="absolute -top-3 left-12 -rotate-3 bg-tape px-8 py-1.5 font-mono text-micro font-black uppercase tracking-widest text-ink shadow-hard-sm"
+      >
+        EMPLOYEES ONLY
+      </div>
+      <div
+        aria-hidden="true"
+        class="absolute -right-3 top-44 rotate-6 bg-tape px-4 py-1 font-mono text-micro font-black uppercase tracking-widest text-ink shadow-hard-sm"
+      >
+        keep out
+      </div>
+    </article>
+
+    {/* Footer note */}
+    <p class="mt-8 max-w-md text-center font-mono text-micro font-black uppercase tracking-wider text-ink-muted">
+      Error 403 — forbidden. Non-admin accounts can't reach the dashboard.
+    </p>
+  </main>
+</Layout>
