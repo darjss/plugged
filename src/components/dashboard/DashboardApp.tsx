@@ -3,6 +3,8 @@ import type { ParentProps } from "solid-js";
 import { cn } from "@/lib/utils";
 import DashboardProviders from "./DashboardProviders";
 import DashboardLayout from "./DashboardLayout";
+import DashboardHome from "./DashboardHome";
+import SettingsPage from "./SettingsPage";
 import ProductsList from "./products/ProductsList";
 import ProductForm from "./products/ProductForm";
 
@@ -32,17 +34,11 @@ function Placeholder(props: ParentProps & { label: string; issue: string }) {
   );
 }
 
-function DashboardHome() {
-  return <Placeholder label="Dashboard home" issue="16" />;
-}
 function OrdersList() {
   return <Placeholder label="Orders" issue="15" />;
 }
 function Analytics() {
   return <Placeholder label="Analytics" issue="17" />;
-}
-function Settings() {
-  return <Placeholder label="Settings" issue="18" />;
 }
 
 export default function DashboardApp() {
@@ -55,7 +51,7 @@ export default function DashboardApp() {
         <Route path="/products/:id" component={ProductForm} />
         <Route path="/orders" component={OrdersList} />
         <Route path="/analytics" component={Analytics} />
-        <Route path="/settings" component={Settings} />
+        <Route path="/settings" component={SettingsPage} />
         {/* Fallthrough — unknown sub-routes render the home placeholder. */}
         <Route path="*" component={DashboardHome} />
       </Router>

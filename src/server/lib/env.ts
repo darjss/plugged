@@ -18,6 +18,7 @@ export const env = createEnv({
     POSTHOG_KEY: v.optional(v.string()),
     POSTHOG_HOST: v.optional(v.string()),
     POSTHOG_PROJECT_ID: v.optional(v.string()),
+    AI_SEARCH_INDEX_ID: v.optional(v.string()),
   },
   runtimeEnv: cfEnv as unknown as Record<string, string | undefined>,
   emptyStringAsUndefined: true,
