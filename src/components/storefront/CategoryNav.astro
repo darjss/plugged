@@ -1,0 +1,102 @@
+---
+/**
+ * Category navigation — stencil/spraypaint cards.
+ * Three primary categories: IEMs, DAC amps, Wireless.
+ * Each links to /products?category={slug}.
+ */
+
+const categories = [
+  {
+    slug: "iems",
+    name: "IEMs",
+    blurb: "In-ear monitors. Studio detail in your pocket.",
+    accent: "bg-orange",
+    rotate: "-2deg",
+  },
+  {
+    slug: "dac-amps",
+    name: "DAC amps",
+    blurb: "Decode. Amplify. Make phones sound like boards.",
+    accent: "bg-cyan",
+    rotate: "1.5deg",
+  },
+  {
+    slug: "wireless",
+    name: "Wireless",
+    blurb: "No cable, no compromise. Bluetooth that doesn't suck.",
+    accent: "bg-pink",
+    rotate: "-1deg",
+  },
+];
+---
+
+<section
+  class="relative border-b-4 border-ink bg-newsprint-2 bg-noise"
+  aria-labelledby="categories-title"
+>
+  <div class="mx-auto max-w-screen-2xl px-4 py-16 lg:px-8 lg:py-20">
+    <div class="mb-8">
+      <span
+        class="inline-block -rotate-1 border-2 border-ink bg-ink px-3 py-1 text-micro font-black uppercase tracking-widest text-newsprint shadow-hard-sm"
+      >
+        Pick your lane
+      </span>
+      <h2
+        id="categories-title"
+        class="mt-3 font-display font-black uppercase leading-none tracking-tight text-ink"
+        style="font-size: var(--text-display);"
+      >
+        Shop by category
+      </h2>
+    </div>
+
+    <ul class="grid grid-cols-1 gap-5 md:grid-cols-3">
+      {
+        categories.map((cat) => (
+          <li style={`transform: rotate(${cat.rotate});`}>
+            <a
+              href={`/products?category=${cat.slug}`}
+              class="group relative flex h-full min-h-[12rem] flex-col justify-between overflow-hidden border-4 border-ink bg-card p-6 shadow-hard-lg transition-all duration-200 hover:rotate-0 hover:shadow-hard-xl"
+            >
+              {/* Spraypaint halftone backdrop */}
+              <div
+                class="pointer-events-none absolute inset-0 opacity-15 transition-opacity group-hover:opacity-25"
+                style="background-image: radial-gradient(var(--color-ink) 1.8px, transparent 1.8px); background-size: 18px 18px;"
+                aria-hidden="true"
+              />
+              {/* Accent slash — stencil mark */}
+              <div
+                class={`absolute -right-6 -top-6 size-24 rotate-12 border-4 border-ink ${cat.accent} opacity-80 transition-transform group-hover:rotate-45`}
+                aria-hidden="true"
+              />
+
+              <div class="relative z-10">
+                <span class="font-mono text-micro font-bold uppercase tracking-widest text-muted-foreground">
+                  /{cat.slug}
+                </span>
+                <h3
+                  class="mt-2 font-display font-black uppercase leading-[0.9] tracking-tight text-ink"
+                  style="font-size: var(--text-heading-lg);"
+                >
+                  {cat.name}
+                </h3>
+              </div>
+
+              <div class="relative z-10 mt-6 flex items-center justify-between">
+                <p class="max-w-[18rem] text-sm font-medium leading-snug text-ink-muted">
+                  {cat.blurb}
+                </p>
+                <span
+                  class="inline-flex size-10 shrink-0 items-center justify-center border-2 border-ink bg-newsprint font-black text-ink shadow-hard-sm transition-all group-hover:bg-yellow group-hover:translate-x-[2px] group-hover:translate-y-[2px] group-hover:shadow-none"
+                  aria-hidden="true"
+                >
+                  →
+                </span>
+              </div>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

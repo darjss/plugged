@@ -1,0 +1,109 @@
+---
+/**
+ * Grunge/zine hero — photocopied rave-flyer wall.
+ * Brand wordmark, tagline, primary CTA to /products.
+ * Torn paper edges, halftone, hazard-orange highlights, layered misalignment.
+ */
+
+const flyerScraps = [
+  { text: "POCKET HI-FI", rotate: "-8deg", top: "8%", left: "4%" },
+  { text: "NO BS", rotate: "5deg", top: "18%", right: "6%" },
+  { text: "PLUG IN OR LEAVE", rotate: "3deg", bottom: "26%", left: "8%" },
+  { text: "STOCK DROPS WHEN THE LIGHTS CUT", rotate: "-4deg", bottom: "12%", right: "5%" },
+];
+---
+
+<section
+  class="relative overflow-hidden border-b-4 border-ink bg-newsprint-2 bg-noise"
+  aria-labelledby="hero-title"
+>
+  {/* Halftone backdrop panel — rotated, bleeds off-grid */}
+  <div
+    class="pointer-events-none absolute inset-0 -z-0 opacity-[0.18]"
+    style="background-image: radial-gradient(var(--color-ink) 1.4px, transparent 1.4px); background-size: 14px 14px; transform: rotate(-1.5deg) scale(1.08);"
+    aria-hidden="true"
+  >
+  </div>
+
+  {/* Flyer scraps — photocopied stickers taped to the wall */}
+  <div class="pointer-events-none absolute inset-0 z-0 hidden md:block" aria-hidden="true">
+    {
+      flyerScraps.map((scrap) => (
+        <span
+          class="absolute max-w-[16rem] border-2 border-ink/40 bg-tape px-3 py-2 font-display text-sm font-black uppercase tracking-tight text-ink shadow-hard-sm"
+          style={`top:${scrap.top ?? ""};bottom:${scrap.bottom ?? ""};left:${scrap.left ?? ""};right:${scrap.right ?? ""};transform: rotate(${scrap.rotate});`}
+        >
+          {scrap.text}
+        </span>
+      ))
+    }
+  </div>
+
+  {/* Hazard stripe ribbon — top edge accent */}
+  <div
+    class="absolute left-0 right-0 top-0 z-10 h-2 bg-hazard-stripes"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="relative z-10 mx-auto max-w-screen-2xl px-4 pb-20 pt-16 lg:px-8 lg:pb-32 lg:pt-28">
+    <div class="max-w-4xl">
+      {/* Kicker — stamped label */}
+      <div class="mb-6 inline-flex -rotate-1 items-center gap-2 border-2 border-ink bg-orange px-3 py-1.5 shadow-hard-sm">
+        <span class="size-2 bg-ink" aria-hidden="true"></span>
+        <span class="text-micro font-black uppercase tracking-widest text-ink">
+          Private audio supply / est. 2025
+        </span>
+      </div>
+
+      {/* Wordmark — poster scale, condensed, slight misregistration shadow */}
+      <h1
+        id="hero-title"
+        class="relative font-display font-black uppercase leading-[0.82] tracking-tight text-ink"
+        style="font-size: var(--text-poster); text-shadow: 0.04em 0.04em 0 var(--color-orange);"
+      >
+        Plugged
+      </h1>
+
+      {/* Tagline — marker-style underline strip */}
+      <div class="mt-4 max-w-2xl">
+        <p
+          class="inline-block -rotate-1 bg-yellow px-2 font-display text-2xl font-black uppercase tracking-tight text-ink lg:text-4xl"
+          style="box-decoration-break: clone; -webkit-box-decoration-break: clone;"
+        >
+          Premium IEMs. No BS.
+        </p>
+      </div>
+
+      {/* Manifesto — body copy on clean paper zone */}
+      <p class="mt-6 max-w-xl text-body-lg font-medium leading-relaxed text-ink-muted">
+        In-ear monitors, DAC amps, and wireless earbuds for people who treat
+        their ears like gear. Photocopied signal, warehouse-rave prices.
+      </p>
+
+      {/* CTAs — primary + sticker secondary */}
+      <div class="mt-8 flex flex-wrap items-center gap-3">
+        <a
+          href="/products"
+          class="group inline-flex items-center gap-2 border-2 border-ink bg-orange px-7 py-4 text-sm font-black uppercase tracking-wider text-ink shadow-hard-lg transition-all hover:-rotate-1 hover:bg-orange-dark hover:shadow-hard active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
+        >
+          Raid the wall
+          <span class="transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
+        </a>
+        <a
+          href="#why-iems"
+          class="inline-flex items-center border-2 border-ink bg-card px-5 py-4 text-sm font-black uppercase tracking-wider text-ink shadow-hard-sm transition-all hover:rotate-1 hover:bg-yellow hover:shadow-hard active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+        >
+          What's an IEM?
+        </a>
+      </div>
+    </div>
+
+    {/* Torn paper bottom edge — section divider */}
+    <div
+      class="clip-torn-bottom absolute -bottom-2 left-0 right-0 h-6 bg-newsprint"
+      aria-hidden="true"
+    >
+    </div>
+  </div>
+</section>
