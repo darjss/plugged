@@ -1,0 +1,317 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme {
+  /* === Grunge/zine color tokens (OKLCH from DESIGN.md) === */
+  --color-newsprint: oklch(0.94 0.02 92);
+  --color-newsprint-2: oklch(0.9 0.025 95);
+  --color-newsprint-dark: oklch(0.82 0.02 95);
+  --color-ink: oklch(0.15 0.01 85);
+  --color-ink-muted: oklch(0.42 0.01 85);
+  --color-orange: oklch(0.64 0.26 55);
+  --color-orange-dark: oklch(0.52 0.26 55);
+  --color-yellow: oklch(0.88 0.18 98);
+  --color-pink: oklch(0.72 0.28 355);
+  --color-cyan: oklch(0.65 0.18 230);
+  --color-green: oklch(0.65 0.16 145);
+
+  /* === Semantic aliases (shadcn/zaidan compatible) === */
+  --color-background: var(--color-newsprint);
+  --color-foreground: var(--color-ink);
+  --color-card: var(--color-newsprint-2);
+  --color-card-foreground: var(--color-ink);
+  --color-popover: var(--color-newsprint-2);
+  --color-popover-foreground: var(--color-ink);
+  --color-primary: var(--color-orange);
+  --color-primary-foreground: var(--color-ink);
+  --color-secondary: var(--color-ink);
+  --color-secondary-foreground: var(--color-newsprint);
+  --color-muted: var(--color-newsprint-dark);
+  --color-muted-foreground: var(--color-ink-muted);
+  --color-accent: var(--color-yellow);
+  --color-accent-foreground: var(--color-ink);
+  --color-destructive: var(--color-pink);
+  --color-destructive-foreground: var(--color-newsprint);
+  --color-success: var(--color-green);
+  --color-success-foreground: var(--color-newsprint);
+  --color-warning: var(--color-yellow);
+  --color-warning-foreground: var(--color-ink);
+  --color-info: var(--color-cyan);
+  --color-info-foreground: var(--color-ink);
+  --color-border: var(--color-ink);
+  --color-input: var(--color-newsprint-dark);
+  --color-ring: var(--color-orange);
+
+  /* === Fonts === */
+  --font-sans: "Space Grotesk", "Space Grotesk Fallback", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
+  --font-display: "Anton", "Anton Fallback", system-ui, sans-serif;
+
+  /* === Sharp corners everywhere === */
+  --radius: 0rem;
+  --radius-sm: 0rem;
+  --radius-md: 0rem;
+  --radius-lg: 0rem;
+  --radius-xl: 0rem;
+
+  /* === Motion easing curves === */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* === Type scale from DESIGN.md === */
+  --text-poster: clamp(4rem, 14vw, 11rem);
+  --text-poster--line-height: 0.82;
+  --text-poster--font-weight: 900;
+  --text-display: clamp(2.5rem, 7vw, 5rem);
+  --text-display--line-height: 0.88;
+  --text-display--font-weight: 900;
+  --text-heading-lg: 1.65rem;
+  --text-heading-lg--line-height: 1.1;
+  --text-heading-lg--font-weight: 800;
+  --text-heading: 1.15rem;
+  --text-heading--line-height: 1.2;
+  --text-heading--font-weight: 700;
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.55;
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+  --text-caption: 0.8rem;
+  --text-caption--line-height: 1.4;
+  --text-caption--font-weight: 700;
+  --text-micro: 0.7rem;
+  --text-micro--line-height: 1.3;
+  --text-micro--font-weight: 800;
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    /* Newsprint grain overlay — fractal noise at low opacity, multiply blend */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E");
+    background-blend-mode: multiply;
+  }
+
+  /* Scanline overlay — subtle horizontal lines mimicking cheap scanning */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9998;
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      oklch(0.15 0.01 85 / 0.025) 2px,
+      oklch(0.15 0.01 85 / 0.025) 3px
+    );
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  /* === Hard offset shadows (neo-brutalist / zine sticker) === */
+  .shadow-hard {
+    box-shadow: 4px 4px 0px 0px var(--color-ink);
+  }
+  .shadow-hard-sm {
+    box-shadow: 2px 2px 0px 0px var(--color-ink);
+  }
+  .shadow-hard-lg {
+    box-shadow: 8px 8px 0px 0px var(--color-ink);
+  }
+  .shadow-hard-xl {
+    box-shadow: 12px 12px 0px 0px var(--color-ink);
+  }
+  .shadow-hard-orange {
+    box-shadow: 4px 4px 0px 0px var(--color-orange);
+  }
+  .shadow-hard-pink {
+    box-shadow: 4px 4px 0px 0px var(--color-pink);
+  }
+
+  /* === Text stroke utilities === */
+  .text-stroke {
+    -webkit-text-stroke: 1px var(--color-ink);
+  }
+  .text-stroke-2 {
+    -webkit-text-stroke: 2px var(--color-ink);
+  }
+  .text-stroke-newsprint {
+    -webkit-text-stroke: 2px var(--color-newsprint);
+  }
+
+  /* === Texture utilities === */
+  .bg-halftone {
+    background-image: radial-gradient(var(--color-ink) 1px, transparent 1px);
+    background-size: 8px 8px;
+  }
+  .bg-halftone-lg {
+    background-image: radial-gradient(var(--color-ink) 1.5px, transparent 1.5px);
+    background-size: 16px 16px;
+  }
+  .bg-grid-subtle {
+    background-image:
+      linear-gradient(oklch(0.15 0.01 85 / 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(0.15 0.01 85 / 0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .bg-noise {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+  }
+
+  /* === Hazard stripe pattern (yellow + black diagonal) === */
+  .bg-hazard-stripes {
+    background-image: repeating-linear-gradient(
+      45deg,
+      var(--color-yellow),
+      var(--color-yellow) 12px,
+      var(--color-ink) 12px,
+      var(--color-ink) 24px
+    );
+  }
+
+  /* === Torn paper clip-path (irregular jagged edge) === */
+  .clip-torn-bottom {
+    clip-path: polygon(
+      0% 0%,
+      100% 0%,
+      100% 92%,
+      96% 88%,
+      92% 94%,
+      88% 90%,
+      84% 96%,
+      80% 92%,
+      76% 98%,
+      72% 90%,
+      68% 95%,
+      64% 91%,
+      60% 97%,
+      56% 93%,
+      52% 98%,
+      48% 90%,
+      44% 95%,
+      40% 91%,
+      36% 97%,
+      32% 93%,
+      28% 98%,
+      24% 90%,
+      20% 95%,
+      16% 91%,
+      12% 97%,
+      8% 93%,
+      4% 98%,
+      0% 92%
+    );
+  }
+  .clip-torn-top {
+    clip-path: polygon(
+      4% 8%,
+      8% 2%,
+      12% 6%,
+      16% 0%,
+      20% 5%,
+      24% 1%,
+      28% 7%,
+      32% 2%,
+      36% 6%,
+      40% 0%,
+      44% 5%,
+      48% 1%,
+      52% 7%,
+      56% 2%,
+      60% 6%,
+      64% 0%,
+      68% 5%,
+      72% 1%,
+      76% 7%,
+      80% 2%,
+      84% 6%,
+      88% 0%,
+      92% 5%,
+      96% 1%,
+      100% 6%,
+      100% 100%,
+      0% 100%
+    );
+  }
+  .clip-torn-edges {
+    clip-path: polygon(
+      3% 4%,
+      8% 1%,
+      14% 5%,
+      20% 2%,
+      26% 6%,
+      32% 1%,
+      38% 4%,
+      44% 2%,
+      50% 6%,
+      56% 1%,
+      62% 5%,
+      68% 2%,
+      74% 6%,
+      80% 1%,
+      86% 4%,
+      92% 2%,
+      97% 5%,
+      100% 8%,
+      98% 92%,
+      94% 96%,
+      88% 93%,
+      82% 97%,
+      76% 94%,
+      70% 98%,
+      64% 93%,
+      58% 97%,
+      52% 94%,
+      46% 98%,
+      40% 93%,
+      34% 97%,
+      28% 94%,
+      22% 98%,
+      16% 93%,
+      10% 97%,
+      4% 94%,
+      0% 90%
+    );
+  }
+
+  /* === Tape strip (semi-transparent off-white with texture) === */
+  .bg-tape {
+    background-color: oklch(0.9 0.025 95 / 0.65);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.3'/%3E%3C/svg%3E");
+  }
+
+  /* === Scrollbar hide === */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
