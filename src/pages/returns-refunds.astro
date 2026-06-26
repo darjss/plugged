@@ -1,0 +1,90 @@
+---
+/**
+ * Returns & refunds — return policy, refund process, conditions.
+ * Prerendered. Placeholder content.
+ */
+import StorefrontLayout from "../layouts/StorefrontLayout.astro";
+import InfoPageHeader from "../components/storefront/InfoPageHeader.astro";
+import LegalSections from "../components/storefront/LegalSections.astro";
+
+export const prerender = true;
+
+const sections = [
+  {
+    num: "01",
+    title: "The 14-day window",
+    body: [
+      "You can return any item within 14 days of delivery, no questions asked, as long as it meets the conditions below. The clock starts the day the courier hands you the parcel.",
+    ],
+  },
+  {
+    num: "02",
+    title: "What qualifies",
+    body: [
+      "The IEM shell, cable, and accessories must be clean, undamaged, and in their original packaging. All included tip kits, manuals, and accessories must be returned together.",
+      "Products must show no signs of modification, disassembly, or exposure to liquids. Serials must match the order record.",
+    ],
+  },
+  {
+    num: "03",
+    title: "What doesn't qualify",
+    body: [
+      "Foam tips and other hygiene items are non-returnable once the seal is broken. Clearance or final-sale items are marked as such and cannot be returned. Items damaged through misuse, modification, or normal wear are not covered.",
+    ],
+  },
+  {
+    num: "04",
+    title: "How to start a return",
+    body: [
+      "Email yo@plugged.mn with your order number and the item you want to return. We'll reply with a return authorization and the warehouse address. Pack the item securely — damage in transit back to us is on you.",
+    ],
+  },
+  {
+    num: "05",
+    title: "Refund process",
+    body: [
+      "Once we receive and inspect the item, we refund the product price to your original payment method within 5 business days. Original shipping is non-refundable. Return shipping is on you unless the item was wrong or defective — in those cases we cover it.",
+    ],
+  },
+  {
+    num: "06",
+    title: "Exchanges",
+    body: [
+      "We don't do direct exchanges. If you want a different model, return the original for a refund and place a new order. This keeps the process clean and the inventory honest.",
+    ],
+  },
+  {
+    num: "07",
+    title: "Warranty claims",
+    body: [
+      "Manufacturing defects within the 12-month warranty window are repaired or replaced at our cost. Email us with the order number, a description of the issue, and a photo or short video. We'll send next steps.",
+    ],
+  },
+  {
+    num: "08",
+    title: "Damaged or wrong items",
+    body: [
+      "If your parcel arrives damaged or contains the wrong item, tell us within 48 hours of delivery. We'll reship the correct item at our cost and arrange pickup of the wrong one. Don't throw away the original packaging — we may need it for the courier claim.",
+    ],
+  },
+  {
+    num: "09",
+    title: "Contact",
+    body: [
+      "Returns questions? Email yo@plugged.mn or call +976 11 00 00 00 during business hours. Have your order number ready.",
+    ],
+  },
+];
+---
+
+<StorefrontLayout
+  title="Returns & Refunds | Plugged"
+  description="Return policy, refund process, and conditions for Plugged Audio orders."
+>
+  <InfoPageHeader
+    kicker="Policy / file 03"
+    title="Returns & Refunds"
+    tagline="14 days. No drama."
+  />
+  <LegalSections sections={sections} />
+</StorefrontLayout>

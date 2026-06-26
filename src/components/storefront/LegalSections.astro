@@ -1,0 +1,63 @@
+---
+/**
+ * Shared legal-page shell — long-form prose with zine styling.
+ * Renders a numbered list of sections, each a stamped zine card.
+ */
+interface Section {
+  num: string;
+  title: string;
+  body: string[]; // paragraphs
+}
+
+interface Props {
+  sections: Section[];
+  updatedLabel?: string;
+}
+
+const { sections, updatedLabel = "Last updated: 2025-01-01" } = Astro.props;
+---
+
+<section class="mx-auto max-w-screen-2xl px-4 py-14 lg:px-8 lg:py-20">
+  <div class="mx-auto max-w-3xl">
+    {/* Updated stamp */}
+    <div
+      class="mb-8 inline-flex -rotate-1 items-center gap-2 border-2 border-ink bg-yellow px-3 py-1.5 shadow-hard-sm"
+    >
+      <span class="size-2 bg-ink" aria-hidden="true"></span>
+      <span class="text-micro font-black uppercase tracking-widest text-ink">
+        {updatedLabel}
+      </span>
+    </div>
+
+    <ol class="flex flex-col gap-5">
+      {
+        sections.map((section, i) => (
+          <li
+            class="group relative border-4 border-ink bg-card p-5 shadow-hard-lg transition-all hover:border-orange lg:p-7"
+            style={`transform: rotate(${i % 2 === 0 ? "0.4deg" : "-0.4deg"});`}
+          >
+            <div class="mb-3 flex items-center gap-3">
+              <span
+                class="inline-flex size-9 shrink-0 items-center justify-center border-2 border-ink bg-orange font-display text-lg font-black text-ink shadow-hard-sm"
+                style="transform: rotate(-3deg);"
+                aria-hidden="true"
+              >
+                {section.num}
+              </span>
+              <h2 class="font-display text-heading-lg font-black uppercase tracking-tight text-ink">
+                {section.title}
+              </h2>
+            </div>
+            <div class="flex flex-col gap-3">
+              {section.body.map((para) => (
+                <p class="max-w-prose text-body font-medium leading-relaxed text-ink-muted">
+                  {para}
+                </p>
+              ))}
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>

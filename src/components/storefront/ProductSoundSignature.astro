@@ -1,0 +1,103 @@
+---
+/**
+ * Sound signature display — visual indicator from iemSpec.soundSignature.
+ *
+ * Tries to parse bass/mid/treble values (0-10) from the raw string.
+ * Common formats: "bass:8,mid:7,treble:6", "8/7/6", "B8 M7 T6".
+ * If parseable, renders a hand-drawn bar chart. Always renders the
+ * raw signature as a stamped badge.
+ *
+ * Grunge: orange bars, handwritten annotations, torn panel.
+ */
+
+interface Props {
+  soundSignature: string | null;
+}
+
+const { soundSignature } = Astro.props;
+
+interface SignatureBars {
+  bass: number;
+  mid: number;
+  treble: number;
+}
+
+function parseSignature(raw: string): SignatureBars | null {
+  const text = raw.toLowerCase();
+
+  // Format: "bass:8,mid:7,treble:6" or "bass=8 mid=7 treble=6"
+  const named = text.match(
+    /bass[:\s=]+(\d+(?:\.\d+)?).*?mid[:\s=]+(\d+(?:\.\d+)?).*?treble[:\s=]+(\d+(?:\.\d+)?)/,
+  );
+  if (named) {
+    return clamp(Number(named[1]), Number(named[2]), Number(named[3]));
+  }
+
+  // Format: "8/7/6" or "8 7 6" (three numbers in order bass/mid/treble)
+  const triple = text.match(/(\d(?:\.\d+)?)\s*[/\s]\s*(\d(?:\.\d+)?)\s*[/\s]\s*(\d(?:\.\d+)?)/);
+  if (triple) {
+    return clamp(Number(triple[1]), Number(triple[2]), Number(triple[3]));
+  }
+
+  return null;
+}
+
+function clamp(bass: number, mid: number, treble: number): SignatureBars {
+  const c = (n: number) => Math.max(0, Math.min(10, Number.isFinite(n) ? n : 0));
+  return { bass: c(bass), mid: c(mid), treble: c(treble) };
+}
+
+const bars = soundSignature ? parseSignature(soundSignature) : null;
+const hasBars = bars !== null;
+---
+
+{
+  soundSignature && (
+    <section class="relative mt-8">
+      <div class="mb-4 flex items-center gap-3">
+        <h2 class="rotate-1 border-2 border-ink bg-orange px-3 py-1 font-display text-heading-lg font-black uppercase tracking-tight text-ink shadow-hard-sm">
+          Sound signature
+        </h2>
+      </div>
+
+      <div class="clip-torn-edges relative overflow-hidden border-2 border-ink bg-newsprint-2 p-5 shadow-hard-lg sm:p-8">
+        <div class="bg-noise pointer-events-none absolute inset-0 opacity-15" aria-hidden="true" />
+
+        <div class="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:gap-8">
+          {/* Badge — always shown */}
+          <div class="shrink-0">
+            <span class="-rotate-2 inline-block border-2 border-ink bg-yellow px-3 py-1.5 font-mono text-caption font-black uppercase tracking-wide text-ink shadow-hard-sm">
+              {soundSignature}
+            </span>
+          </div>
+
+          {/* Bar chart — only when parseable */}
+          {hasBars && bars && (
+            <div class="flex flex-1 items-end gap-4 sm:gap-8">
+              {(["bass", "mid", "treble"] as const).map((key) => {
+                const value = bars[key];
+                const heightPct = (value / 10) * 100;
+                return (
+                  <div class="flex flex-1 flex-col items-center gap-2">
+                    <div class="flex h-24 w-full items-end border-2 border-ink bg-newsprint sm:h-32">
+                      <div
+                        class="w-full bg-orange transition-all"
+                        style={`height: ${heightPct}%;`}
+                      />
+                    </div>
+                    <span class="font-mono text-micro font-black uppercase tracking-wide text-ink">
+                      {key}
+                    </span>
+                    <span class="font-mono text-micro font-bold text-ink-muted">
+                      {value}/10
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  )
+}

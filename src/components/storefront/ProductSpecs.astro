@@ -1,0 +1,93 @@
+---
+/**
+ * IEM specs table — photocopied document look.
+ * Only renders fields that have values. Grunge: mono type, scanline
+ * overlay, torn edges, stamp header.
+ */
+
+interface IemSpec {
+  driverType: string | null;
+  driverConfig: string | null;
+  impedanceOhms: number | null;
+  sensitivityDb: string | null;
+  frequencyResponse: string | null;
+  connector: string | null;
+  cable: string | null;
+  mic: boolean | null;
+  shellMaterial: string | null;
+  nozzleMaterial: string | null;
+  fit: string | null;
+  includedAccessories: string | null;
+}
+
+interface Props {
+  spec: IemSpec;
+}
+
+const { spec } = Astro.props;
+
+const rows: Array<{ label: string; value: string | null }> = [
+  { label: "Driver type", value: spec.driverType },
+  { label: "Driver config", value: spec.driverConfig },
+  {
+    label: "Impedance",
+    value: spec.impedanceOhms !== null ? `${spec.impedanceOhms} Ω` : null,
+  },
+  { label: "Sensitivity", value: spec.sensitivityDb },
+  { label: "Frequency response", value: spec.frequencyResponse },
+  { label: "Connector", value: spec.connector },
+  { label: "Cable", value: spec.cable },
+  { label: "Microphone", value: spec.mic === null ? null : spec.mic ? "Yes" : "No" },
+  { label: "Shell material", value: spec.shellMaterial },
+  { label: "Nozzle material", value: spec.nozzleMaterial },
+  { label: "Fit", value: spec.fit },
+  { label: "Accessories", value: spec.includedAccessories },
+];
+
+const visibleRows = rows.filter((row) => row.value !== null && row.value !== "");
+---
+
+{
+  visibleRows.length > 0 && (
+    <section class="relative mt-12">
+      {/* Stamp header */}
+      <div class="mb-4 flex items-center gap-3">
+        <h2 class="-rotate-1 border-2 border-ink bg-cyan px-3 py-1 font-display text-heading-lg font-black uppercase tracking-tight text-ink shadow-hard-sm">
+          Spec sheet
+        </h2>
+        <span class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
+          photocopied · do not fold
+        </span>
+      </div>
+
+      {/* Photocopied document */}
+      <div class="clip-torn-edges relative overflow-hidden border-2 border-ink bg-newsprint-2 p-5 shadow-hard-lg sm:p-8">
+        {/* Scanline + noise overlay */}
+        <div
+          class="pointer-events-none absolute inset-0 opacity-30"
+          style="background-image: repeating-linear-gradient(0deg, transparent, transparent 3px, oklch(0.15 0.01 85 / 0.04) 3px, oklch(0.15 0.01 85 / 0.04) 4px);"
+          aria-hidden="true"
+        />
+        <div class="bg-noise pointer-events-none absolute inset-0 opacity-20" aria-hidden="true" />
+
+        <table class="relative z-10 w-full border-collapse">
+          <tbody>
+            {visibleRows.map((row, i) => (
+              <tr class={i % 2 === 0 ? "bg-newsprint/40" : ""}>
+                <th
+                  scope="row"
+                  class="w-1/3 border-b border-ink/30 px-3 py-2.5 text-left font-mono text-caption font-black uppercase tracking-wide text-ink-muted align-top sm:w-1/4"
+                >
+                  {row.label}
+                </th>
+                <td class="border-b border-ink/30 px-3 py-2.5 font-mono text-body font-medium text-ink align-top">
+                  {row.value}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )
+}

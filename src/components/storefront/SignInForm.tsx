@@ -27,6 +27,7 @@ export default function SignInForm(props: { next?: string }) {
   const [sending, setSending] = createSignal(false);
   const [verifying, setVerifying] = createSignal(false);
   const [timer, setTimer] = createSignal(0);
+  const [expired, setExpired] = createSignal(false);
 
   let interval: ReturnType<typeof setInterval> | undefined;
 
@@ -36,11 +37,13 @@ export default function SignInForm(props: { next?: string }) {
 
   function startTimer(seconds: number) {
     if (interval) clearInterval(interval);
+    setExpired(false);
     setTimer(seconds);
     interval = setInterval(() => {
       setTimer((t) => {
         if (t <= 1) {
           if (interval) clearInterval(interval);
+          setExpired(true);
           return 0;
         }
         return t - 1;
@@ -90,9 +93,11 @@ export default function SignInForm(props: { next?: string }) {
     window.location.assign(next());
   }
 
-  // Auto-submit when OTP reaches 4 digits (server otpLength).
+  // Auto-submit when OTP reaches 4 digits (server otpLength). Gated on
+  // `!expired()` so a stale code sitting in the field after the 60s timer
+  // ran out doesn't fire a verify against an expired OTP.
   createEffect(() => {
-    if (otp().length === 4 && !verifying()) {
+    if (otp().length === 4 && !verifying() && !expired()) {
       void handleVerifyOtp(otp());
     }
   });
@@ -199,12 +204,40 @@ export default function SignInForm(props: { next?: string }) {
             </p>
           </Show>
 
+          {/* Expired OTP state — grunge stamp banner + prominent resend */}
+          <Show when={expired()}>
+            <div class="flex flex-col gap-3 border-2 border-ink bg-pink p-4 shadow-hard-sm">
+              <div class="flex items-center gap-2">
+                <span class="rotate-[-3deg] border-2 border-ink bg-newsprint px-2 py-0.5 font-mono text-micro font-black uppercase tracking-wider text-pink shadow-hard-sm">
+                  Expired
+                </span>
+                <span class="font-display text-lg font-black uppercase tracking-tight text-newsprint">
+                  Код хүчингүй болсон
+                </span>
+              </div>
+              <p class="font-mono text-xs font-bold text-newsprint/90">
+                Баталгаажуулах кодын хүчинтэй хугацаа дууссан. Шинэ код авахын тулд доорх товчийг
+                дарна уу.
+              </p>
+              <Button
+                type="button"
+                variant="hazard"
+                size="lg"
+                class="w-full"
+                disabled={sending()}
+                onClick={handleResend}
+              >
+                {sending() ? "ИЛГЭЭЖ БАЙНА…" : "↻ Шинэ код авах"}
+              </Button>
+            </div>
+          </Show>
+
           <Button
             type="button"
             variant="default"
             size="lg"
             class="w-full"
-            disabled={verifying() || otp().length !== 4}
+            disabled={verifying() || otp().length !== 4 || expired()}
             onClick={() => void handleVerifyOtp(otp())}
           >
             {verifying() ? "БАТАЛГААЖУУЛЖ БАЙНА…" : "НЭВТРЭХ"}
