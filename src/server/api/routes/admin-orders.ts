@@ -1,9 +1,14 @@
 import { Elysia } from "elysia";
+import * as v from "valibot";
 import { adminStatsQueries } from "../../admin";
 import { commerceQueries } from "../../commerce/queries";
 import { adminListOrdersSchema, adminUpdateOrderStatusSchema } from "../../commerce/validation";
 import { authPlugin } from "../plugins/auth";
 import { parseInput, parseQuery } from "../validation";
+
+const recentOrdersQuerySchema = v.object({
+  limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(50))),
+});
 
 /**
  * Admin order management (issue #15). The query layer
@@ -23,10 +28,8 @@ export const adminOrderRoutes = new Elysia({ name: "admin-order-routes" })
   .get(
     "/admin/orders",
     ({ query }) => {
-      const raw = query as Record<string, string | undefined>;
-      const parsed = Number(raw.limit ?? 10);
-      const limit = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 1), 50) : 10;
-      return adminStatsQueries.getRecentOrders(limit);
+      const { limit } = parseQuery(recentOrdersQuerySchema, query);
+      return adminStatsQueries.getRecentOrders(limit ?? 10);
     },
     { requireAdmin: true },
   )

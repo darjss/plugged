@@ -76,6 +76,14 @@ export function parseQuery<TSchema extends v.ObjectSchema<any, any>>(
   schema: TSchema,
   raw: unknown,
 ): v.InferOutput<TSchema> {
+  // Runtime guard: valibot's ObjectSchema generics are too complex for a
+  // precise type constraint, so the signature uses `any`. This guard catches
+  // non-object schemas at runtime with a clear error instead of a confusing
+  // type mismatch deep in the coercion logic.
+  if (schema.type !== "object") {
+    throw new TypeError(`parseQuery expected an object schema, got ${String(schema.type)}`);
+  }
+
   const record: Record<string, unknown> = {};
   const source = (raw ?? {}) as Record<string, string | undefined>;
 

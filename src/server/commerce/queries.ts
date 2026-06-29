@@ -22,6 +22,11 @@ import { ConflictError, NotFoundError, OutOfStockError } from "../lib/errors";
 import { now } from "../lib/datetime";
 import { imageOrderBy } from "../lib/drizzle-helpers";
 import { createQpayInvoice } from "../integrations/qpay";
+import {
+  shapeAdminOrderListRow,
+  shapeAdminOrderDetail,
+  shapeAdminOrderStatusPatch,
+} from "./admin-shaping";
 import { adminListOrdersSchema, checkoutInputSchema, productListQuerySchema } from "./validation";
 
 const publicProductColumns = {
@@ -826,32 +831,7 @@ export const commerceQueries = {
         .where(where);
 
       return {
-        orders: rows.map((o) => ({
-          id: o.id,
-          orderNumber: o.orderNumber,
-          customerPhone: o.customerPhone,
-          customerName: o.customerName,
-          status: o.status,
-          subtotalMnt: o.subtotalMnt,
-          deliveryFeeMnt: o.deliveryFeeMnt,
-          totalMnt: o.totalMnt,
-          orderedAt: o.orderedAt,
-          createdAt: o.createdAt,
-          user: o.user
-            ? {
-                email: o.user.email,
-                name: o.user.name,
-                phoneNumber: o.user.phoneNumber,
-              }
-            : null,
-          payment: o.payments[0]
-            ? {
-                status: o.payments[0].status,
-                provider: o.payments[0].provider,
-                paymentNumber: o.payments[0].paymentNumber,
-              }
-            : null,
-        })),
+        orders: rows.map(shapeAdminOrderListRow),
         total: Number(count),
         limit,
         offset,
@@ -889,56 +869,7 @@ export const commerceQueries = {
       });
 
       if (!result) throw new NotFoundError("order", id);
-      return {
-        id: result.id,
-        orderNumber: result.orderNumber,
-        customerPhone: result.customerPhone,
-        customerName: result.customerName,
-        status: result.status,
-        subtotalMnt: result.subtotalMnt,
-        deliveryFeeMnt: result.deliveryFeeMnt,
-        totalMnt: result.totalMnt,
-        address: result.address,
-        deliveryProvider: result.deliveryProvider,
-        notes: result.notes,
-        orderedAt: result.orderedAt,
-        createdAt: result.createdAt,
-        cancelledAt: result.cancelledAt,
-        user: result.user
-          ? {
-              email: result.user.email,
-              name: result.user.name,
-              phoneNumber: result.user.phoneNumber,
-            }
-          : null,
-        items: result.items.map((item) => ({
-          id: item.id,
-          productName: item.productName,
-          variantName: item.variantName,
-          sku: item.sku,
-          unitPriceMnt: item.unitPriceMnt,
-          quantity: item.quantity,
-          lineTotalMnt: item.lineTotalMnt,
-          product: {
-            slug: item.product.slug,
-            image: item.product.images[0]
-              ? {
-                  url: item.product.images[0].url,
-                  alt: item.product.images[0].alt,
-                }
-              : null,
-          },
-        })),
-        payments: result.payments.map((p) => ({
-          id: p.id,
-          paymentNumber: p.paymentNumber,
-          provider: p.provider,
-          status: p.status,
-          amountMnt: p.amountMnt,
-          qpayInvoiceId: p.qpayInvoiceId,
-          paidAt: p.paidAt,
-        })),
-      };
+      return shapeAdminOrderDetail(result);
     },
 
     /**
@@ -985,12 +916,12 @@ export const commerceQueries = {
 
       await db.update(order).set(patch).where(eq(order.id, id));
 
-      return {
+      return shapeAdminOrderStatusPatch(
         id,
-        status: nextStatus,
-        cancelledAt: nextStatus === "cancelled" ? date : null,
-        updatedAt: date,
-      };
+        nextStatus,
+        nextStatus === "cancelled" ? date : null,
+        date,
+      );
     },
   },
 };
