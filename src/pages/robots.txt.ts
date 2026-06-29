@@ -1,9 +1,12 @@
 import type { APIRoute } from "astro";
+import { SITE_ORIGIN } from "../lib/site";
 
-export const prerender = false;
+// Origin is known at build time (astro.config.mjs sets `site`), so
+// prerender this as a static asset instead of running a Worker per hit.
+export const prerender = true;
 
 export const GET: APIRoute = async ({ site }) => {
-  const origin = site?.origin ?? "https://pluggedaudio.store";
+  const origin = site?.origin ?? SITE_ORIGIN;
   const body = `User-agent: *
 Allow: /
 Disallow: /dashboard/
@@ -12,7 +15,10 @@ Disallow: /auth/
 Disallow: /order/
 Disallow: /profile
 Disallow: /checkout
-Disallow: /track
+Disallow: /search
+Disallow: /1
+Disallow: /2
+Disallow: /3
 Disallow: /404
 Disallow: /403
 Disallow: /500

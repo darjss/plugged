@@ -1,15 +1,12 @@
 import type { APIRoute } from "astro";
+import { api } from "../lib/api-client";
+import { SITE_ORIGIN } from "../lib/site";
 
 export const prerender = false;
 
-interface ProductSummary {
-  slug: string;
-}
-
-interface NamedSlug {
-  slug: string;
-}
-
+// Public static pages included in the sitemap. `/track` is a public
+// order-tracking utility (kept); `/search` and demo pages `/1`/`/2`/`/3`
+// are excluded (no SEO value) and Disallowed in robots.txt.
 const STATIC_PAGES = [
   "/contact",
   "/faq",
@@ -20,43 +17,6 @@ const STATIC_PAGES = [
   "/track",
 ];
 
-function apiBase(origin: string): string {
-  if (import.meta.env.DEV) return "http://[::1]:4321";
-  return origin;
-}
-
-async function fetchAllProducts(base: string): Promise<ProductSummary[]> {
-  const out: ProductSummary[] = [];
-  const limit = 100;
-  let offset = 0;
-  // Paginate — productListQuerySchema caps limit at 100.
-  while (true) {
-    try {
-      const res = await fetch(`${base}/api/products?limit=${limit}&offset=${offset}`);
-      if (!res.ok) break;
-      const data = (await res.json()) as { products: ProductSummary[] };
-      const batch = data.products ?? [];
-      out.push(...batch);
-      if (batch.length < limit) break;
-      offset += limit;
-    } catch {
-      break;
-    }
-  }
-  return out;
-}
-
-async function fetchSlugs(base: string, path: string): Promise<NamedSlug[]> {
-  try {
-    const res = await fetch(`${base}${path}`);
-    if (!res.ok) return [];
-    const data = (await res.json()) as NamedSlug[];
-    return Array.isArray(data) ? data : [];
-  } catch {
-    return [];
-  }
-}
-
 const escapeXml = (s: string) =>
   s
     .replace(/&/g, "&amp;")
@@ -66,41 +26,56 @@ const escapeXml = (s: string) =>
     .replace(/'/g, "&apos;");
 
 export const GET: APIRoute = async ({ site }) => {
-  const origin = site?.origin ?? "https://pluggedaudio.store";
-  const base = apiBase(origin);
+  const origin = site?.origin ?? SITE_ORIGIN;
 
-  const [products, categories, brands] = await Promise.all([
-    fetchAllProducts(base),
-    fetchSlugs(base, "/api/categories"),
-    fetchSlugs(base, "/api/brands"),
-  ]);
+  // Fetch product slugs + categories via the Eden treaty seam (same
+  // routes the storefront uses). Brands are dropped — there is no
+  // canonical `/products/brand/[slug]` route, only a query-string
+  // filter which would disagree with the listing page's own canonical.
+  // Follow-up: a lightweight /api/products/slugs endpoint would avoid
+  // fetching full product payloads (brand/images/variants) just to
+  // read .slug — noted in /tmp/seo-summary.md.
+  const categoriesRes = await api.categories.get().catch((error) => {
+    console.warn("[sitemap] categories fetch failed", error);
+    return null;
+  });
 
-  const lastmod = new Date().toISOString().split("T")[0];
+  // Paginate products — productListQuerySchema caps limit at 100.
+  const products: { slug: string }[] = [];
+  const limit = 100;
+  let offset = 0;
+  while (true) {
+    const res = await api.products.get({ query: { limit, offset } }).catch((error) => {
+      console.warn("[sitemap] products fetch failed", error);
+      return null;
+    });
+    const batch = res?.data?.products ?? [];
+    products.push(...batch);
+    if (batch.length < limit) break;
+    offset += limit;
+  }
 
-  const entries: Array<{ loc: string; priority: number; lastmod?: string }> = [];
+  const categories = categoriesRes?.data ?? [];
 
-  entries.push({ loc: `${origin}/`, priority: 1.0, lastmod });
-  entries.push({ loc: `${origin}/products`, priority: 0.9, lastmod });
+  const entries: Array<{ loc: string; priority: number }> = [];
+
+  // Homepage — no trailing slash to match Layout's canonical (Astro.url.pathname).
+  entries.push({ loc: `${origin}`, priority: 1.0 });
+  entries.push({ loc: `${origin}/products`, priority: 0.9 });
 
   for (const p of products) {
-    entries.push({ loc: `${origin}/products/${escapeXml(p.slug)}`, priority: 0.8, lastmod });
+    entries.push({ loc: `${origin}/products/${escapeXml(p.slug)}`, priority: 0.8 });
   }
+  // Canonical category route is /products/category/[slug] (not the
+  // /products?category= filter query).
   for (const c of categories) {
     entries.push({
-      loc: `${origin}/products?category=${escapeXml(c.slug)}`,
+      loc: `${origin}/products/category/${escapeXml(c.slug)}`,
       priority: 0.6,
-      lastmod,
-    });
-  }
-  for (const b of brands) {
-    entries.push({
-      loc: `${origin}/products?brand=${escapeXml(b.slug)}`,
-      priority: 0.6,
-      lastmod,
     });
   }
   for (const path of STATIC_PAGES) {
-    entries.push({ loc: `${origin}${path}`, priority: 0.5, lastmod });
+    entries.push({ loc: `${origin}${path}`, priority: 0.5 });
   }
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -109,7 +84,6 @@ ${entries
   .map(
     (e) => `  <url>
     <loc>${e.loc}</loc>
-    <lastmod>${e.lastmod}</lastmod>
     <priority>${e.priority.toFixed(1)}</priority>
   </url>`,
   )
@@ -118,6 +92,9 @@ ${entries
 `;
 
   return new Response(xml, {
-    headers: { "Content-Type": "application/xml; charset=utf-8" },
+    headers: {
+      "Content-Type": "application/xml; charset=utf-8",
+      "Cache-Control": "public, max-age=3600",
+    },
   });
 };
