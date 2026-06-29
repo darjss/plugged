@@ -10,12 +10,36 @@ import { Toaster } from "../components/ui/sonner";
 interface Props {
   title?: string;
   description?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  ogUrl?: string;
+  ogType?: string;
+  canonicalUrl?: string;
 }
 
-const { title, description } = Astro.props;
+const {
+  title,
+  description,
+  ogTitle,
+  ogDescription,
+  ogImage,
+  ogUrl,
+  ogType,
+  canonicalUrl,
+} = Astro.props;
 ---
 
-<Layout title={title} description={description}>
+<Layout
+  title={title}
+  description={description}
+  ogTitle={ogTitle}
+  ogDescription={ogDescription}
+  ogImage={ogImage}
+  ogUrl={ogUrl}
+  ogType={ogType}
+  canonicalUrl={canonicalUrl}
+>
   <div class="flex min-h-screen flex-col">
     {/* Skip link for keyboard users */}
     <a
