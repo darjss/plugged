@@ -1,9 +1,15 @@
 import * as v from "valibot";
 import { productStatuses } from "../db/schema";
-import { id, moneyMnt, optionalText, stockQuantity } from "../lib/validation-primitives";
+import {
+  id,
+  moneyMnt,
+  nonEmptyString,
+  optionalText,
+  stockQuantity,
+} from "../lib/validation-primitives";
 
 export const adminUsersQuerySchema = v.object({
-  search: v.optional(v.pipe(v.string(), v.minLength(1))),
+  search: v.optional(nonEmptyString),
 });
 
 export const adminUpdateUserSchema = v.object({
@@ -14,15 +20,15 @@ export const adminListProductsSchema = v.object({
   brandId: v.optional(v.nullable(id)),
   categoryId: v.optional(v.nullable(id)),
   status: v.optional(v.picklist(productStatuses)),
-  search: v.optional(v.pipe(v.string(), v.minLength(1))),
+  search: v.optional(nonEmptyString),
   limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(100))),
   offset: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
 });
 
 const adminVariantSchema = v.object({
   id: v.optional(id),
-  sku: v.pipe(v.string(), v.minLength(1)),
-  name: v.pipe(v.string(), v.minLength(1)),
+  sku: nonEmptyString,
+  name: nonEmptyString,
   priceMnt: moneyMnt,
   compareAtPriceMnt: v.optional(v.nullable(moneyMnt)),
   stockQuantity,
@@ -47,8 +53,8 @@ const adminIemSpecSchema = v.object({
 });
 
 const adminProductCoreSchema = {
-  name: v.pipe(v.string(), v.minLength(1)),
-  slug: v.pipe(v.string(), v.minLength(1)),
+  name: nonEmptyString,
+  slug: nonEmptyString,
   brandId: v.optional(v.nullable(id)),
   categoryIds: v.optional(v.array(id)),
   shortDescription: optionalText,
