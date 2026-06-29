@@ -6,6 +6,7 @@ import {
   checkoutInputSchema,
   productListQuerySchema,
 } from "../../commerce/validation";
+import { getFrequencyResponse } from "../../integrations/squiglink";
 import { searchProducts } from "../../search/search";
 import { MONGOLIAN_PHONE_REGEX } from "../../../lib/utils";
 import { authPlugin } from "../plugins/auth";
@@ -47,6 +48,18 @@ export const storefrontRoutes = new Elysia({ name: "storefront-routes" })
     return { products: await commerceQueries.store.getProducts(input) };
   })
   .get("/products/:slug", async ({ params }) => commerceQueries.store.getProductBySlug(params.slug))
+  .get("/products/:slug/frequency-response", async ({ params, status }) => {
+    const product = await commerceQueries.store.getProductBySlug(params.slug);
+    const file = product.iemSpec?.squiglinkFile;
+    if (!file) {
+      return status(404, { error: { code: "frequency-response-unavailable" } });
+    }
+    const fr = await getFrequencyResponse(file);
+    if (!fr) {
+      return status(404, { error: { code: "frequency-response-unavailable" } });
+    }
+    return { ...fr, product: { name: product.name, slug: product.slug } };
+  })
   .get("/categories", () => commerceQueries.store.getCategories())
   .get("/brands", () => commerceQueries.store.getBrands())
   .get("/search", async ({ query }) => {

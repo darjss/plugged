@@ -39,6 +39,7 @@
     "better-auth": "^1.5.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "d3": "^7.9.0",
     "drizzle-orm": "^0.45.1",
     "elysia": "^1.4.27",
     "ky": "^2.0.2",
@@ -54,6 +55,7 @@
     "valibot": "^1.4.1"
   },
   "devDependencies": {
+    "@types/d3": "^7.4.3",
     "@types/node": "^26.0.0",
     "@typescript/native-preview": "7.0.0-dev.20260624.1",
     "drizzle-kit": "^0.31.9",

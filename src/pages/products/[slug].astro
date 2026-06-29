@@ -5,6 +5,7 @@ import ProductImageCarousel from "../../components/storefront/ProductImageCarous
 import ProductBuyBox from "../../components/storefront/ProductBuyBox.tsx";
 import AnalyticsEvent from "../../components/storefront/AnalyticsEvent.tsx";
 import ProductSpecs from "../../components/storefront/ProductSpecs.astro";
+import FrequencyResponseChart from "../../components/storefront/FrequencyResponseChart.tsx";
 import type { ProductImage, ProductVariant } from "@/types/product-types";
 
 export const prerender = false;
@@ -60,6 +61,7 @@ interface ProductDetail {
     soundSignature: string | null;
     fit: string | null;
     includedAccessories: string | null;
+    squiglinkFile: string | null;
   } | null;
   images: ProductImage[];
   variants: ProductVariant[];
@@ -260,6 +262,17 @@ const seoDescription =
         Closed by default so the buy box stays above the fold. */}
     {product.iemSpec && (
       <ProductSpecs spec={product.iemSpec} soundSignature={product.iemSpec.soundSignature} />
+    )}
+
+    {/* Frequency response chart — only when squiglinkFile is set.
+        The island also hides itself if the API returns 404. */}
+    {product.iemSpec?.squiglinkFile && (
+      <FrequencyResponseChart
+        client:visible
+        slug={product.slug}
+        productName={product.name}
+        apiBase={apiBase()}
+      />
     )}
 
     {/* Full description — torn paper panel, below specs */}
