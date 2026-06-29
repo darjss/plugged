@@ -1,11 +1,11 @@
 import { Elysia, t } from "elysia";
-import { adminCommerceQueries } from "../../commerce/admin-queries";
-import { getR2Object } from "../../commerce/r2";
 import {
   adminCreateProductSchema,
   adminListProductsSchema,
+  adminProductQueries,
   adminUpdateProductSchema,
-} from "../../commerce/validation";
+} from "../../admin";
+import { getR2Object } from "../../commerce/r2";
 import {
   indexProduct,
   rebuildSearchIndex,
@@ -15,17 +15,17 @@ import { authPlugin } from "../plugins/auth";
 import { parseInput } from "../validation";
 
 /**
- * Admin product management routes (#14). All guarded by `requireAdmin`
+ * Admin product management routes. All guarded by `requireAdmin`
  * (macro provided by `authPlugin`). Image upload uses Elysia's Typebox
  * `t.File()` so multipart parsing kicks in; the rest of the admin surface
  * validates with Valibot via `parseInput`.
  */
 export const adminRoutes = new Elysia({ name: "admin-routes" })
   .use(authPlugin)
-  .get("/admin/brands", () => adminCommerceQueries.listBrands(), {
+  .get("/admin/brands", () => adminProductQueries.listBrands(), {
     requireAdmin: true,
   })
-  .get("/admin/categories", () => adminCommerceQueries.listCategories(), {
+  .get("/admin/categories", () => adminProductQueries.listCategories(), {
     requireAdmin: true,
   })
   .get(
@@ -36,18 +36,18 @@ export const adminRoutes = new Elysia({ name: "admin-routes" })
         limit: query.limit ? Number(query.limit) : undefined,
         offset: query.offset ? Number(query.offset) : undefined,
       });
-      return adminCommerceQueries.listProducts(filters);
+      return adminProductQueries.listProducts(filters);
     },
     { requireAdmin: true },
   )
-  .get("/admin/products/:id", ({ params }) => adminCommerceQueries.getProduct(params.id), {
+  .get("/admin/products/:id", ({ params }) => adminProductQueries.getProduct(params.id), {
     requireAdmin: true,
   })
   .post(
     "/admin/products",
     async ({ body }) => {
       const input = parseInput(adminCreateProductSchema, body);
-      const result = await adminCommerceQueries.createProduct(input);
+      const result = await adminProductQueries.createProduct(input);
       await syncProductSearchIndex(result.id);
       return result;
     },
@@ -57,7 +57,7 @@ export const adminRoutes = new Elysia({ name: "admin-routes" })
     "/admin/products/:id",
     async ({ params, body }) => {
       const input = parseInput(adminUpdateProductSchema, body);
-      const result = await adminCommerceQueries.updateProduct(params.id, input);
+      const result = await adminProductQueries.updateProduct(params.id, input);
       await syncProductSearchIndex(result.id);
       return result;
     },
@@ -66,7 +66,7 @@ export const adminRoutes = new Elysia({ name: "admin-routes" })
   .delete(
     "/admin/products/:id",
     async ({ params }) => {
-      const result = await adminCommerceQueries.archiveProduct(params.id);
+      const result = await adminProductQueries.archiveProduct(params.id);
       await removeProductFromSearchIndex(params.id);
       return result;
     },
@@ -82,7 +82,7 @@ export const adminRoutes = new Elysia({ name: "admin-routes" })
           error: { code: "validation-error", message: "Missing 'file' field" },
         });
       }
-      return adminCommerceQueries.uploadImage(params.id, {
+      return adminProductQueries.uploadImage(params.id, {
         name: file.name,
         type: file.type,
         arrayBuffer: () => file.arrayBuffer(),
@@ -97,7 +97,7 @@ export const adminRoutes = new Elysia({ name: "admin-routes" })
   )
   .delete(
     "/admin/products/:id/images/:imageId",
-    ({ params }) => adminCommerceQueries.deleteImage(params.id, params.imageId),
+    ({ params }) => adminProductQueries.deleteImage(params.id, params.imageId),
     { requireAdmin: true },
   )
   /* === Public R2 image proxy ===
