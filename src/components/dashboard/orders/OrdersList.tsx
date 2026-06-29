@@ -30,7 +30,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { orderStatuses, paymentStatuses } from "@/server/db/schema";
-import { orderStatusBadgeVariant, paymentStatusBadgeVariant } from "./order-badges";
+import { orderStatusBadgeVariant, paymentStatusBadgeVariant } from "@/lib/order-badges";
 
 const PAGE_SIZE = 25;
 const STATUS_FILTER_VALUES = ["", ...orderStatuses] as const;

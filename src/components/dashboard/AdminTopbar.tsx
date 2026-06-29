@@ -1,8 +1,9 @@
 import { useLocation } from "@solidjs/router";
+import { createQuery } from "@tanstack/solid-query";
 import { LogOut, User } from "lucide-solid";
-import { createResource, Show } from "solid-js";
-import { api } from "@/lib/api-client";
+import { Show } from "solid-js";
 import { authClient } from "@/lib/auth-client";
+import { adminSessionApi, adminSessionKeys } from "@/lib/admin-api";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,12 +32,10 @@ function routeTitle(pathname: string) {
 
 export default function AdminTopbar() {
   const location = useLocation();
-  const [session] = createResource(async () => {
-    const { data } = await api.dashboard.session.get();
-    // Eden treaty infers dashboard/session as the error shape; cast at
-    // the fetch boundary (documented escape hatch).
-    return (data as { user?: { name: string; email: string } } | null)?.user ?? null;
-  });
+  const session = createQuery(() => ({
+    queryKey: adminSessionKeys.detail,
+    queryFn: () => adminSessionApi.me(),
+  }));
 
   return (
     <header
@@ -51,7 +50,7 @@ export default function AdminTopbar() {
         {routeTitle(location.pathname)}
       </h1>
 
-      <Show when={session()}>
+      <Show when={session.data}>
         {(user) => (
           <DropdownMenu>
             <DropdownMenuTrigger

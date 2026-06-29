@@ -14,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatMnt } from "@/lib/utils";
-import { adminProductKeys, adminProductsApi, type AdminProductListFilters } from "./admin-api";
+import { adminProductKeys, adminProductsApi, type AdminProductListFilters } from "@/lib/admin-api";
 
 const STATUS_OPTIONS = [
   { value: "", label: "All statuses" },
