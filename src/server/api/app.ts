@@ -1,8 +1,11 @@
 import { Elysia } from "elysia";
 import * as v from "valibot";
-import { adminQueries } from "../commerce/admin-queries";
-import { adminQueries as adminSettingsQueries } from "../admin/queries";
-import { adminUpdateUserSchema, adminUsersQuerySchema } from "../admin/validation";
+import {
+  adminSettingsQueries,
+  adminStatsQueries,
+  adminUpdateUserSchema,
+  adminUsersQuerySchema,
+} from "../admin";
 import { commerceQueries } from "../commerce/queries";
 import {
   adminListOrdersSchema,
@@ -80,7 +83,7 @@ export const app = new Elysia({
       requireAdmin: true,
     },
   )
-  .get("/admin/stats", () => adminQueries.getStats(), {
+  .get("/admin/stats", () => adminStatsQueries.getStats(), {
     requireAdmin: true,
   })
   .get("/admin/analytics/overview", () => getAnalyticsOverview(), { requireAdmin: true })
@@ -91,7 +94,7 @@ export const app = new Elysia({
       const raw = query as Record<string, string | undefined>;
       const parsed = Number(raw.limit ?? 10);
       const limit = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 1), 50) : 10;
-      return adminQueries.getRecentOrders(limit);
+      return adminStatsQueries.getRecentOrders(limit);
     },
     { requireAdmin: true },
   )
@@ -100,7 +103,7 @@ export const app = new Elysia({
     ({ query }) => {
       const raw = query as Record<string, string | undefined>;
       if (raw.lowStock !== "true") return { products: [] };
-      return adminQueries.getLowStockProducts().then((products) => ({ products }));
+      return adminStatsQueries.getLowStockProducts().then((products) => ({ products }));
     },
     { requireAdmin: true },
   )
