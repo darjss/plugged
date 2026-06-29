@@ -85,6 +85,29 @@ export const getQpayWebhookSecret = (): string | undefined => {
   return secret || undefined;
 };
 
+/**
+ * Authenticate a QPay webhook delivery. The shared secret is passed in the
+ * `x-qpay-webhook-secret` header (set in QPAY_CALLBACK_URL delivery config).
+ *
+ * - If no secret is configured, the webhook is accepted (open by config).
+ * - If a secret is configured but the header is missing/wrong, the webhook
+ *   is rejected. Callers MUST still return HTTP 200 on rejection to avoid
+ *   QPay retry storms — this helper only reports the auth decision.
+ *
+ * Returns `{ accepted: true }` when the delivery should be processed, or
+ * `{ accepted: false, reason }` when it should be acknowledged but skipped.
+ */
+export const verifyQpayWebhook = (headers: Headers): { accepted: boolean; reason?: string } => {
+  const expected = getQpayWebhookSecret();
+  if (!expected) return { accepted: true };
+
+  const presented = headers.get("x-qpay-webhook-secret");
+  if (presented !== expected) {
+    return { accepted: false, reason: "bad shared secret" };
+  }
+  return { accepted: true };
+};
+
 const requireBaseUrl = (): string => {
   const url = appEnv.QPAY_URL;
   if (!url) throw new Error("QPAY_URL is not configured");

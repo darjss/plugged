@@ -4,29 +4,27 @@
  * Torn-edge cards, stamp-style price tags, halftone product images
  * (B&W by default, color on hover). 4–8 products.
  */
-import { commerceQueries } from "../../server/commerce/queries";
 import { formatMnt } from "../../lib/utils";
-
-type Product = Awaited<ReturnType<typeof commerceQueries.store.getProducts>>[number];
+import type { StoreProduct } from "./product-types";
 
 interface Props {
-  products: Product[];
+  products: StoreProduct[];
 }
 
 const { products } = Astro.props;
 const featured = products.slice(0, 8);
 
-function primaryImage(product: Product) {
+function primaryImage(product: StoreProduct) {
   return product.images[0];
 }
 
-function displayPrice(product: Product) {
+function displayPrice(product: StoreProduct) {
   const variant = product.variants[0];
   const amount = variant?.priceMnt ?? product.basePriceMnt;
   return formatMnt(amount);
 }
 
-function hasComparePrice(product: Product) {
+function hasComparePrice(product: StoreProduct) {
   const variant = product.variants[0];
   const compare = variant?.compareAtPriceMnt ?? product.compareAtPriceMnt;
   return Boolean(compare && compare > (variant?.priceMnt ?? product.basePriceMnt));

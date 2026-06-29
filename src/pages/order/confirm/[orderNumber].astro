@@ -1,7 +1,7 @@
 ---
 import StorefrontLayout from "../../../layouts/StorefrontLayout.astro";
 import ClearCart from "../../../components/storefront/ClearCart.tsx";
-import { commerceQueries } from "../../../server/commerce/queries";
+import { api } from "../../../lib/api-client";
 import { formatMnt } from "../../../lib/utils";
 
 export const prerender = false;
@@ -9,15 +9,11 @@ export const prerender = false;
 const { orderNumber } = Astro.params;
 
 // Missing or malformed order number → bounce to products. A real lookup
-// miss throws NotFoundError, which we turn into an empty state below.
-let order: Awaited<ReturnType<typeof commerceQueries.store.getOrderByNumber>> | null = null;
-if (orderNumber) {
-  try {
-    order = await commerceQueries.store.getOrderByNumber(orderNumber);
-  } catch {
-    order = null;
-  }
-}
+// miss returns an Eden error response, which we turn into an empty state.
+const orderRes = orderNumber
+  ? await api.orders({ orderNumber }).get().catch(() => null)
+  : null;
+const order = orderRes?.data ?? null;
 ---
 
 <StorefrontLayout title="Order confirmed | Plugged" description="Your order is confirmed.">

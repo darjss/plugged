@@ -2,20 +2,23 @@
 /**
  * Plugged homepage — hero + featured products + category nav + edu teaser.
  * SSR (prerender = false) so featured products stay fresh against D1.
- * Pulls real data from commerceQueries — same module the /products API uses.
+ * Pulls featured products through the /products API seam (Eden treaty),
+ * the same route the SolidJS islands use — no direct query-module access.
  */
 import StorefrontLayout from "../layouts/StorefrontLayout.astro";
 import Hero from "../components/storefront/Hero.astro";
 import FeaturedProducts from "../components/storefront/FeaturedProducts.astro";
 import CategoryNav from "../components/storefront/CategoryNav.astro";
 import WhyIems from "../components/storefront/WhyIems.astro";
-import { commerceQueries } from "../server/commerce/queries";
+import { api } from "../lib/api-client";
+import type { StoreProduct } from "../components/storefront/product-types";
 
 export const prerender = false;
 
-let featuredProducts: Awaited<ReturnType<typeof commerceQueries.store.getProducts>> = [];
+let featuredProducts: StoreProduct[] = [];
 try {
-  featuredProducts = await commerceQueries.store.getProducts({ featured: true });
+  const { data } = await api.products.get({ query: { featured: "true" } });
+  featuredProducts = data?.products ?? [];
 } catch (error) {
   console.error("[homepage] failed to load featured products", { error: String(error) });
 }

@@ -760,6 +760,11 @@ export const commerceQueries = {
      * List orders for the admin console with filters + pagination.
      * Uses the relational query API so each order carries its primary
      * payment (most recently updated) and optional customer account.
+     *
+     * Returns the flat API shape consumed by the admin orders table
+     * (Eden Treaty infers this shape for the client). The raw Drizzle
+     * relational rows are projected here so the route handler is a
+     * thin `return commerceQueries.admin.listOrders(filters)`.
      */
     async listOrders(rawFilters: v.InferOutput<typeof adminListOrdersSchema>) {
       const filters = rawFilters;
@@ -823,7 +828,32 @@ export const commerceQueries = {
         .where(where);
 
       return {
-        orders: rows,
+        orders: rows.map((o) => ({
+          id: o.id,
+          orderNumber: o.orderNumber,
+          customerPhone: o.customerPhone,
+          customerName: o.customerName,
+          status: o.status,
+          subtotalMnt: o.subtotalMnt,
+          deliveryFeeMnt: o.deliveryFeeMnt,
+          totalMnt: o.totalMnt,
+          orderedAt: o.orderedAt,
+          createdAt: o.createdAt,
+          user: o.user
+            ? {
+                email: o.user.email,
+                name: o.user.name,
+                phoneNumber: o.user.phoneNumber,
+              }
+            : null,
+          payment: o.payments[0]
+            ? {
+                status: o.payments[0].status,
+                provider: o.payments[0].provider,
+                paymentNumber: o.payments[0].paymentNumber,
+              }
+            : null,
+        })),
         total: Number(count),
         limit,
         offset,
@@ -833,6 +863,8 @@ export const commerceQueries = {
     /**
      * Full order for the admin detail view: items (with product image +
      * variant), payments, and the optional customer account.
+     *
+     * Returns the flat API shape consumed by the admin order detail view.
      */
     async getOrder(id: string) {
       const result = await db.query.order.findFirst({
@@ -862,7 +894,56 @@ export const commerceQueries = {
       });
 
       if (!result) throw new NotFoundError("order", id);
-      return result;
+      return {
+        id: result.id,
+        orderNumber: result.orderNumber,
+        customerPhone: result.customerPhone,
+        customerName: result.customerName,
+        status: result.status,
+        subtotalMnt: result.subtotalMnt,
+        deliveryFeeMnt: result.deliveryFeeMnt,
+        totalMnt: result.totalMnt,
+        address: result.address,
+        deliveryProvider: result.deliveryProvider,
+        notes: result.notes,
+        orderedAt: result.orderedAt,
+        createdAt: result.createdAt,
+        cancelledAt: result.cancelledAt,
+        user: result.user
+          ? {
+              email: result.user.email,
+              name: result.user.name,
+              phoneNumber: result.user.phoneNumber,
+            }
+          : null,
+        items: result.items.map((item) => ({
+          id: item.id,
+          productName: item.productName,
+          variantName: item.variantName,
+          sku: item.sku,
+          unitPriceMnt: item.unitPriceMnt,
+          quantity: item.quantity,
+          lineTotalMnt: item.lineTotalMnt,
+          product: {
+            slug: item.product.slug,
+            image: item.product.images[0]
+              ? {
+                  url: item.product.images[0].url,
+                  alt: item.product.images[0].alt,
+                }
+              : null,
+          },
+        })),
+        payments: result.payments.map((p) => ({
+          id: p.id,
+          paymentNumber: p.paymentNumber,
+          provider: p.provider,
+          status: p.status,
+          amountMnt: p.amountMnt,
+          qpayInvoiceId: p.qpayInvoiceId,
+          paidAt: p.paidAt,
+        })),
+      };
     },
 
     /**
@@ -870,6 +951,9 @@ export const commerceQueries = {
      *   pending → shipped → delivered
      *   pending → cancelled
      * Throws ConflictError for any other transition.
+     *
+     * Returns the small status-patch projection the admin detail view
+     * consumes after a status mutation (id/status/cancelledAt/updatedAt).
      */
     async updateOrderStatus(id: string, nextStatus: (typeof orderStatuses)[number]) {
       if (!orderStatuses.includes(nextStatus)) {
@@ -906,7 +990,12 @@ export const commerceQueries = {
 
       await db.update(order).set(patch).where(eq(order.id, id));
 
-      return this.getOrder(id);
+      return {
+        id,
+        status: nextStatus,
+        cancelledAt: nextStatus === "cancelled" ? date : null,
+        updatedAt: date,
+      };
     },
   },
 };
