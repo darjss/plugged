@@ -16,9 +16,9 @@ function startOfTodayUtc(): Date {
 }
 
 /**
- * Admin-only commerce aggregates. Kept separate from `commerceQueries`
- * so the storefront-facing query surface stays thin; these are only
- * mounted on routes guarded by `requireAdmin`.
+ * Admin-only commerce aggregates. Kept separate from the storefront
+ * query modules so the storefront-facing query surface stays thin; these
+ * are only mounted on routes guarded by `requireAdmin`.
  */
 export const adminStatsQueries = {
   /**

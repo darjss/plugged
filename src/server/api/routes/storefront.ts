@@ -1,6 +1,18 @@
 import { Elysia } from "elysia";
 import * as v from "valibot";
-import { commerceQueries } from "../../commerce/queries";
+import {
+  addCartItem,
+  createCart,
+  getBrands,
+  getCartByToken,
+  getCategories,
+  getProducts,
+  getProductBySlug,
+  removeCartItem,
+  updateCartItem,
+} from "../../commerce/store-queries";
+import { createOrder, getOrdersByPhone, getOrderByNumber } from "../../commerce/order-queries";
+import { getPaymentByNumber } from "../../commerce/payment-queries";
 import {
   cartItemInputSchema,
   checkoutInputSchema,
@@ -44,37 +56,35 @@ export const storefrontRoutes = new Elysia({ name: "storefront-routes" })
       aliased.brandSlug = aliased.brand;
     }
     const input = parseQuery(productListQuerySchema, aliased);
-    return { products: await commerceQueries.store.getProducts(input) };
+    return { products: await getProducts(input) };
   })
-  .get("/products/:slug", async ({ params }) => commerceQueries.store.getProductBySlug(params.slug))
-  .get("/categories", () => commerceQueries.store.getCategories())
-  .get("/brands", () => commerceQueries.store.getBrands())
+  .get("/products/:slug", async ({ params }) => getProductBySlug(params.slug))
+  .get("/categories", () => getCategories())
+  .get("/brands", () => getBrands())
   .get("/search", async ({ query }) => {
     const raw = query as Record<string, string | undefined>;
     const input = parseQuery(searchQuerySchema, { ...raw, q: raw.q ?? "" });
     return { products: await searchProducts(input) };
   })
-  .post("/cart", async ({ user }) => commerceQueries.store.createCart(user?.id ?? null))
-  .get("/cart/:cartToken", async ({ params }) =>
-    commerceQueries.store.getCartByToken(params.cartToken),
-  )
+  .post("/cart", async ({ user }) => createCart(user?.id ?? null))
+  .get("/cart/:cartToken", async ({ params }) => getCartByToken(params.cartToken))
   .post("/cart/:cartToken/items", async ({ body, params }) => {
     const input = parseInput(cartItemInputSchema, body);
-    return commerceQueries.store.addCartItem(params.cartToken, input.variantId, input.quantity);
+    return addCartItem(params.cartToken, input.variantId, input.quantity);
   })
   .patch("/cart/:cartToken/items/:itemId", async ({ body, params }) => {
     const input = parseInput(cartItemInputSchema, body);
-    return commerceQueries.store.updateCartItem(params.cartToken, params.itemId, input.quantity);
+    return updateCartItem(params.cartToken, params.itemId, input.quantity);
   })
   .delete("/cart/:cartToken/items/:itemId", async ({ params }) =>
-    commerceQueries.store.removeCartItem(params.cartToken, params.itemId),
+    removeCartItem(params.cartToken, params.itemId),
   )
   .post("/checkout", async ({ body, user }) => {
     const input = parseInput(checkoutInputSchema, body);
-    return commerceQueries.store.createOrder(input, user?.id ?? null);
+    return createOrder(input, user?.id ?? null);
   })
   .get("/payments/:paymentNumber/status", async ({ params }) => {
-    const result = await commerceQueries.payments.getPaymentByNumber(params.paymentNumber);
+    const result = await getPaymentByNumber(params.paymentNumber);
     return {
       provider: result.provider,
       status: result.status,
@@ -86,8 +96,6 @@ export const storefrontRoutes = new Elysia({ name: "storefront-routes" })
     // The profile page reuses the same endpoint for the logged-in
     // customer's own phone.
     const input = parseQuery(ordersPhoneQuerySchema, query);
-    return { orders: await commerceQueries.orders.getOrdersByPhone(input.phone) };
+    return { orders: await getOrdersByPhone(input.phone) };
   })
-  .get("/orders/:orderNumber", async ({ params }) =>
-    commerceQueries.orders.getOrderByNumber(params.orderNumber),
-  );
+  .get("/orders/:orderNumber", async ({ params }) => getOrderByNumber(params.orderNumber));

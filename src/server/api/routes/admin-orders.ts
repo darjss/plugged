@@ -1,7 +1,6 @@
 import { Elysia } from "elysia";
 import * as v from "valibot";
-import { adminStatsQueries } from "../../admin";
-import { commerceQueries } from "../../commerce/queries";
+import { adminStatsQueries, listOrders, getOrder, updateOrderStatus } from "../../admin";
 import { adminListOrdersSchema, adminUpdateOrderStatusSchema } from "../../commerce/validation";
 import { authPlugin } from "../plugins/auth";
 import { parseInput, parseQuery } from "../validation";
@@ -11,10 +10,9 @@ const recentOrdersQuerySchema = v.object({
 });
 
 /**
- * Admin order management (issue #15). The query layer
- * (`commerceQueries.admin`) returns the flat API shape directly, so the
- * filtered-list and detail handlers are thin pass-throughs — no response
- * shaping lives in the route.
+ * Admin order management (issue #15). The query layer returns the flat
+ * API shape directly, so the filtered-list and detail handlers are thin
+ * pass-throughs — no response shaping lives in the route.
  *
  * Two `/admin/orders` handlers are registered: a recent-orders shortcut
  * (bare array, used by the dashboard home) and the full filtered list
@@ -33,19 +31,17 @@ export const adminOrderRoutes = new Elysia({ name: "admin-order-routes" })
     },
     { requireAdmin: true },
   )
-  .get(
-    "/admin/orders",
-    async ({ query }) => commerceQueries.admin.listOrders(parseQuery(adminListOrdersSchema, query)),
-    { requireAdmin: true },
-  )
-  .get("/admin/orders/:id", async ({ params }) => commerceQueries.admin.getOrder(params.id), {
+  .get("/admin/orders", async ({ query }) => listOrders(parseQuery(adminListOrdersSchema, query)), {
+    requireAdmin: true,
+  })
+  .get("/admin/orders/:id", async ({ params }) => getOrder(params.id), {
     requireAdmin: true,
   })
   .patch(
     "/admin/orders/:id",
     async ({ params, body }) => {
       const input = parseInput(adminUpdateOrderStatusSchema, body);
-      return commerceQueries.admin.updateOrderStatus(params.id, input.status);
+      return updateOrderStatus(params.id, input.status);
     },
     { requireAdmin: true },
   );
