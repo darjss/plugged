@@ -15,6 +15,7 @@ import { ConflictError, NotFoundError } from "../lib/errors";
 import { now } from "../lib/datetime";
 import { imageOrderBy } from "../lib/drizzle-helpers";
 import { deleteR2Object, putProductImage } from "../commerce/r2";
+import { indexProduct, removeProductFromIndex } from "../search/index-builder";
 import {
   adminCreateProductSchema,
   adminListProductsSchema,
@@ -154,7 +155,6 @@ export const adminProductQueries = {
     const date = now();
     const productId = nanoid();
 
-    // Slug uniqueness check
     const existing = await db.query.product.findFirst({
       where: eq(product.slug, input.slug),
       columns: { id: true },
@@ -179,7 +179,9 @@ export const adminProductQueries = {
 
     await this.syncDependents(productId, input, date);
 
-    return this.getProduct(productId);
+    const result = await this.getProduct(productId);
+    await syncProductSearchIndex(productId);
+    return result;
   },
 
   async updateProduct(id: string, input: UpdateInput) {
@@ -215,7 +217,9 @@ export const adminProductQueries = {
 
     await this.syncDependents(id, input, date);
 
-    return this.getProduct(id);
+    const result = await this.getProduct(id);
+    await syncProductSearchIndex(id);
+    return result;
   },
 
   async archiveProduct(id: string) {
@@ -230,7 +234,9 @@ export const adminProductQueries = {
       .set({ status: "archived", updatedAt: now() })
       .where(eq(product.id, id));
 
-    return this.getProduct(id);
+    const result = await this.getProduct(id);
+    await removeProductFromSearchIndex(id);
+    return result;
   },
 
   async uploadImage(
@@ -279,7 +285,6 @@ export const adminProductQueries = {
 
     await db.delete(productImage).where(eq(productImage.id, imageId));
 
-    // If we removed the primary, promote the next image.
     if (image.isPrimary) {
       const next = await db.query.productImage.findFirst({
         where: eq(productImage.productId, productId),
@@ -302,7 +307,6 @@ export const adminProductQueries = {
     },
     date: Date,
   ) {
-    // Categories: full replace when provided.
     if (input.categoryIds !== undefined) {
       await db.delete(productCategory).where(eq(productCategory.productId, productId));
       if (input.categoryIds.length > 0) {
@@ -312,7 +316,6 @@ export const adminProductQueries = {
       }
     }
 
-    // IEM spec: upsert when provided (null clears it).
     if (input.iemSpec !== undefined) {
       const value = input.iemSpec;
       if (value === null) {
@@ -347,7 +350,6 @@ export const adminProductQueries = {
       }
     }
 
-    // Variants: when provided, upsert by id; new variants get fresh ids.
     if (input.variants !== undefined) {
       const current = await db.query.productVariant.findMany({
         where: eq(productVariant.productId, productId),
@@ -397,3 +399,19 @@ export const adminProductQueries = {
     }
   },
 };
+
+async function syncProductSearchIndex(productId: string) {
+  try {
+    await indexProduct(productId);
+  } catch (error) {
+    console.warn("search index sync failed", { productId, error: String(error) });
+  }
+}
+
+async function removeProductFromSearchIndex(productId: string) {
+  try {
+    await removeProductFromIndex(productId);
+  } catch (error) {
+    console.warn("search index delete failed", { productId, error: String(error) });
+  }
+}

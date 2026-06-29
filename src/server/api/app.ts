@@ -4,6 +4,7 @@ import { authPlugin } from "./plugins/auth";
 import { adminOrderRoutes } from "./routes/admin-orders";
 import { adminStatsRoutes } from "./routes/admin-stats";
 import { adminRoutes } from "./routes/admin";
+import { imageRoutes } from "./routes/images";
 import { paymentRoutes } from "./routes/payments";
 import { storefrontRoutes } from "./routes/storefront";
 
@@ -36,6 +37,7 @@ export const app = new Elysia({
     });
   })
   .use(authPlugin)
+  .use(imageRoutes)
   .use(adminRoutes)
   .use(adminOrderRoutes)
   .use(adminStatsRoutes)
