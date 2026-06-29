@@ -1,11 +1,3 @@
-/**
- * Sound signature parsing — shared by the storefront sound signature
- * badge and the spec sheet panel.
- *
- * Tries to parse bass/mid/treble values (0-10) from the raw string.
- * Common formats: "bass:8,mid:7,treble:6", "8/7/6", "B8 M7 T6".
- */
-
 export interface SignatureBars {
   bass: number;
   mid: number;

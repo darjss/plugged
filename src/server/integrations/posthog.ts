@@ -2,7 +2,6 @@ import { env } from "../lib/env";
 
 type PostHogProperties = Record<string, string | number | boolean | null | undefined>;
 
-/** Server-side capture key (POSTHOG_KEY). Used for server events. */
 function captureKey() {
   const k = env.POSTHOG_KEY;
   return k && k !== "phc_XXX" ? k : null;

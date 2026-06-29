@@ -114,10 +114,6 @@ const requireBaseUrl = (): string => {
   return url.endsWith("/") ? url : `${url}/`;
 };
 
-/**
- * Get a cached QPay access token from KV, or request a new one.
- * Pass `forceRefresh` to bypass the cache (used after a 401).
- */
 export const getAccessToken = async (opts?: { forceRefresh?: boolean }): Promise<string> => {
   if (!opts?.forceRefresh) {
     const cached = await env.CACHE.get(QPAY_TOKEN_KV_KEY);
@@ -190,9 +186,6 @@ const describeHttpError = async (error: HTTPError, context: string): Promise<str
   return `QPay ${context} failed (${error.response.status} ${error.response.statusText}) ${error.request.url}: ${body.slice(0, 300)}`;
 };
 
-/**
- * Create a QPay invoice for a payment. Returns QR data to display inline.
- */
 export const createQpayInvoice = async (
   amount: number,
   paymentNumber: string,
@@ -233,9 +226,6 @@ export const createQpayInvoice = async (
   }
 };
 
-/**
- * Check whether a QPay invoice has been paid. QPay's API uses POST /payment/check.
- */
 export const checkQpayInvoice = async (invoiceId: string): Promise<QpayInvoiceStatus> => {
   try {
     const response = await qpayClient

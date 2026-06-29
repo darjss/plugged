@@ -9,14 +9,6 @@ interface Props {
   productName: string;
 }
 
-/**
- * Product image carousel — SolidJS island (`client:visible`).
- * Primary image first, thumbnails below. Grunge: halftone treatment,
- * torn-edge frame, photocopy duotone on unselected thumbs.
- *
- * Custom implementation (no embla dependency) — pointer swipe + arrow
- * nav + thumbnail clicks. Keeps the bundle lean.
- */
 export default function ProductImageCarousel(props: Props) {
   const images = () => {
     const sorted = [...props.images].sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary));

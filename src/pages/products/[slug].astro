@@ -9,11 +9,6 @@ import type { ProductImage, ProductVariant } from "@/types/product-types";
 
 export const prerender = false;
 
-/**
- * On-demand API base. Pages render from D1 at request time, so product
- * inventory stays fresh and a build-time API outage no longer wipes
- * every product page.
- */
 function apiBase(): string {
   if (import.meta.env.DEV) return "http://[::1]:4321";
   return Astro.site?.origin ?? "https://pluggedaudio.store";
@@ -72,7 +67,6 @@ export async function getStaticPaths() {
     ? "http://[::1]:4321"
     : "https://pluggedaudio.store";
 
-  // Parse the comma-separated oldSlugs text field into a clean array.
   const parseOldSlugs = (raw: string | null): string[] => {
     if (!raw) return [];
     return raw
@@ -98,10 +92,8 @@ export async function getStaticPaths() {
   }> = [];
 
   for (const product of products) {
-    // Canonical slug path
     paths.push({ params: { slug: product.slug }, props: { redirectTo: null } });
 
-    // Old slug redirect paths — 301 to canonical
     for (const oldSlug of parseOldSlugs(product.oldSlugs)) {
       if (oldSlug && oldSlug !== product.slug) {
         paths.push({
@@ -117,7 +109,6 @@ export async function getStaticPaths() {
 
 const { slug } = Astro.params;
 
-// Fetch full product detail on demand from D1.
 let product: ProductDetail | null = null;
 try {
   const res = await fetch(`${apiBase()}/api/products/${slug}`);
@@ -151,7 +142,6 @@ if (!product) {
 const primaryImage =
   product.images.find((img) => img.isPrimary)?.url ?? product.images[0]?.url ?? "";
 
-// Breadcrumb: Home > Category > Brand > Product
 const firstCategory = product.categories[0]?.category;
 const breadcrumbItems = [
   { label: "Home", href: "/" },
@@ -195,14 +185,12 @@ const seoDescription =
     }}
   />
   <div class="relative mx-auto max-w-screen-2xl px-4 py-6 lg:px-8 lg:py-10">
-    {/* Breadcrumb */}
     <ProductBreadcrumb items={breadcrumbItems} />
 
     {/* Main grid — images + buy info.
         Mobile: buy box first (above the fold), images after.
         Desktop: images left, buy info right. */}
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
-      {/* Image carousel — desktop left (order-1), mobile after buy box (order-2) */}
       <div class="order-2 lg:order-1" transition:name={`product-image-${product.id}`}>
         <ProductImageCarousel
           client:visible
@@ -213,7 +201,6 @@ const seoDescription =
 
       {/* Buy info — mobile first (order-1), desktop right (order-2) */}
       <div class="order-1 flex flex-col gap-5 lg:order-2">
-        {/* Brand link — stamped tag */}
         {
           product.brand && (
             <a
@@ -225,7 +212,6 @@ const seoDescription =
           )
         }
 
-        {/* Product name — poster headline */}
         <h1
           class="font-display text-display font-black uppercase leading-[0.88] tracking-tight text-ink"
           transition:name={`product-name-${product.id}`}
@@ -233,14 +219,12 @@ const seoDescription =
           {product.name}
         </h1>
 
-        {/* Short description — lead paragraph */}
         {
           product.shortDescription && (
             <p class="max-w-prose text-body-lg text-ink-muted">{product.shortDescription}</p>
           )
         }
 
-        {/* Buy box — variant selector, price, quantity, add to cart */}
         <div class="clip-torn-edges border-2 border-ink bg-card p-5 shadow-hard-lg sm:p-6">
           <ProductBuyBox
             client:visible
@@ -262,7 +246,6 @@ const seoDescription =
       <ProductSpecs spec={product.iemSpec} soundSignature={product.iemSpec.soundSignature} />
     )}
 
-    {/* Full description — torn paper panel, below specs */}
     {
       product.description && (
         <section class="clip-torn-edges relative mt-10 border-2 border-ink bg-newsprint p-5 shadow-hard sm:mt-12 sm:p-6">

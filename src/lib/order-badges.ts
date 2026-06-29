@@ -4,7 +4,6 @@ import { orderStatuses, paymentStatuses } from "@/server/db/schema";
 
 type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>["variant"]>;
 
-/** Order status → badge variant. Grunge palette, semantic color. */
 export const orderStatusBadgeVariant: Record<(typeof orderStatuses)[number], BadgeVariant> = {
   pending: "warning",
   paid: "success",
@@ -14,7 +13,6 @@ export const orderStatusBadgeVariant: Record<(typeof orderStatuses)[number], Bad
   refunded: "secondary",
 };
 
-/** Payment status → badge variant. pending=yellow, success=green, failed=red. */
 export const paymentStatusBadgeVariant: Record<(typeof paymentStatuses)[number], BadgeVariant> = {
   pending: "warning",
   customer_claimed_paid: "highlighter",

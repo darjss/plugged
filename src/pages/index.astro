@@ -1,10 +1,4 @@
 ---
-/**
- * Plugged homepage — hero + featured products + category nav + edu teaser.
- * SSR (prerender = false) so featured products stay fresh against D1.
- * Pulls featured products through the /products API seam (Eden treaty),
- * the same route the SolidJS islands use — no direct query-module access.
- */
 import StorefrontLayout from "../layouts/StorefrontLayout.astro";
 import Hero from "../components/storefront/Hero.astro";
 import FeaturedProducts from "../components/storefront/FeaturedProducts.astro";

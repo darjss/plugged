@@ -3,15 +3,6 @@ import { createEffect, createSignal, For, onCleanup, onMount, Show } from "solid
 import { cn } from "@/lib/utils";
 import { NAV_LINKS } from "@/lib/nav-links";
 
-/**
- * Mobile menu island. Replaces the vanilla `<script>` in Header.astro
- * that re-bound listeners on every `astro:page-load` (leaking
- * listeners against a `transition:persist` header). The island mounts
- * once on the persisted header and owns its open state as a signal;
- * no re-bind, no leak. Adds `aria-expanded`/`aria-controls` and
- * Escape-to-close for a11y.
- */
-
 export default function MobileMenu() {
   const [open, setOpen] = createSignal(false);
 

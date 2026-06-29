@@ -10,14 +10,6 @@ interface ProductCardProps {
   product: StoreProduct;
 }
 
-/**
- * Grunge product tile. Torn-paper card, halftone image (grayscale by
- * default, floods with color on hover), stamp price tag, and a quick
- * add-to-cart button that writes to the shared client cart store.
- *
- * Used both as a SolidJS island (infinite-scroll grid) and as the client
- * shape for cards SSR-rendered by the Astro page wrapper.
- */
 export default function ProductCard(props: ProductCardProps) {
   const product = () => props.product;
   const image = () => primaryImage(product());
@@ -31,8 +23,6 @@ export default function ProductCard(props: ProductCardProps) {
     return v ? v.stockQuantity - v.reservedQuantity <= 0 : true;
   };
 
-  // Stamp-press animation flag — flipped true on click, reset after the
-  // keyframe completes so the button can be pressed again.
   const [pressing, setPressing] = createSignal(false);
 
   const handleAddToCart = (event: MouseEvent) => {
@@ -53,8 +43,6 @@ export default function ProductCard(props: ProductCardProps) {
     // transform; the keyframe in global.css handles it. Reset after 400ms.
     setPressing(true);
     window.setTimeout(() => setPressing(false), 400);
-    // Toast slides in (solid-sonner handles the slide animation; the
-    // grunge toast styling comes from sonner.tsx theme overrides).
     toast.success(`Stamped: ${product().name}`, {
       description: "Added to your stash.",
     });

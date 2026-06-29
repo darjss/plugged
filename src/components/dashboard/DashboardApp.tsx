@@ -10,15 +10,6 @@ import OrdersList from "./orders/OrdersList";
 import OrderDetail from "./orders/OrderDetail";
 import AnalyticsPage from "./AnalyticsPage";
 
-/**
- * Admin SPA. Mounted at `/dashboard/*` via `client:load` in
- * `src/pages/dashboard/index.astro`. The Astro page enforces the admin
- * guard server-side; the router only handles in-shell sub-routes.
- *
- * Route base is `/dashboard` so `<Route path="/">` maps to `/dashboard`
- * and `<Route path="/products">` maps to `/dashboard/products`.
- */
-
 export default function DashboardApp() {
   return (
     <DashboardProviders>
@@ -31,7 +22,6 @@ export default function DashboardApp() {
         <Route path="/orders/:id" component={OrderDetail} />
         <Route path="/analytics" component={AnalyticsPage} />
         <Route path="/settings" component={SettingsPage} />
-        {/* Fallthrough — unknown sub-routes render the home placeholder. */}
         <Route path="*" component={DashboardHome} />
       </Router>
     </DashboardProviders>

@@ -3,14 +3,6 @@ import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-/**
- * Google OAuth sign-in button for the admin login page.
- *
- * Uses Better Auth's SolidJS client `signIn.social` which redirects to
- * Google and back to `callbackURL` on success. The Astro `dashboard/index`
- * page re-runs `requireAdmin` on return, so non-admins land on 403 and
- * admins see the SPA.
- */
 export default function GoogleSignIn(props: { next?: string }) {
   const [pending, setPending] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);

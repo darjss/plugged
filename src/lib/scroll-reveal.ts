@@ -2,19 +2,6 @@ import { onCleanup, onMount } from "solid-js";
 
 import { prefersReducedMotion } from "./motion";
 
-/**
- * Scroll-triggered reveal for grunge product grids. Adds the
- * `stagger-fade-in-up` class (defined in global.css) when an element
- * enters the viewport, with an optional per-element stagger index.
- *
- * Falls back to instant visibility when `prefers-reduced-motion: reduce`
- * is set — elements get the visible end-state with no animation.
- *
- * @example
- * <article ref={(el) => scrollReveal(el, { staggerIndex: i })}>
- *   ...
- * </article>
- */
 export function scrollReveal(
   el: HTMLElement,
   options: { staggerIndex?: number; rootMargin?: string } = {},
@@ -33,11 +20,9 @@ export function scrollReveal(
     return;
   }
 
-  // Set the stagger delay token consumed by the CSS utility.
   el.style.setProperty("--stagger-i", String(staggerIndex));
   el.classList.add("stagger-fade-in-up");
 
-  // Pause the animation until the element is in view, then let it run.
   el.style.animationPlayState = "paused";
 
   const observer = new IntersectionObserver(
