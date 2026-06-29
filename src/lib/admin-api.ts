@@ -210,9 +210,27 @@ export const adminProductsApi = {
   },
 };
 
+export type AdminSessionUser = { name: string; email: string; image: string | null };
+
+export const adminSessionKeys = {
+  detail: ["admin", "session"] as const,
+};
+
+export const adminSessionApi = {
+  async me(): Promise<AdminSessionUser | null> {
+    const { data, error } = await api.dashboard.session.get();
+    if (error || !data) return null;
+    // Eden treaty infers dashboard/session as the error shape (the
+    // success body is too deep for route-tree inference). Cast at the
+    // fetch boundary — documented escape hatch.
+    const user = (data as { user?: AdminSessionUser }).user;
+    return user ?? null;
+  },
+};
+
 export type AnalyticsPoint = { date: string; value: number };
-export type FunnelStep = { event: string; count: number };
-export type AnalyticsOverview = {
+type FunnelStep = { event: string; count: number };
+type AnalyticsOverview = {
   configured: boolean;
   traffic: AnalyticsPoint[];
   funnel: FunnelStep[];
