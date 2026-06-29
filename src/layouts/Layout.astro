@@ -6,11 +6,13 @@ import "../styles/global.css";
 interface Props {
   title?: string;
   description?: string;
+  transitions?: boolean;
 }
 
 const {
   title = "Plugged — IEM Audio Store",
   description = "Photocopied zine meets warehouse rave. IEMs, DAC amps, and wireless earbuds.",
+  transitions = true,
 } = Astro.props;
 
 const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
@@ -28,7 +30,6 @@ const posthogHost = import.meta.env.PUBLIC_POSTHOG_HOST ?? "https://us.posthog.c
     <title>{title}</title>
     <meta name="description" content={description} />
 
-    <!-- Fonts: Space Grotesk (sans), Geist Mono (mono), Anton (display) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -36,12 +37,11 @@ const posthogHost = import.meta.env.PUBLIC_POSTHOG_HOST ?? "https://us.posthog.c
       rel="stylesheet"
     />
 
-    <ClientRouter />
+    {transitions && <ClientRouter />}
   </head>
   <body class="min-h-screen bg-background text-foreground font-sans antialiased">
-    <!-- Newsprint grain + scanline overlay is applied via body::before in global.css -->
     <slot />
-    <PostHog client:load apiKey={posthogKey} host={posthogHost} />
+    {transitions && <PostHog client:load apiKey={posthogKey} host={posthogHost} />}
   </body>
 </html>
 

@@ -4,6 +4,20 @@ const sourcePath = new URL("../iem-yangkeduo-prices-en.json", import.meta.url);
 const source = JSON.parse(readFileSync(sourcePath, "utf8"));
 const yuanToMnt = 500;
 
+// Slugs flagged as featured on the homepage. Curated mix across price tiers
+// and product types (entry IEMs, mid IEMs, wireless, DAC). Keep in sync with
+// the production D1 `product.featured` flags.
+const featuredSlugs = new Set([
+  "moondrop-chu-2",
+  "7hz-x-crinacle-zero-2",
+  "truthear",
+  "tangzu-waner-2-red-lion",
+  "simgot-ew100p",
+  "dunu-titan-x",
+  "moondrop-space-travel-2",
+  "jcally-jm12-portable-dac-amplifier",
+]);
+
 const knownBrands = [
   "7hz",
   "cca",
@@ -81,6 +95,7 @@ for (const result of okResults) {
   const productSlug = slugify(productName);
   const productId = `product_${productSlug}`;
   const basePriceMnt = moneyMnt(result.base_price_yuan);
+  const featured = featuredSlugs.has(productSlug) ? 1 : 0;
   const description = [
     result.matched_search_result?.title,
     result.product_title,
@@ -90,7 +105,7 @@ for (const result of okResults) {
     .join("\n\n");
 
   statements.push(
-    `INSERT INTO product (id, slug, brand_id, name, short_description, description, status, base_price_mnt, compare_at_price_mnt, currency, featured, created_at, updated_at) VALUES (${sql(productId)}, ${sql(productSlug)}, ${sql(brandId)}, ${sql(productName)}, ${sql(result.matched_search_result?.title ?? null)}, ${sql(description)}, 'active', ${basePriceMnt}, NULL, 'MNT', 0, unixepoch(), unixepoch()) ON CONFLICT(id) DO UPDATE SET slug = excluded.slug, brand_id = excluded.brand_id, name = excluded.name, short_description = excluded.short_description, description = excluded.description, status = excluded.status, base_price_mnt = excluded.base_price_mnt, created_at = excluded.created_at, updated_at = excluded.updated_at;`,
+    `INSERT INTO product (id, slug, brand_id, name, short_description, description, status, base_price_mnt, compare_at_price_mnt, currency, featured, created_at, updated_at) VALUES (${sql(productId)}, ${sql(productSlug)}, ${sql(brandId)}, ${sql(productName)}, ${sql(result.matched_search_result?.title ?? null)}, ${sql(description)}, 'active', ${basePriceMnt}, NULL, 'MNT', ${featured}, unixepoch(), unixepoch()) ON CONFLICT(id) DO UPDATE SET slug = excluded.slug, brand_id = excluded.brand_id, name = excluded.name, short_description = excluded.short_description, description = excluded.description, status = excluded.status, base_price_mnt = excluded.base_price_mnt, featured = excluded.featured, created_at = excluded.created_at, updated_at = excluded.updated_at;`,
   );
 
   statements.push(
