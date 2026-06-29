@@ -7,86 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-
-type OrderItem = {
-  id: string;
-  orderId: string;
-  productId: string;
-  variantId: string;
-  productName: string;
-  variantName: string;
-  sku: string;
-  unitPriceMnt: number;
-  quantity: number;
-  lineTotalMnt: number;
-  createdAt: Date;
-};
-
-type OrderPayment = {
-  id: string;
-  orderId: string;
-  paymentNumber: string;
-  provider: string;
-  status: string;
-  amountMnt: number;
-  qpayInvoiceId: string | null;
-  qpayQrText: string | null;
-  qpayQrImage: string | null;
-  qpayUrlsJson: string | null;
-  paidAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-type OrderRow = {
-  id: string;
-  orderNumber: string;
-  userId: string | null;
-  customerPhone: string;
-  customerName: string | null;
-  status: string;
-  subtotalMnt: number;
-  deliveryFeeMnt: number;
-  totalMnt: number;
-  address: string;
-  deliveryProvider: string;
-  notes: string | null;
-  checkoutToken: string;
-  orderedAt: Date;
-  createdAt: Date;
-  updatedAt: Date;
-  cancelledAt: Date | null;
-  items: OrderItem[];
-  payments: OrderPayment[];
-};
-
-type OrdersResponse = { orders: OrderRow[] };
-
-const statusVariant: Record<
-  string,
-  "default" | "stamp" | "success" | "warning" | "destructive" | "secondary"
-> = {
-  pending: "warning",
-  shipped: "default",
-  delivered: "success",
-  cancelled: "destructive",
-  refunded: "secondary",
-};
-
-const statusLabel: Record<string, string> = {
-  pending: "Хүлээгдэж буй",
-  shipped: "Илгээгдсэн",
-  delivered: "Хүргэгдсэн",
-  cancelled: "Цуцлагдсан",
-  refunded: "Буцаан олгосон",
-};
-
-const paymentStatusLabel: Record<string, string> = {
-  pending: "Хүлээгдэж буй",
-  customer_claimed_paid: "Төлсөн гэж мэдэгдсэн",
-  success: "Амжилттай",
-  failed: "Амжилтгүй",
-};
+import type { OrderItem, OrderPayment, OrderRow, OrdersResponse } from "@/types/order-types";
+import { paymentStatusLabel, statusLabel, statusVariant } from "@/types/order-types";
 
 /**
  * Public order tracking by phone number. No login required — works for

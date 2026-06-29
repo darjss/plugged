@@ -3,7 +3,7 @@ import { Search, X } from "lucide-solid";
 
 import { cn } from "@/lib/utils";
 import ProductCard from "./ProductCard";
-import type { StoreProduct } from "./product-types";
+import type { StoreProduct } from "@/types/product-types";
 
 const RECENT_KEY = "plugged:recent-searches";
 
