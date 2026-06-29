@@ -6,19 +6,10 @@ import ProductBuyBox from "../../components/storefront/ProductBuyBox.tsx";
 import AnalyticsEvent from "../../components/storefront/AnalyticsEvent.tsx";
 import ProductSpecs from "../../components/storefront/ProductSpecs.astro";
 import FrequencyResponseChart from "../../components/storefront/FrequencyResponseChart.tsx";
+import { apiBase, absoluteUrl, safeJsonLd, SITE_ORIGIN } from "../../lib/site";
 import type { ProductImage, ProductVariant } from "@/types/product-types";
 
 export const prerender = false;
-
-/**
- * On-demand API base. Pages render from D1 at request time, so product
- * inventory stays fresh and a build-time API outage no longer wipes
- * every product page.
- */
-function apiBase(): string {
-  if (import.meta.env.DEV) return "http://[::1]:4321";
-  return Astro.site?.origin ?? "https://pluggedaudio.store";
-}
 
 interface ProductSummary {
   id: string;
@@ -68,11 +59,9 @@ interface ProductDetail {
 }
 
 export async function getStaticPaths() {
-  // Astro hoists getStaticPaths — frontmatter functions are not in scope.
-  // Inline the API base + parseOldSlugs here so they're available locally.
-  const base = import.meta.env.DEV
-    ? "http://[::1]:4321"
-    : "https://pluggedaudio.store";
+  // Astro hoists getStaticPaths — frontmatter functions are not in scope,
+  // but module imports are. Use the shared apiBase (no Astro.site here).
+  const base = import.meta.env.DEV ? "http://[::1]:4321" : SITE_ORIGIN;
 
   // Parse the comma-separated oldSlugs text field into a clean array.
   const parseOldSlugs = (raw: string | null): string[] => {
@@ -177,13 +166,25 @@ const breadcrumbItems = [
   { label: product.name, href: null },
 ];
 
-const seoTitle = `${product.name} — Plugged`;
+const seoTitle = `${product.name}${product.brand ? ` — ${product.brand.name}` : ""} | Plugged`;
 const seoDescription =
   product.shortDescription ??
   `${product.name}${product.brand ? ` by ${product.brand.name}` : ""}. IEM audio from Plugged.`;
+
+const productCanonical = `/products/${product.slug}`;
+const ogImage = primaryImage || undefined;
 ---
 
-<StorefrontLayout title={seoTitle} description={seoDescription}>
+<StorefrontLayout
+  title={seoTitle}
+  description={seoDescription}
+  ogTitle={product.name}
+  ogDescription={seoDescription}
+  ogImage={ogImage}
+  ogUrl={productCanonical}
+  ogType="website"
+  canonicalUrl={productCanonical}
+>
   <AnalyticsEvent
     client:load
     event="product_viewed"
@@ -292,16 +293,17 @@ const seoDescription =
     {/* Base price fallback (for SEO / no-JS) */}
     <script
       type="application/ld+json"
-      set:html={JSON.stringify({
+      set:html={safeJsonLd({
         "@context": "https://schema.org",
         "@type": "Product",
         name: product.name,
         description: seoDescription,
+        url: absoluteUrl(productCanonical, "/", Astro.site),
         brand: {
           "@type": "Brand",
           name: product.brand?.name ?? "Plugged",
         },
-        image: product.images.map((img) => img.url),
+        image: product.images.map((img) => absoluteUrl(img.url, "/", Astro.site)),
         offers: {
           "@type": "Offer",
           priceCurrency: product.currency,
@@ -311,6 +313,7 @@ const seoDescription =
           )
             ? "https://schema.org/InStock"
             : "https://schema.org/OutOfStock",
+          url: absoluteUrl(productCanonical, "/", Astro.site),
         },
       })}
     />

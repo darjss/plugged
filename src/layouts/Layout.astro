@@ -1,20 +1,40 @@
 ---
 import { ClientRouter } from "astro:transitions";
 import PostHog from "../components/storefront/PostHog";
+import { absoluteUrl } from "../lib/site";
 import "../styles/global.css";
 
 interface Props {
   title?: string;
   description?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  ogUrl?: string;
+  ogType?: string;
+  canonicalUrl?: string;
 }
 
 const {
   title = "Plugged — IEM Audio Store",
   description = "Photocopied zine meets warehouse rave. IEMs, DAC amps, and wireless earbuds.",
+  ogTitle,
+  ogDescription,
+  ogImage = "/logo.png",
+  ogUrl,
+  ogType = "website",
+  canonicalUrl,
 } = Astro.props;
 
 const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
 const posthogHost = import.meta.env.PUBLIC_POSTHOG_HOST ?? "https://us.posthog.com";
+
+// Absolute canonical + OG URLs. Astro.site is set in astro.config.mjs.
+const canonical = absoluteUrl(canonicalUrl, Astro.url.pathname, Astro.site);
+const resolvedOgUrl = absoluteUrl(ogUrl, Astro.url.pathname, Astro.site);
+const ogImg = absoluteUrl(ogImage, "/logo.png", Astro.site);
+const finalOgTitle = ogTitle ?? title;
+const finalOgDescription = ogDescription ?? description;
 ---
 
 <!doctype html>
@@ -27,6 +47,21 @@ const posthogHost = import.meta.env.PUBLIC_POSTHOG_HOST ?? "https://us.posthog.c
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    {/* Open Graph */}
+    <meta property="og:title" content={finalOgTitle} />
+    <meta property="og:description" content={finalOgDescription} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={resolvedOgUrl} />
+    <meta property="og:image" content={ogImg} />
+    <meta property="og:site_name" content="Plugged" />
+
+    {/* Twitter */}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={finalOgTitle} />
+    <meta name="twitter:description" content={finalOgDescription} />
+    <meta name="twitter:image" content={ogImg} />
 
     <!-- Fonts: Space Grotesk (sans), Geist Mono (mono), Anton (display) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
