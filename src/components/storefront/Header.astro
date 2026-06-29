@@ -119,35 +119,7 @@ const navLinks = [
   // AbortController per setup — aborted on astro:before-swap so
   // listeners from the previous page don't accumulate across View
   // Transition page loads.
-  let mobileMenuController: AbortController | null = null;
   let searchOverlayController: AbortController | null = null;
-
-  function setupMobileMenu() {
-    mobileMenuController?.abort();
-    mobileMenuController = new AbortController();
-    const { signal } = mobileMenuController;
-
-    const menu = document.getElementById("mobile-menu");
-    const toggle = document.querySelector("[data-mobile-menu-toggle]");
-    const close = document.querySelector("[data-mobile-menu-close]");
-    const links = document.querySelectorAll("[data-mobile-menu-link]");
-    if (!menu || !toggle) return;
-
-    function open() {
-      menu.classList.remove("hidden");
-      menu.classList.add("flex");
-      document.body.style.overflow = "hidden";
-    }
-    function closeMenu() {
-      menu.classList.add("hidden");
-      menu.classList.remove("flex");
-      document.body.style.overflow = "";
-    }
-
-    toggle.addEventListener("click", open, { signal });
-    close?.addEventListener("click", closeMenu, { signal });
-    links.forEach((link) => link.addEventListener("click", closeMenu, { signal }));
-  }
 
   function setupSearchOverlay() {
     searchOverlayController?.abort();
@@ -186,13 +158,11 @@ const navLinks = [
   }
 
   // Re-bind on Astro View Transition page swaps.
-  document.addEventListener("astro:page-load", setupMobileMenu);
   document.addEventListener("astro:page-load", setupSearchOverlay);
 
   // Abort all listeners before the next page swap so they don't
   // accumulate across navigations.
   document.addEventListener("astro:before-swap", () => {
-    mobileMenuController?.abort();
     searchOverlayController?.abort();
   });
 </script>
