@@ -1,6 +1,7 @@
 import { useLocation } from "@solidjs/router";
+import { createQuery } from "@tanstack/solid-query";
 import { LogOut, User } from "lucide-solid";
-import { createResource, Show } from "solid-js";
+import { Show } from "solid-js";
 import { api } from "@/lib/api-client";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
@@ -31,12 +32,20 @@ function routeTitle(pathname: string) {
 
 export default function AdminTopbar() {
   const location = useLocation();
-  const [session] = createResource(async () => {
-    const { data } = await api.dashboard.session.get();
-    // Eden treaty infers dashboard/session as the error shape; cast at
-    // the fetch boundary (documented escape hatch).
-    return (data as { user?: { name: string; email: string } } | null)?.user ?? null;
-  });
+  // Reuse the same queryKey as AdminSidebar so TanStack Query dedups
+  // the session fetch across both components (the previous
+  // createResource here issued an independent second request).
+  const session = createQuery(() => ({
+    queryKey: ["dashboard", "session"],
+    queryFn: async () => {
+      const { data, error } = await api.dashboard.session.get();
+      if (error || !data) return null;
+      // Eden treaty infers dashboard/session as the error shape; cast at
+      // the fetch boundary (documented escape hatch).
+      const user = (data as { user?: { name: string; email: string } }).user;
+      return user ?? null;
+    },
+  }));
 
   return (
     <header
@@ -51,7 +60,7 @@ export default function AdminTopbar() {
         {routeTitle(location.pathname)}
       </h1>
 
-      <Show when={session()}>
+      <Show when={session.data}>
         {(user) => (
           <DropdownMenu>
             <DropdownMenuTrigger

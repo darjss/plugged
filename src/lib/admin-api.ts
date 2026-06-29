@@ -209,3 +209,18 @@ export const adminProductsApi = {
     );
   },
 };
+
+export type AnalyticsPoint = { date: string; value: number };
+export type FunnelStep = { event: string; count: number };
+export type AnalyticsOverview = {
+  configured: boolean;
+  traffic: AnalyticsPoint[];
+  funnel: FunnelStep[];
+  revenue: AnalyticsPoint[];
+};
+
+export const adminAnalyticsApi = {
+  async overview(): Promise<AnalyticsOverview> {
+    return unwrap<AnalyticsOverview>(api.admin.analytics.overview.get());
+  },
+};

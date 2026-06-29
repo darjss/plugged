@@ -1,21 +1,7 @@
 import { createResource, For, Show, type JSX } from "solid-js";
 import { BarChart3, DollarSign, GitFork } from "lucide-solid";
 import { cn, formatMnt } from "@/lib/utils";
-
-type AnalyticsPoint = { date: string; value: number };
-type FunnelStep = { event: string; count: number };
-type AnalyticsOverview = {
-  configured: boolean;
-  traffic: AnalyticsPoint[];
-  funnel: FunnelStep[];
-  revenue: AnalyticsPoint[];
-};
-
-async function getOverview(): Promise<AnalyticsOverview> {
-  const res = await fetch("/api/admin/analytics/overview", { credentials: "include" });
-  if (!res.ok) throw new Error(`Analytics failed (${res.status})`);
-  return (await res.json()) as AnalyticsOverview;
-}
+import { adminAnalyticsApi, type AnalyticsPoint } from "@/lib/admin-api";
 
 const EVENT_LABELS: Record<string, string> = {
   $pageview: "Pageviews",
@@ -66,7 +52,7 @@ function Bars(props: { points: AnalyticsPoint[]; money?: boolean }) {
 }
 
 export default function AnalyticsPage() {
-  const [overview] = createResource(getOverview);
+  const [overview] = createResource(() => adminAnalyticsApi.overview());
 
   return (
     <div class="flex flex-col gap-6">

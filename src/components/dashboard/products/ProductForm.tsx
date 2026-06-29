@@ -25,7 +25,7 @@ import {
   adminProductsApi,
   type AdminProductInput,
   type AdminProductVariant,
-} from "./admin-api";
+} from "@/lib/admin-api";
 
 const STATUS_OPTIONS = [
   { value: "draft", label: "Draft" },
