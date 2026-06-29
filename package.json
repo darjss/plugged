@@ -40,6 +40,8 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "d3": "^7.9.0",
+    "d3-scale": "^4.0.2",
+    "d3-shape": "^3.2.0",
     "drizzle-orm": "^0.45.1",
     "elysia": "^1.4.27",
     "ky": "^2.0.2",
@@ -56,6 +58,8 @@
   },
   "devDependencies": {
     "@types/d3": "^7.4.3",
+    "@types/d3-scale": "^4.0.9",
+    "@types/d3-shape": "^3.1.8",
     "@types/node": "^26.0.0",
     "@typescript/native-preview": "7.0.0-dev.20260624.1",
     "drizzle-kit": "^0.31.9",

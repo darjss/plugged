@@ -52,13 +52,23 @@ export const storefrontRoutes = new Elysia({ name: "storefront-routes" })
     const product = await commerceQueries.store.getProductBySlug(params.slug);
     const file = product.iemSpec?.squiglinkFile;
     if (!file) {
-      return status(404, { error: { code: "frequency-response-unavailable" } });
+      return status(404, {
+        error: {
+          code: "frequency-response-unavailable",
+          message: "Frequency response data unavailable for this product",
+        },
+      });
     }
     const fr = await getFrequencyResponse(file);
     if (!fr) {
-      return status(404, { error: { code: "frequency-response-unavailable" } });
+      return status(404, {
+        error: {
+          code: "frequency-response-unavailable",
+          message: "Frequency response data unavailable for this product",
+        },
+      });
     }
-    return { ...fr, product: { name: product.name, slug: product.slug } };
+    return fr;
   })
   .get("/categories", () => commerceQueries.store.getCategories())
   .get("/brands", () => commerceQueries.store.getBrands())

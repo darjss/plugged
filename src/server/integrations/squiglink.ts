@@ -12,7 +12,7 @@ import { env } from "cloudflare:workers";
  * transient outage retries on the next request.
  */
 
-const DEFAULT_BASE_URL = "https://squig.link";
+const BASE_URL = "https://squig.link";
 const TTL_SECONDS = 60 * 60 * 24;
 
 export interface FrequencyPoint {
@@ -23,11 +23,6 @@ export interface FrequencyPoint {
 export interface FrequencyResponse {
   left: FrequencyPoint[];
   right: FrequencyPoint[];
-}
-
-function baseUrl(): string {
-  const override = (env as Env & { SQUIGLINK_BASE_URL?: string }).SQUIGLINK_BASE_URL;
-  return (override && override !== "") ? override : DEFAULT_BASE_URL;
 }
 
 function parseChannel(text: string): FrequencyPoint[] {
@@ -50,7 +45,7 @@ function parseChannel(text: string): FrequencyPoint[] {
 async function fetchChannel(file: string, suffix: string): Promise<FrequencyPoint[]> {
   // The squig.link convention is `<file> L.txt` with a literal space.
   // Encode the space as %20; the file name itself may contain spaces.
-  const url = `${baseUrl()}/data/${encodeURIComponent(file)}%20${suffix}`;
+  const url = `${BASE_URL}/data/${encodeURIComponent(file)}%20${suffix}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`squig.link ${suffix} fetch failed: ${res.status}`);
   const text = await res.text();
