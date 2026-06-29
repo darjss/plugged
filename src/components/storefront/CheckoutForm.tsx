@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { cart } from "@/store/cart";
-import { api, edErrorMessage } from "@/lib/api-client";
+import { api, unwrap } from "@/lib/eden";
 import { formatMnt, MONGOLIAN_PHONE_REGEX } from "@/lib/utils";
 import { cartAnalyticsProperties, trackAnalytics } from "@/lib/analytics";
 import { deliveryFeeMnt } from "@/server/db/schema";
@@ -35,9 +35,6 @@ interface QpayData {
   totalMnt: number;
 }
 
-// Eden infers the 200 type as the error envelope for these routes because the
-// server's `.onError()` uses a dynamic status code (see server/api/app.ts).
-// The runtime shapes are correct, so we cast to these minimal local types.
 interface CheckoutOrder {
   orderNumber: string;
   totalMnt: number;
@@ -52,9 +49,6 @@ interface QpayInvoice {
   shortUrl: string;
 }
 
-// Client-side form schema — mirrors the customer-facing fields of
-// checkoutInputSchema. The full payload (items, deliveryProvider) is
-// assembled at submit time.
 const formSchema = v.object({
   customerPhone: v.pipe(
     v.string(),
@@ -67,11 +61,6 @@ const formSchema = v.object({
 
 type FormValues = v.InferOutput<typeof formSchema>;
 
-/**
- * Checkout form island. `client:only="solid-js"` so it can read the cart
- * store (localStorage) without SSR mismatch. Handles the full single-page
- * flow: customer info → order creation → inline QPay QR → polling.
- */
 export default function CheckoutForm(props: { user: CheckoutUser | null }) {
   const [values, setValues] = createSignal<FormValues>({
     customerPhone: props.user?.phoneNumber ?? "",
@@ -152,14 +141,18 @@ export default function CheckoutForm(props: { user: CheckoutUser | null }) {
         paymentProvider: "qpay" as const,
       };
 
-      const { data: orderData, error: orderError } = await api.checkout.post(payload);
-      if (orderError || !orderData) {
-        const message = edErrorMessage(orderError, "Could not create your order.");
+      let order: CheckoutOrder;
+      try {
+        order = await unwrap<CheckoutOrder>(
+          api.checkout.post(payload),
+          "Could not create your order.",
+        );
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Could not create your order.";
         setSubmitError(message);
         toast.error("Order failed", { description: message });
         return;
       }
-      const order = orderData as unknown as CheckoutOrder;
 
       const qpayPayment = order.payments.find((p) => p.provider === "qpay");
       if (!qpayPayment) {
@@ -167,16 +160,18 @@ export default function CheckoutForm(props: { user: CheckoutUser | null }) {
         return;
       }
 
-      const { data: invoiceData, error: invoiceError } = await api.checkout["create-payment"].post({
-        orderNumber: order.orderNumber,
-      });
-      if (invoiceError || !invoiceData) {
-        const message = edErrorMessage(invoiceError, "Could not create QPay invoice.");
+      let invoice: QpayInvoice;
+      try {
+        invoice = await unwrap<QpayInvoice>(
+          api.checkout["create-payment"].post({ orderNumber: order.orderNumber }),
+          "Could not create QPay invoice.",
+        );
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Could not create QPay invoice.";
         setSubmitError(message);
         toast.error("QPay invoice failed", { description: message });
         return;
       }
-      const invoice = invoiceData as unknown as QpayInvoice;
 
       setQpay({
         orderNumber: order.orderNumber,
@@ -203,35 +198,33 @@ export default function CheckoutForm(props: { user: CheckoutUser | null }) {
     window.location.href = `/order/confirm/${qpay()?.orderNumber}`;
   };
 
-  const handleRetry = () => {
-    // Re-request an invoice for the same order. The server creates a fresh
-    // QPay invoice and returns new QR data.
+  const handleRetry = async () => {
     setSubmitting(true);
     setSubmitError(null);
     const orderNumber = qpay()?.orderNumber;
     if (!orderNumber) return;
-    void api.checkout["create-payment"]
-      .post({ orderNumber })
-      .then(({ data, error }) => {
-        if (error || !data) {
-          const message = edErrorMessage(error, "Could not create a new invoice.");
-          setSubmitError(message);
-          toast.error("Retry failed", { description: message });
-          return;
-        }
-        const invoice = data as unknown as QpayInvoice;
-        setQpay((prev) =>
-          prev
-            ? {
-                ...prev,
-                qrImage: invoice.qrImage,
-                shortUrl: invoice.shortUrl,
-                paymentNumber: invoice.paymentNumber,
-              }
-            : prev,
-        );
-      })
-      .finally(() => setSubmitting(false));
+    try {
+      const invoice = await unwrap<QpayInvoice>(
+        api.checkout["create-payment"].post({ orderNumber }),
+        "Could not create a new invoice.",
+      );
+      setQpay((prev) =>
+        prev
+          ? {
+              ...prev,
+              qrImage: invoice.qrImage,
+              shortUrl: invoice.shortUrl,
+              paymentNumber: invoice.paymentNumber,
+            }
+          : prev,
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Could not create a new invoice.";
+      setSubmitError(message);
+      toast.error("Retry failed", { description: message });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -257,7 +250,6 @@ export default function CheckoutForm(props: { user: CheckoutUser | null }) {
       </Match>
       <Match when={!qpay()}>
         <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
-          {/* Customer info form */}
           <form
             onSubmit={handleSubmit}
             class="flex flex-col gap-5 border-2 border-ink bg-card p-5 shadow-hard-lg"
@@ -272,7 +264,6 @@ export default function CheckoutForm(props: { user: CheckoutUser | null }) {
               </span>
             </div>
 
-            {/* Phone */}
             <Field
               label="Phone number"
               icon={<Phone class="size-3.5" />}
@@ -288,7 +279,6 @@ export default function CheckoutForm(props: { user: CheckoutUser | null }) {
               />
             </Field>
 
-            {/* Name */}
             <Field label="Name (optional)" icon={<User class="size-3.5" />}>
               <Input
                 type="text"
@@ -298,7 +288,6 @@ export default function CheckoutForm(props: { user: CheckoutUser | null }) {
               />
             </Field>
 
-            {/* Address */}
             <Field
               label="Delivery address"
               icon={<MapPin class="size-3.5" />}
@@ -313,7 +302,6 @@ export default function CheckoutForm(props: { user: CheckoutUser | null }) {
               />
             </Field>
 
-            {/* Notes */}
             <Field label="Notes (optional)" icon={<StickyNote class="size-3.5" />}>
               <Textarea
                 placeholder="Gate code, leave with guard, etc."
@@ -342,7 +330,6 @@ export default function CheckoutForm(props: { user: CheckoutUser | null }) {
             </Button>
           </form>
 
-          {/* Order summary */}
           <aside class="border-2 border-ink bg-newsprint-2 p-4 shadow-hard-lg lg:sticky lg:top-24">
             <div class="mb-3 flex items-center justify-between border-b-2 border-ink pb-2">
               <span class="font-display text-lg font-black uppercase tracking-tight text-ink">

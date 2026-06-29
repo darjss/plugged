@@ -4,7 +4,7 @@ import { toast } from "solid-sonner";
 
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { api } from "@/lib/api-client";
+import { api, unwrap } from "@/lib/eden";
 import { cn, formatMnt } from "@/lib/utils";
 
 type PollState = "polling" | "success" | "failed" | "expired";
@@ -24,11 +24,6 @@ interface QpayQRProps {
 const POLL_INTERVAL_MS = 3000;
 const POLL_TIMEOUT_MS = 5 * 60 * 1000;
 
-/**
- * Inline QPay QR display + payment status polling. Renders the QR image,
- * short URL, and a polling spinner. On `success` calls `onSuccess`; on
- * `failed` or 5-minute timeout shows a grunge error state with retry.
- */
 export default function QpayQR(props: QpayQRProps) {
   const [state, setState] = createSignal<PollState>("polling");
   const [elapsed, setElapsed] = createSignal(0);
@@ -43,17 +38,17 @@ export default function QpayQR(props: QpayQRProps) {
   };
 
   const poll = async () => {
-    const { data, error } = await api.payments({ paymentNumber: props.paymentNumber }).status.get();
-
-    if (error) {
+    let status: string | undefined;
+    try {
+      const body = await unwrap<{ status: string }>(
+        api.payments({ paymentNumber: props.paymentNumber }).status.get(),
+      );
+      status = body.status;
+    } catch {
       // Network/API blip — keep polling, don't fail on a single error.
       return;
     }
 
-    // Eden infers the 200 type as the error envelope because the server's
-    // `.onError()` uses a dynamic status code. The runtime shape is correct,
-    // so we cast to the expected payment-status body.
-    const status = (data as unknown as { status: string } | null)?.status;
     if (status === "success") {
       stopPolling();
       setState("success");

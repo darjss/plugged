@@ -1,3 +1,5 @@
+export { api } from "@/lib/api-client";
+
 interface ErrorEnvelope {
   error: { code: string; message: string; details?: Record<string, unknown> };
 }

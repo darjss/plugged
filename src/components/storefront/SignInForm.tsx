@@ -3,23 +3,11 @@ import { authClient } from "@/lib/auth-client";
 import { cn, MONGOLIAN_PHONE_REGEX } from "@/lib/utils";
 import { trackAnalytics } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import PhoneInput from "./PhoneInput";
 
 type Step = "phone" | "otp";
 
-/**
- * Customer sign-in via Better Auth phone-number OTP.
- *
- * Step 1: enter 8-digit Mongolian phone → send OTP via
- *   `authClient.phoneNumber.sendOtp({ phoneNumber: "+976XXXXXXXX" })`.
- * Step 2: enter 4-digit OTP → verify via
- *   `authClient.phoneNumber.verify({ phoneNumber, code })`.
- *   On success the session cookie is set and we redirect to `next` or `/`.
- *
- * Server-side rate limiting is handled by the phone-number plugin
- * (allowedAttempts: 5, expiresIn: 300s). OTP length is 4 (server config).
- */
 export default function SignInForm(props: { next?: string }) {
   const [step, setStep] = createSignal<Step>("phone");
   const [phoneDigits, setPhoneDigits] = createSignal("");
@@ -91,7 +79,6 @@ export default function SignInForm(props: { next?: string }) {
       return;
     }
     trackAnalytics("sign_in_completed", { method: "phone_otp" });
-    // Session cookie is now set; redirect to next.
     window.location.assign(next());
   }
 
@@ -128,30 +115,7 @@ export default function SignInForm(props: { next?: string }) {
             <Label for="phone" class="text-orange">
               Утасны дугаар
             </Label>
-            <div class="flex items-stretch gap-2">
-              <span
-                class={cn(
-                  "flex items-center border-2 border-ink bg-newsprint-dark px-3",
-                  "font-mono text-sm font-black text-ink shadow-hard-sm",
-                )}
-              >
-                +976
-              </span>
-              <Input
-                id="phone"
-                type="tel"
-                inputmode="numeric"
-                autocomplete="tel-national"
-                placeholder="88889999"
-                maxlength={8}
-                value={phoneDigits()}
-                onInput={(e) =>
-                  setPhoneDigits(e.currentTarget.value.replace(/\D/g, "").slice(0, 8))
-                }
-                class="font-mono text-lg tracking-wider"
-                required
-              />
-            </div>
+            <PhoneInput id="phone" value={phoneDigits()} onInput={setPhoneDigits} required />
             <p class="text-micro font-bold uppercase tracking-wider text-ink-muted">
               8 оронтой, 6-9-өөр эхлэх ёстой
             </p>
@@ -182,7 +146,6 @@ export default function SignInForm(props: { next?: string }) {
             <p class="font-mono text-sm font-black text-ink">{fullPhone()}</p>
           </div>
 
-          {/* OTP input — single stamped field, large tracking for digit separation */}
           <input
             type="text"
             inputmode="numeric"
@@ -206,7 +169,6 @@ export default function SignInForm(props: { next?: string }) {
             </p>
           </Show>
 
-          {/* Expired OTP state — grunge stamp banner + prominent resend */}
           <Show when={expired()}>
             <div class="flex flex-col gap-3 border-2 border-ink bg-pink p-4 shadow-hard-sm">
               <div class="flex items-center gap-2">

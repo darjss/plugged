@@ -2,14 +2,6 @@ import { Show } from "solid-js";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
-/**
- * Header auth cluster. Reads the Better Auth session atom and renders
- * either a "Sign In" stamp link (unauthenticated) or the customer's
- * phone suffix + "Profile" + "Logout" links (authenticated).
- *
- * `client:idle` so the SSR output shows the signed-out state and the
- * real state appears after hydration without a session mismatch.
- */
 export default function HeaderAuth() {
   const session = authClient.useSession();
   const phone = () => session()?.data?.user?.phoneNumber ?? null;
