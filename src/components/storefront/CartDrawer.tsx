@@ -7,16 +7,8 @@ import { Button } from "@/components/ui/button";
 import { cart } from "@/store/cart";
 import { cn, formatMnt } from "@/lib/utils";
 import { springEasings, createPrefersReducedMotion } from "@/lib/motion";
+import EmptyState from "./EmptyState";
 
-/**
- * Cart drawer island. `client:only="solid-js"` so it never touches
- * localStorage during SSR. `transition:persist` is applied by the
- * parent layout so the drawer survives Astro View Transitions.
- *
- * Corvu handles the slide-in from the right edge; motion-one layers a
- * spring-based scale/rotation on the content so it lands with a physical
- * "stamp" feel per DESIGN.md (sharp ease-out, slight overshoot, no bounce).
- */
 export default function CartDrawer() {
   const reduced = createPrefersReducedMotion();
 
@@ -63,24 +55,23 @@ export default function CartDrawer() {
                   when={cart.isHydrated()}
                   fallback={<div class="py-12 text-center text-muted-foreground">Loading...</div>}
                 >
-                  <div class="flex flex-col items-center gap-4 py-12">
-                    <div class="flex size-16 items-center justify-center border-4 border-ink bg-newsprint-dark shadow-hard">
-                      <ShoppingBag class="size-8 text-ink-muted" />
-                    </div>
-                    <p class="text-heading font-black uppercase tracking-tight text-ink">
-                      Your cart is empty
-                    </p>
-                    <p class="text-sm text-muted-foreground">No pocket audio yet. Go find some.</p>
-                    <Button
-                      variant="default"
-                      size="sm"
-                      as="a"
-                      href="/products"
-                      onClick={() => cart.closeDrawer()}
-                    >
-                      Browse products
-                    </Button>
-                  </div>
+                  <EmptyState
+                    variant="icon"
+                    icon={<ShoppingBag class="size-8 text-ink-muted" />}
+                    title="Your cart is empty"
+                    message="No pocket audio yet. Go find some."
+                    action={
+                      <Button
+                        variant="default"
+                        size="sm"
+                        as="a"
+                        href="/products"
+                        onClick={() => cart.closeDrawer()}
+                      >
+                        Browse products
+                      </Button>
+                    }
+                  />
                 </Show>
               }
             >
@@ -88,7 +79,6 @@ export default function CartDrawer() {
                 <For each={cart.items()}>
                   {(item) => (
                     <li class="flex gap-3 border-2 border-ink bg-newsprint p-3 shadow-hard-sm">
-                      {/* Product image */}
                       <div class="size-16 shrink-0 overflow-hidden border-2 border-ink bg-newsprint-dark">
                         <img
                           src={item.image}
@@ -98,7 +88,6 @@ export default function CartDrawer() {
                         />
                       </div>
 
-                      {/* Details */}
                       <div class="flex min-w-0 flex-1 flex-col gap-1">
                         <a
                           href={`/products/${item.slug}`}
@@ -111,7 +100,6 @@ export default function CartDrawer() {
                           {formatMnt(item.price)}
                         </span>
 
-                        {/* Quantity controls */}
                         <div class="mt-auto flex items-center gap-2">
                           <button
                             type="button"
@@ -143,7 +131,6 @@ export default function CartDrawer() {
                         </div>
                       </div>
 
-                      {/* Line total — stamp style */}
                       <div class="flex shrink-0 flex-col items-end justify-end">
                         <span class="rotate-2 border-2 border-ink bg-yellow px-2 py-1 font-mono text-caption font-black shadow-hard-sm">
                           {formatMnt(item.price * item.quantity)}
@@ -156,7 +143,6 @@ export default function CartDrawer() {
             </Show>
           </div>
 
-          {/* Footer — total + checkout */}
           <Show when={cart.isHydrated() && cart.items().length > 0}>
             <div class="border-t-4 border-ink bg-newsprint-dark p-4">
               <div class="mb-3 flex items-center justify-between">

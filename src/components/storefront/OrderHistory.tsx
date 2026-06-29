@@ -1,18 +1,15 @@
 import { useQuery } from "@tanstack/solid-query";
 import { createMemo, For, Show } from "solid-js";
-import { api } from "@/lib/api-client";
+import { api, unwrap } from "@/lib/eden";
 import { queryClient } from "@/lib/query-client";
 import { authClient } from "@/lib/auth-client";
 import { cn, formatMnt, formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import ErrorState from "./ErrorState";
+import EmptyState from "./EmptyState";
 import type { OrderItem, OrderRow, OrdersResponse } from "@/types/order-types";
 import { statusLabel, statusVariant } from "@/types/order-types";
 
-/**
- * Order history for the profile page. Reads the logged-in user's phone
- * from the Better Auth session atom, then fetches `/orders?phone=` via
- * Eden Treaty. Each order links to the public tracking page for detail.
- */
 export default function OrderHistory() {
   const session = authClient.useSession();
   const phone = () => session()?.data?.user?.phoneNumber ?? null;
@@ -23,9 +20,7 @@ export default function OrderHistory() {
       queryFn: async (): Promise<OrdersResponse> => {
         const p = phone();
         if (!p) return { orders: [] };
-        const { data, error } = await api.orders.get({ query: { phone: p } });
-        if (error) throw error;
-        return data as unknown as OrdersResponse;
+        return unwrap<OrdersResponse>(api.orders.get({ query: { phone: p } }));
       },
       enabled: Boolean(phone()),
     }),
@@ -45,42 +40,27 @@ export default function OrderHistory() {
       </Show>
 
       <Show when={ordersQuery.isError}>
-        <div class="flex flex-col gap-3 border-2 border-ink bg-pink p-4 shadow-hard-sm">
-          <div class="flex items-center gap-2">
-            <span class="rotate-[-2deg] border-2 border-ink bg-newsprint px-2 py-0.5 font-mono text-micro font-black uppercase tracking-wider text-pink shadow-hard-sm">
-              Error
-            </span>
-            <span class="font-display text-lg font-black uppercase tracking-tight text-newsprint">
-              Татахад алдаа
-            </span>
-          </div>
-          <p class="font-mono text-xs font-bold text-newsprint/90">
-            Захиалга татахад алдаа гарлаа. Сүлжээний асуудал байж магадгүй — дахин оролдоно уу.
-          </p>
-          <button
-            type="button"
-            onClick={() => void ordersQuery.refetch()}
-            disabled={ordersQuery.isFetching}
-            class="inline-flex items-center justify-center gap-2 border-2 border-ink bg-hazard-stripes px-5 py-3 font-display text-sm font-black uppercase tracking-wide text-ink shadow-hard-sm transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none disabled:opacity-50"
-          >
-            {ordersQuery.isFetching ? "ТАТАЖ БАЙНА…" : "↻ Дахин оролдох"}
-          </button>
-        </div>
+        <ErrorState
+          title="Татахад алдаа"
+          message="Захиалга татахад алдаа гарлаа. Сүлжээний асуудал байж магадгүй — дахин оролдоно уу."
+          onRetry={() => void ordersQuery.refetch()}
+          isFetching={ordersQuery.isFetching}
+        />
       </Show>
 
       <Show when={ordersQuery.isSuccess && orders().length === 0}>
-        <div class="border-2 border-ink bg-newsprint-2 p-8 text-center shadow-hard-sm">
-          <p class="font-display text-2xl uppercase text-ink">Захиалга алга</p>
-          <p class="mt-2 font-mono text-xs uppercase tracking-wider text-ink-muted">
-            Та одоохондоо ямар ч захиалга хийгээгүй байна
-          </p>
-          <a
-            href="/products"
-            class="mt-4 inline-block border-2 border-ink bg-orange px-5 py-2.5 font-mono text-xs font-black uppercase tracking-wider text-ink shadow-hard-sm transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
-          >
-            Бүтээгдэхүүн үзэх →
-          </a>
-        </div>
+        <EmptyState
+          title="Захиалга алга"
+          message="Та одоохондоо ямар ч захиалга хийгээгүй байна"
+          action={
+            <a
+              href="/products"
+              class="inline-block border-2 border-ink bg-orange px-5 py-2.5 font-mono text-xs font-black uppercase tracking-wider text-ink shadow-hard-sm transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+            >
+              Бүтээгдэхүүн үзэх →
+            </a>
+          }
+        />
       </Show>
 
       <Show when={orders().length > 0}>
@@ -97,7 +77,6 @@ export default function OrderHistory() {
                     href={`/track?order=${order.orderNumber}&phone=${encodeURIComponent(order.customerPhone)}`}
                     class="block"
                   >
-                    {/* Order header strip */}
                     <div class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-ink bg-newsprint-dark px-4 py-3">
                       <div class="flex items-center gap-3">
                         <span class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
@@ -115,7 +94,6 @@ export default function OrderHistory() {
                       </Badge>
                     </div>
 
-                    {/* Order body */}
                     <div class="grid grid-cols-2 gap-3 px-4 py-3 sm:grid-cols-4">
                       <div>
                         <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">

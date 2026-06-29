@@ -1,21 +1,17 @@
 import { useQuery } from "@tanstack/solid-query";
 import { createMemo, createSignal, For, Show } from "solid-js";
-import { api } from "@/lib/api-client";
+import { api, unwrap } from "@/lib/eden";
 import { queryClient } from "@/lib/query-client";
-import { cn, formatMnt, formatDate, MONGOLIAN_PHONE_REGEX } from "@/lib/utils";
+import { formatMnt, formatDate, MONGOLIAN_PHONE_REGEX } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import PhoneInput from "./PhoneInput";
+import ErrorState from "./ErrorState";
+import EmptyState from "./EmptyState";
 import type { OrderItem, OrderPayment, OrderRow, OrdersResponse } from "@/types/order-types";
 import { paymentStatusLabel, statusLabel, statusVariant } from "@/types/order-types";
 
-/**
- * Public order tracking by phone number. No login required — works for
- * guest checkouts. The user enters their 8-digit Mongolian phone, we
- * prepend `+976` and fetch `/orders?phone=`. Supports a `?phone=`
- * query-param prefill for deep links from the profile page.
- */
 export default function OrderTracking(props: { initialPhone?: string }) {
   const initial = props.initialPhone ?? "";
   const initialFull =
@@ -33,9 +29,7 @@ export default function OrderTracking(props: { initialPhone?: string }) {
       queryFn: async (): Promise<OrdersResponse> => {
         const p = submittedPhone();
         if (!p) return { orders: [] };
-        const { data, error } = await api.orders.get({ query: { phone: p } });
-        if (error) throw error;
-        return data as unknown as OrdersResponse;
+        return unwrap<OrdersResponse>(api.orders.get({ query: { phone: p } }));
       },
       enabled: Boolean(submittedPhone()),
     }),
@@ -52,7 +46,6 @@ export default function OrderTracking(props: { initialPhone?: string }) {
 
   return (
     <div class="space-y-6">
-      {/* Search form — photocopied card */}
       <form
         onSubmit={handleSubmit}
         class="rotate-[-1deg] border-2 border-ink bg-newsprint-2 p-5 shadow-hard-lg"
@@ -62,28 +55,7 @@ export default function OrderTracking(props: { initialPhone?: string }) {
           <Label for="track-phone" class="text-orange">
             Утасны дугаар
           </Label>
-          <div class="flex items-stretch gap-2">
-            <span
-              class={cn(
-                "flex items-center border-2 border-ink bg-newsprint-dark px-3",
-                "font-mono text-sm font-black text-ink shadow-hard-sm",
-              )}
-            >
-              +976
-            </span>
-            <Input
-              id="track-phone"
-              type="tel"
-              inputmode="numeric"
-              autocomplete="tel-national"
-              placeholder="88889999"
-              maxlength={8}
-              value={phoneDigits()}
-              onInput={(e) => setPhoneDigits(e.currentTarget.value.replace(/\D/g, "").slice(0, 8))}
-              class="font-mono text-lg tracking-wider"
-              required
-            />
-          </div>
+          <PhoneInput id="track-phone" value={phoneDigits()} onInput={setPhoneDigits} required />
           <p class="text-micro font-bold uppercase tracking-wider text-ink-muted">
             Захиалга хийсэн утасны дугаараа оруулна уу
           </p>
@@ -99,7 +71,6 @@ export default function OrderTracking(props: { initialPhone?: string }) {
         </Button>
       </form>
 
-      {/* Results */}
       <Show when={submittedPhone()}>
         <div class="space-y-4">
           <div class="flex items-center gap-3">
@@ -118,36 +89,19 @@ export default function OrderTracking(props: { initialPhone?: string }) {
           </Show>
 
           <Show when={ordersQuery.isError}>
-            <div class="flex flex-col gap-3 border-2 border-ink bg-pink p-4 shadow-hard-sm">
-              <div class="flex items-center gap-2">
-                <span class="rotate-[-2deg] border-2 border-ink bg-newsprint px-2 py-0.5 font-mono text-micro font-black uppercase tracking-wider text-pink shadow-hard-sm">
-                  Error
-                </span>
-                <span class="font-display text-lg font-black uppercase tracking-tight text-newsprint">
-                  Татахад алдаа
-                </span>
-              </div>
-              <p class="font-mono text-xs font-bold text-newsprint/90">
-                Захиалга татахад алдаа гарлаа. Сүлжээний асуудал байж магадгүй — дахин оролдоно уу.
-              </p>
-              <button
-                type="button"
-                onClick={() => void ordersQuery.refetch()}
-                disabled={ordersQuery.isFetching}
-                class="inline-flex items-center justify-center gap-2 border-2 border-ink bg-hazard-stripes px-5 py-3 font-display text-sm font-black uppercase tracking-wide text-ink shadow-hard-sm transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none disabled:opacity-50"
-              >
-                {ordersQuery.isFetching ? "ТАТАЖ БАЙНА…" : "↻ Дахин оролдох"}
-              </button>
-            </div>
+            <ErrorState
+              title="Татахад алдаа"
+              message="Захиалга татахад алдаа гарлаа. Сүлжээний асуудал байж магадгүй — дахин оролдоно уу."
+              onRetry={() => void ordersQuery.refetch()}
+              isFetching={ordersQuery.isFetching}
+            />
           </Show>
 
           <Show when={ordersQuery.isSuccess && orders().length === 0}>
-            <div class="border-2 border-ink bg-newsprint-2 p-8 text-center shadow-hard-sm">
-              <p class="font-display text-2xl uppercase text-ink">Захиалга олдсонгүй</p>
-              <p class="mt-2 font-mono text-xs uppercase tracking-wider text-ink-muted">
-                Энэ утасны дугаарт харгалзах захиалга алга байна
-              </p>
-            </div>
+            <EmptyState
+              title="Захиалга олдсонгүй"
+              message="Энэ утасны дугаарт харгалзах захиалга алга байна"
+            />
           </Show>
 
           <Show when={orders().length > 0}>
@@ -163,7 +117,6 @@ export default function OrderTracking(props: { initialPhone?: string }) {
                   );
                   return (
                     <li class="border-2 border-ink bg-newsprint-2 shadow-hard-sm">
-                      {/* Order header */}
                       <div class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-ink bg-newsprint-dark px-4 py-3">
                         <div class="flex items-center gap-3">
                           <span class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
@@ -181,7 +134,6 @@ export default function OrderTracking(props: { initialPhone?: string }) {
                         </Badge>
                       </div>
 
-                      {/* Order meta */}
                       <div class="grid grid-cols-2 gap-3 px-4 py-3 sm:grid-cols-3">
                         <div>
                           <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
@@ -207,7 +159,6 @@ export default function OrderTracking(props: { initialPhone?: string }) {
                         </div>
                       </div>
 
-                      {/* Delivery address */}
                       <div class="border-t-2 border-ink/30 px-4 py-3">
                         <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
                           Хүргэлтийн хаяг
@@ -215,7 +166,6 @@ export default function OrderTracking(props: { initialPhone?: string }) {
                         <p class="mt-1 font-mono text-xs font-bold text-ink">{order.address}</p>
                       </div>
 
-                      {/* Payment status */}
                       <Show when={qpayPayment}>
                         <div class="border-t-2 border-ink/30 px-4 py-3">
                           <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
@@ -227,7 +177,6 @@ export default function OrderTracking(props: { initialPhone?: string }) {
                         </div>
                       </Show>
 
-                      {/* Items */}
                       <Show when={order.items.length > 0}>
                         <div class="border-t-2 border-ink/30 bg-newsprint px-4 py-3">
                           <p class="mb-2 font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
