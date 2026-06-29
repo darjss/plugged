@@ -1,16 +1,14 @@
 ---
-import StaticLayout from "../layouts/StaticLayout.astro";
+import Layout from "../layouts/Layout.astro";
 
 export const prerender = true;
 ---
 
-<StaticLayout title="500 — Tape broke | Plugged" description="The cassette chewed itself. We're splicing it back together.">
+<Layout title="500 — Tape broke | Plugged" description="The cassette chewed itself. We're splicing it back together." transitions={false}>
   <main class="relative mx-auto flex min-h-svh max-w-3xl flex-col items-center justify-center px-4 py-16">
-    {/* Broken-cassette card — tangled tape, hazard-orange accents */}
     <article
       class="relative w-full max-w-xl rotate-1 border-4 border-ink bg-newsprint-2 shadow-hard-xl clip-torn-edges"
     >
-      {/* Header strip — "ERROR" stamp on hazard stripes */}
       <div class="border-b-4 border-ink bg-hazard-stripes px-6 py-4">
         <div class="flex items-center justify-between">
           <span class="font-mono text-micro font-black uppercase tracking-[0.3em] text-ink">
@@ -24,9 +22,7 @@ export const prerender = true;
         </div>
       </div>
 
-      {/* Body */}
       <div class="flex flex-col gap-6 p-8">
-        {/* Headline — poster scale */}
         <div class="flex flex-col gap-2">
           <p class="font-mono text-micro font-black uppercase tracking-widest text-orange">
             Something went wrong on our end
@@ -39,13 +35,11 @@ export const prerender = true;
           </h1>
         </div>
 
-        {/* Cassette tape illustration — pure CSS, tangled tape spilling out */}
         <div class="flex flex-col items-center gap-3 border-2 border-ink bg-newsprint p-6 shadow-hard-sm">
           <div
             class="relative flex h-24 w-full max-w-xs items-center justify-center border-2 border-ink bg-ink"
             aria-hidden="true"
           >
-            {/* Two reels */}
             <div class="flex w-full items-center justify-between px-6">
               <div
                 class="size-12 rounded-full border-4 border-newsprint/40 bg-newsprint-2"
@@ -56,7 +50,6 @@ export const prerender = true;
                 style="background-image: repeating-conic-gradient(var(--color-newsprint-dark) 0deg 30deg, transparent 30deg 60deg);"
               ></div>
             </div>
-            {/* Tangled tape spilling out the bottom */}
             <div class="absolute -bottom-6 left-1/2 -translate-x-1/2">
               <svg width="120" height="60" viewBox="0 0 120 60" fill="none">
                 <path
@@ -82,7 +75,6 @@ export const prerender = true;
           </p>
         </div>
 
-        {/* Description — photocopy report */}
         <div class="border-2 border-ink bg-newsprint p-4 shadow-hard-sm">
           <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
             Incident report
@@ -94,7 +86,6 @@ export const prerender = true;
           </p>
         </div>
 
-        {/* CTAs — retry + support */}
         <div class="flex flex-col gap-3 sm:flex-row">
           <a
             href="/"
@@ -111,7 +102,6 @@ export const prerender = true;
         </div>
       </div>
 
-      {/* Tape strips */}
       <div
         aria-hidden="true"
         class="absolute -top-3 right-12 rotate-3 bg-tape px-6 py-1.5 font-mono text-micro font-black uppercase tracking-widest text-ink shadow-hard-sm"
@@ -126,9 +116,8 @@ export const prerender = true;
       </div>
     </article>
 
-    {/* Footer note */}
     <p class="mt-8 max-w-md text-center font-mono text-micro font-black uppercase tracking-wider text-ink-muted">
       Error 500 — internal server error. The warehouse deck is being repaired.
     </p>
   </main>
-</StaticLayout>
+</Layout>

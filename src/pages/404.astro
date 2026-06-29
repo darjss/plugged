@@ -1,16 +1,14 @@
 ---
-import StaticLayout from "../layouts/StaticLayout.astro";
+import Layout from "../layouts/Layout.astro";
 
 export const prerender = true;
 ---
 
-<StaticLayout title="404 — Lost in the warehouse | Plugged" description="This page wandered off behind the shelves.">
+<Layout title="404 — Lost in the warehouse | Plugged" description="This page wandered off behind the shelves." transitions={false}>
   <main class="relative mx-auto flex min-h-svh max-w-3xl flex-col items-center justify-center px-4 py-16">
-    {/* Missing-person-flyer card — torn paper, hazard-orange accents */}
     <article
       class="relative w-full max-w-xl -rotate-1 border-4 border-ink bg-newsprint-2 shadow-hard-xl clip-torn-edges"
     >
-      {/* Hazard-orange header strip — "MISSING" stamp */}
       <div class="border-b-4 border-ink bg-hazard-stripes px-6 py-4">
         <div class="flex items-center justify-between">
           <span class="font-mono text-micro font-black uppercase tracking-[0.3em] text-ink">
@@ -24,9 +22,7 @@ export const prerender = true;
         </div>
       </div>
 
-      {/* Flyer body */}
       <div class="flex flex-col gap-6 p-8">
-        {/* "MISSING PAGE" headline — poster scale */}
         <div class="flex flex-col gap-2">
           <p class="font-mono text-micro font-black uppercase tracking-widest text-orange">
             Have you seen this page?
@@ -39,7 +35,6 @@ export const prerender = true;
           </h1>
         </div>
 
-        {/* Description block — photocopy report */}
         <div class="border-2 border-ink bg-newsprint p-4 shadow-hard-sm">
           <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
             Last seen
@@ -50,7 +45,6 @@ export const prerender = true;
           </p>
         </div>
 
-        {/* Stats row — flyer-style metadata */}
         <div class="grid grid-cols-3 gap-2">
           <div class="border-2 border-ink bg-newsprint p-3 text-center shadow-hard-sm">
             <p class="font-mono text-micro font-black uppercase tracking-wider text-ink-muted">
@@ -72,7 +66,6 @@ export const prerender = true;
           </div>
         </div>
 
-        {/* CTA — back to the wall */}
         <div class="flex flex-col gap-3 sm:flex-row">
           <a
             href="/"
@@ -89,7 +82,6 @@ export const prerender = true;
         </div>
       </div>
 
-      {/* Tape strips holding the flyer up */}
       <div
         aria-hidden="true"
         class="absolute -top-3 left-10 -rotate-3 bg-tape px-8 py-1.5 font-mono text-micro font-black uppercase tracking-widest text-ink shadow-hard-sm"
@@ -104,10 +96,9 @@ export const prerender = true;
       </div>
     </article>
 
-    {/* Footer note — marker scribble */}
     <p class="mt-8 max-w-md text-center font-mono text-micro font-black uppercase tracking-wider text-ink-muted">
       If you think this page should exist, the warehouse manager probably
       owes you a tape.
     </p>
   </main>
-</StaticLayout>
+</Layout>
