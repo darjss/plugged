@@ -1,13 +1,17 @@
 ---
 import StorefrontLayout from "../layouts/StorefrontLayout.astro";
 import ProductCard from "../components/storefront/ProductCard.tsx";
-import { searchProducts } from "../server/search/search";
+import { api } from "../lib/api-client";
+import type { StoreProduct } from "../components/storefront/product-types";
 
 export const prerender = false;
 
 const url = new URL(Astro.request.url);
 const q = url.searchParams.get("q")?.trim() ?? "";
-const products = q ? await searchProducts({ q, limit: 24 }) : [];
+const searchRes = q
+  ? await api.search.get({ query: { q, limit: "24" } }).catch(() => null)
+  : null;
+const products: StoreProduct[] = searchRes?.data?.products ?? [];
 const title = q ? `Search: ${q} | Plugged` : "Search | Plugged";
 const description = "Search Plugged Audio by sound signature, brand, driver, category, and IEM specs.";
 ---

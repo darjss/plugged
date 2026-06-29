@@ -22,6 +22,11 @@ import { ConflictError, NotFoundError, OutOfStockError } from "../lib/errors";
 import { now } from "../lib/datetime";
 import { imageOrderBy } from "../lib/drizzle-helpers";
 import { createQpayInvoice } from "../integrations/qpay";
+import {
+  shapeAdminOrderListRow,
+  shapeAdminOrderDetail,
+  shapeAdminOrderStatusPatch,
+} from "./admin-shaping";
 import { adminListOrdersSchema, checkoutInputSchema, productListQuerySchema } from "./validation";
 
 const publicProductColumns = {
@@ -758,6 +763,11 @@ export const commerceQueries = {
      * List orders for the admin console with filters + pagination.
      * Uses the relational query API so each order carries its primary
      * payment (most recently updated) and optional customer account.
+     *
+     * Returns the flat API shape consumed by the admin orders table
+     * (Eden Treaty infers this shape for the client). The raw Drizzle
+     * relational rows are projected here so the route handler is a
+     * thin `return commerceQueries.admin.listOrders(filters)`.
      */
     async listOrders(rawFilters: v.InferOutput<typeof adminListOrdersSchema>) {
       const filters = rawFilters;
@@ -821,7 +831,7 @@ export const commerceQueries = {
         .where(where);
 
       return {
-        orders: rows,
+        orders: rows.map(shapeAdminOrderListRow),
         total: Number(count),
         limit,
         offset,
@@ -831,6 +841,8 @@ export const commerceQueries = {
     /**
      * Full order for the admin detail view: items (with product image +
      * variant), payments, and the optional customer account.
+     *
+     * Returns the flat API shape consumed by the admin order detail view.
      */
     async getOrder(id: string) {
       const result = await db.query.order.findFirst({
@@ -857,7 +869,7 @@ export const commerceQueries = {
       });
 
       if (!result) throw new NotFoundError("order", id);
-      return result;
+      return shapeAdminOrderDetail(result);
     },
 
     /**
@@ -865,6 +877,9 @@ export const commerceQueries = {
      *   pending → shipped → delivered
      *   pending → cancelled
      * Throws ConflictError for any other transition.
+     *
+     * Returns the small status-patch projection the admin detail view
+     * consumes after a status mutation (id/status/cancelledAt/updatedAt).
      */
     async updateOrderStatus(id: string, nextStatus: (typeof orderStatuses)[number]) {
       if (!orderStatuses.includes(nextStatus)) {
@@ -901,7 +916,12 @@ export const commerceQueries = {
 
       await db.update(order).set(patch).where(eq(order.id, id));
 
-      return this.getOrder(id);
+      return shapeAdminOrderStatusPatch(
+        id,
+        nextStatus,
+        nextStatus === "cancelled" ? date : null,
+        date,
+      );
     },
   },
 };

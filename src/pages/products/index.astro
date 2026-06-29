@@ -4,7 +4,8 @@ import FilterBar from "../../components/storefront/FilterBar.astro";
 import ProductsList from "../../components/storefront/ProductsList.tsx";
 import ProductCard from "../../components/storefront/ProductCard.tsx";
 import AnalyticsEvent from "../../components/storefront/AnalyticsEvent.tsx";
-import { commerceQueries } from "../../server/commerce/queries";
+import { api } from "../../lib/api-client";
+import type { StoreProduct } from "../../components/storefront/product-types";
 
 export const prerender = false;
 
@@ -14,17 +15,21 @@ const brandSlug = url.searchParams.get("brand") ?? undefined;
 
 const PAGE_SIZE = 12;
 
-// SSR first page + filter-bar options in parallel.
-const [products, categories, brands] = await Promise.all([
-  commerceQueries.store.getProducts({
-    categorySlug,
-    brandSlug,
-    limit: PAGE_SIZE,
-    offset: 0,
-  }),
-  commerceQueries.store.getCategories(),
-  commerceQueries.store.getBrands(),
+// SSR first page + filter-bar options in parallel through the API seam
+// (Eden treaty) — same routes the SolidJS islands use.
+const query: Record<string, string> = { limit: String(PAGE_SIZE), offset: "0" };
+if (categorySlug) query.category = categorySlug;
+if (brandSlug) query.brand = brandSlug;
+
+const [productsRes, categoriesRes, brandsRes] = await Promise.all([
+  api.products.get({ query }),
+  api.categories.get(),
+  api.brands.get(),
 ]);
+
+const products: StoreProduct[] = productsRes.data?.products ?? [];
+const categories = categoriesRes.data ?? [];
+const brands = brandsRes.data ?? [];
 
 const title = categorySlug
   ? `${categories.find((c) => c.slug === categorySlug)?.name ?? "Products"} | Plugged`

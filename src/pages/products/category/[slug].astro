@@ -4,14 +4,16 @@ import FilterBar from "../../../components/storefront/FilterBar.astro";
 import ProductsList from "../../../components/storefront/ProductsList.tsx";
 import ProductCard from "../../../components/storefront/ProductCard.tsx";
 import AnalyticsEvent from "../../../components/storefront/AnalyticsEvent.tsx";
-import { commerceQueries } from "../../../server/commerce/queries";
+import { api } from "../../../lib/api-client";
+import type { StoreProduct } from "../../../components/storefront/product-types";
 
 export const prerender = false;
 
 const slug = Astro.params.slug;
 
 // Resolve the category; 404 if the slug doesn't match a known category.
-const categories = await commerceQueries.store.getCategories();
+const categoriesRes = await api.categories.get();
+const categories = categoriesRes.data ?? [];
 const category = categories.find((c) => c.slug === slug);
 
 if (!category) {
@@ -22,14 +24,13 @@ const url = new URL(Astro.request.url);
 const brandSlug = url.searchParams.get("brand") ?? undefined;
 
 const PAGE_SIZE = 12;
-const brands = await commerceQueries.store.getBrands();
+const brandsRes = await api.brands.get();
+const brands = brandsRes.data ?? [];
 
-const products = await commerceQueries.store.getProducts({
-  categorySlug: slug,
-  brandSlug,
-  limit: PAGE_SIZE,
-  offset: 0,
-});
+const query: Record<string, string> = { category: slug, limit: String(PAGE_SIZE), offset: "0" };
+if (brandSlug) query.brand = brandSlug;
+const productsRes = await api.products.get({ query });
+const products: StoreProduct[] = productsRes.data?.products ?? [];
 
 const title = `${category.name} | Plugged`;
 const description = `Browse ${category.name.toLowerCase()} — pocket audio from the wall.`;
