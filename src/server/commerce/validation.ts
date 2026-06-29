@@ -7,11 +7,8 @@ import {
   paymentStatuses,
   productStatuses,
 } from "../db/schema";
+import { id, moneyMnt, optionalText, stockQuantity } from "../lib/validation-primitives";
 
-const id = v.pipe(v.string(), v.minLength(1));
-const optionalText = v.optional(v.nullable(v.string()));
-const moneyMnt = v.pipe(v.number(), v.integer(), v.minValue(0), v.finite());
-const stockQuantity = v.pipe(v.number(), v.integer(), v.minValue(0), v.finite());
 const positiveQuantity = v.pipe(v.number(), v.integer(), v.minValue(1), v.finite());
 const mongolianPhone = v.pipe(v.string(), v.regex(MONGOLIAN_PHONE_REGEX));
 

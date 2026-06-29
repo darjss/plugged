@@ -1,5 +1,6 @@
 import * as v from "valibot";
 import { productStatuses } from "../db/schema";
+import { id, moneyMnt, optionalText, stockQuantity } from "../lib/validation-primitives";
 
 export const adminUsersQuerySchema = v.object({
   search: v.optional(v.pipe(v.string(), v.minLength(1))),
@@ -8,11 +9,6 @@ export const adminUsersQuerySchema = v.object({
 export const adminUpdateUserSchema = v.object({
   isAdmin: v.boolean(),
 });
-
-const id = v.pipe(v.string(), v.minLength(1));
-const optionalText = v.optional(v.nullable(v.string()));
-const moneyMnt = v.pipe(v.number(), v.integer(), v.minValue(0), v.finite());
-const stockQuantity = v.pipe(v.number(), v.integer(), v.minValue(0), v.finite());
 
 export const adminListProductsSchema = v.object({
   brandId: v.optional(v.nullable(id)),
