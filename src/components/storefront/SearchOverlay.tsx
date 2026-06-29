@@ -2,10 +2,9 @@ import { For, Show, createEffect, createSignal, onCleanup, onMount } from "solid
 import { Search, X } from "lucide-solid";
 
 import { cn } from "@/lib/utils";
+import { RECENT_SEARCHES_KEY as RECENT_KEY, readRecentSearches } from "@/lib/recent-searches";
 import ProductCard from "./ProductCard";
-import type { StoreProduct } from "./product-types";
-
-const RECENT_KEY = "plugged:recent-searches";
+import type { StoreProduct } from "@/types/product-types";
 
 export default function SearchOverlay() {
   const [open, setOpen] = createSignal(false);
@@ -28,7 +27,7 @@ export default function SearchOverlay() {
   };
 
   onMount(() => {
-    setRecent(readRecent());
+    setRecent(readRecentSearches());
 
     const openHandler = () => setOpen(true);
     const keyHandler = (event: KeyboardEvent) => {
@@ -210,15 +209,4 @@ function EmptySearch(props: { searched: boolean; query: string }) {
       </p>
     </div>
   );
-}
-
-function readRecent() {
-  try {
-    const parsed = JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]") as unknown;
-    return Array.isArray(parsed)
-      ? parsed.filter((item) => typeof item === "string").slice(0, 6)
-      : [];
-  } catch {
-    return [];
-  }
 }

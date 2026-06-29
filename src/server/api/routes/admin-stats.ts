@@ -1,7 +1,6 @@
 import { Elysia } from "elysia";
-import { adminQueries as adminSettingsQueries } from "../../admin/queries";
+import { adminSettingsQueries, adminStatsQueries } from "../../admin";
 import { adminUpdateUserSchema, adminUsersQuerySchema } from "../../admin/validation";
-import { adminQueries } from "../../commerce/admin-queries";
 import { getAnalyticsOverview } from "../../integrations/posthog";
 import { authPlugin } from "../plugins/auth";
 import { parseInput, parseQuery } from "../validation";
@@ -12,7 +11,7 @@ import { parseInput, parseQuery } from "../validation";
  */
 export const adminStatsRoutes = new Elysia({ name: "admin-stats-routes" })
   .use(authPlugin)
-  .get("/admin/stats", () => adminQueries.getStats(), { requireAdmin: true })
+  .get("/admin/stats", () => adminStatsQueries.getStats(), { requireAdmin: true })
   .get("/admin/analytics/overview", () => getAnalyticsOverview(), { requireAdmin: true })
   .get("/admin/settings", () => adminSettingsQueries.getSettings(), { requireAdmin: true })
   // Low-stock shortcut at `/admin/products?lowStock=true`. The full
@@ -25,7 +24,7 @@ export const adminStatsRoutes = new Elysia({ name: "admin-stats-routes" })
     ({ query }) => {
       const raw = query as Record<string, string | undefined>;
       if (raw.lowStock !== "true") return { products: [] };
-      return adminQueries.getLowStockProducts().then((products) => ({ products }));
+      return adminStatsQueries.getLowStockProducts().then((products) => ({ products }));
     },
     { requireAdmin: true },
   )

@@ -4,6 +4,7 @@ import { and, desc, eq, or, sql } from "drizzle-orm";
 import { commerceQueries } from "../commerce/queries";
 import { db } from "../db";
 import { brand, category, iemSpec, product, productCategory } from "../db/schema";
+import { getEmbeddingData } from "./embedding";
 import { expandSearchQuery } from "./query-expand";
 
 const EMBEDDING_MODEL = "@cf/baai/bge-base-en-v1.5";
@@ -37,13 +38,6 @@ async function vectorSearchIds(query: string, limit: number) {
     filter: { status: "active" },
   });
   return matches.matches.map((match) => match.id).filter(Boolean);
-}
-
-function getEmbeddingData(output: unknown) {
-  if (output && typeof output === "object" && "data" in output && Array.isArray(output.data)) {
-    return output.data.filter((item): item is number[] => Array.isArray(item));
-  }
-  return [];
 }
 
 async function keywordSearchIds(terms: string[], limit: number) {

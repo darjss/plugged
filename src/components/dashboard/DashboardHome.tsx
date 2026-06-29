@@ -4,7 +4,7 @@ import { AlertTriangle, Box, Clock, TrendingUp } from "lucide-solid";
 import { For, Match, Show, Switch, type Component, type JSX } from "solid-js";
 import { api } from "@/lib/api-client";
 import { cn, formatMnt } from "@/lib/utils";
-import { Badge, type BadgeProps } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -13,26 +13,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { orderStatuses, paymentStatuses } from "@/server/db/schema";
+import type { paymentStatuses } from "@/server/db/schema";
+import { orderStatusBadgeVariant, paymentStatusBadgeVariant } from "@/lib/order-badges";
 
-type OrderStatus = (typeof orderStatuses)[number];
 type PaymentStatus = (typeof paymentStatuses)[number];
-
-const ORDER_STATUS_BADGE: Record<OrderStatus, BadgeProps["variant"]> = {
-  pending: "warning",
-  paid: "success",
-  shipped: "highlighter",
-  delivered: "success",
-  cancelled: "destructive",
-  refunded: "secondary",
-};
-
-const PAYMENT_STATUS_BADGE: Record<PaymentStatus, BadgeProps["variant"]> = {
-  pending: "warning",
-  customer_claimed_paid: "highlighter",
-  success: "success",
-  failed: "destructive",
-};
 
 type StatCardProps = {
   label: string;
@@ -271,7 +255,9 @@ const DashboardHome: Component = () => {
                             </TableCell>
                             <TableCell class="text-muted-foreground">{row.customerPhone}</TableCell>
                             <TableCell>
-                              <Badge variant={ORDER_STATUS_BADGE[row.status]}>{row.status}</Badge>
+                              <Badge variant={orderStatusBadgeVariant[row.status]}>
+                                {row.status}
+                              </Badge>
                             </TableCell>
                             <TableCell>
                               <Show
@@ -281,7 +267,9 @@ const DashboardHome: Component = () => {
                                 }
                               >
                                 {(status) => (
-                                  <Badge variant={PAYMENT_STATUS_BADGE[status()]}>{status()}</Badge>
+                                  <Badge variant={paymentStatusBadgeVariant[status()]}>
+                                    {status()}
+                                  </Badge>
                                 )}
                               </Show>
                             </TableCell>

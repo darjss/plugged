@@ -19,6 +19,8 @@ import {
   productVariant,
 } from "../db/schema";
 import { ConflictError, NotFoundError, OutOfStockError } from "../lib/errors";
+import { now } from "../lib/datetime";
+import { imageOrderBy } from "../lib/drizzle-helpers";
 import { createQpayInvoice } from "../integrations/qpay";
 import { adminListOrdersSchema, checkoutInputSchema, productListQuerySchema } from "./validation";
 
@@ -36,7 +38,6 @@ const publicProductColumns = {
   oldSlugs: true,
 } as const;
 
-const now = () => new Date();
 const activeProduct = () => eq(product.status, "active");
 const DEFAULT_PAGE_SIZE = 12;
 
@@ -99,7 +100,7 @@ export const commerceQueries = {
           brand: true,
           iemSpec: true,
           images: {
-            orderBy: (image, { asc, desc }) => [desc(image.isPrimary), asc(image.sortOrder)],
+            orderBy: imageOrderBy,
           },
           variants: {
             where: (variant, { eq }) => eq(variant.active, true),
@@ -119,7 +120,7 @@ export const commerceQueries = {
           brand: true,
           iemSpec: true,
           images: {
-            orderBy: (image, { asc, desc }) => [desc(image.isPrimary), asc(image.sortOrder)],
+            orderBy: imageOrderBy,
           },
           variants: {
             where: (variant, { eq }) => eq(variant.active, true),
@@ -159,7 +160,7 @@ export const commerceQueries = {
           },
           iemSpec: true,
           images: {
-            orderBy: (image, { asc, desc }) => [desc(image.isPrimary), asc(image.sortOrder)],
+            orderBy: imageOrderBy,
           },
           variants: {
             where: (variant, { eq }) => eq(variant.active, true),
@@ -196,10 +197,7 @@ export const commerceQueries = {
               product: {
                 with: {
                   images: {
-                    orderBy: (image, { asc, desc }) => [
-                      desc(image.isPrimary),
-                      asc(image.sortOrder),
-                    ],
+                    orderBy: imageOrderBy,
                   },
                 },
               },
@@ -875,10 +873,7 @@ export const commerceQueries = {
               product: {
                 with: {
                   images: {
-                    orderBy: (image, { asc, desc }) => [
-                      desc(image.isPrimary),
-                      asc(image.sortOrder),
-                    ],
+                    orderBy: imageOrderBy,
                     limit: 1,
                   },
                 },

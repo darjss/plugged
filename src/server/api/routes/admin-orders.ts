@@ -1,5 +1,5 @@
 import { Elysia } from "elysia";
-import { adminQueries } from "../../commerce/admin-queries";
+import { adminStatsQueries } from "../../admin";
 import { commerceQueries } from "../../commerce/queries";
 import { adminListOrdersSchema, adminUpdateOrderStatusSchema } from "../../commerce/validation";
 import { authPlugin } from "../plugins/auth";
@@ -26,7 +26,7 @@ export const adminOrderRoutes = new Elysia({ name: "admin-order-routes" })
       const raw = query as Record<string, string | undefined>;
       const parsed = Number(raw.limit ?? 10);
       const limit = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 1), 50) : 10;
-      return adminQueries.getRecentOrders(limit);
+      return adminStatsQueries.getRecentOrders(limit);
     },
     { requireAdmin: true },
   )

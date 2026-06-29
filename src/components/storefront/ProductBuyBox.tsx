@@ -5,17 +5,7 @@ import { toast } from "solid-sonner";
 import { Button } from "@/components/ui/button";
 import { cart, type CartItem } from "@/store/cart";
 import { cn, formatMnt } from "@/lib/utils";
-
-interface ProductVariant {
-  id: string;
-  sku: string;
-  name: string;
-  priceMnt: number;
-  compareAtPriceMnt: number | null;
-  stockQuantity: number;
-  reservedQuantity: number;
-  active: boolean;
-}
+import type { ProductVariant } from "@/types/product-types";
 
 interface Props {
   productId: string;

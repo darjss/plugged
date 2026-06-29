@@ -19,7 +19,7 @@ export type AdminUserRow = {
   isAdmin: boolean;
 };
 
-export const adminQueries = {
+export const adminSettingsQueries = {
   getSettings(): AdminSettingsStatus {
     return {
       deliveryFee: deliveryFeeMnt,

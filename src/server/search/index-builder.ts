@@ -1,8 +1,10 @@
 import { env } from "cloudflare:workers";
-import { asc, desc, eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 
 import { db } from "../db";
-import { product, productImage } from "../db/schema";
+import { product } from "../db/schema";
+import { imageOrderBy } from "../lib/drizzle-helpers";
+import { getEmbeddingData } from "./embedding";
 
 const EMBEDDING_MODEL = "@cf/baai/bge-base-en-v1.5";
 const EMBEDDING_DIMENSIONS = 768;
@@ -97,7 +99,7 @@ async function getIndexableProducts() {
       categories: { with: { category: true } },
       iemSpec: true,
       images: {
-        orderBy: [desc(productImage.isPrimary), asc(productImage.sortOrder)],
+        orderBy: imageOrderBy,
       },
       variants: true,
     },
@@ -112,7 +114,7 @@ async function getIndexableProduct(productId: string) {
       categories: { with: { category: true } },
       iemSpec: true,
       images: {
-        orderBy: [desc(productImage.isPrimary), asc(productImage.sortOrder)],
+        orderBy: imageOrderBy,
       },
       variants: true,
     },
@@ -120,13 +122,6 @@ async function getIndexableProduct(productId: string) {
 }
 
 type IndexProduct = NonNullable<Awaited<ReturnType<typeof getIndexableProduct>>>;
-
-function getEmbeddingData(output: unknown) {
-  if (output && typeof output === "object" && "data" in output && Array.isArray(output.data)) {
-    return output.data.filter((item): item is number[] => Array.isArray(item));
-  }
-  return [];
-}
 
 export function productIndexText(row: IndexProduct) {
   const spec = row.iemSpec;

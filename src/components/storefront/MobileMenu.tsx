@@ -1,6 +1,7 @@
 import { Menu, X } from "lucide-solid";
 import { createEffect, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import { cn } from "@/lib/utils";
+import { NAV_LINKS } from "@/lib/nav-links";
 
 /**
  * Mobile menu island. Replaces the vanilla `<script>` in Header.astro
@@ -10,12 +11,6 @@ import { cn } from "@/lib/utils";
  * no re-bind, no leak. Adds `aria-expanded`/`aria-controls` and
  * Escape-to-close for a11y.
  */
-const NAV_LINKS = [
-  { label: "IEMs", href: "/products?category=iems" },
-  { label: "DAC amps", href: "/products?category=dac-amps" },
-  { label: "Wireless", href: "/products?category=wireless" },
-  { label: "All products", href: "/products" },
-];
 
 export default function MobileMenu() {
   const [open, setOpen] = createSignal(false);
