@@ -1,14 +1,8 @@
-/**
- * Storefront-facing order shape. Mirrors the public columns returned by
- * `GET /orders?phone=` so the order-history and order-tracking islands
- * share one type without hand-maintained DTOs.
- *
- * Kept as a structural interface (not imported from the server) so the
- * client bundle stays decoupled from Drizzle/Elysia inference. The
- * runtime shapes come from Eden Treaty but are cast locally because the
- * server's `.onError()` makes Eden infer the error envelope as the 200
- * type (see CheckoutForm.tsx for the same workaround).
- */
+// Hand-written because Eden infers the success body as `unknown` due to the
+// server's dynamic `.onError()` status codes (see src/lib/api-client.ts).
+// The shapes mirror the public columns returned by `GET /orders?phone=` so
+// the order-history and order-tracking islands share one type.
+
 export interface OrderItem {
   id: string;
   orderId: string;
@@ -63,7 +57,6 @@ export interface OrderRow {
 
 export type OrdersResponse = { orders: OrderRow[] };
 
-/** Badge variant per order status. Used by OrderHistory + OrderTracking. */
 export const statusVariant: Record<
   string,
   "default" | "stamp" | "success" | "warning" | "destructive" | "secondary"
@@ -75,7 +68,6 @@ export const statusVariant: Record<
   refunded: "secondary",
 };
 
-/** Mongolian label per order status. Used by OrderHistory + OrderTracking. */
 export const statusLabel: Record<string, string> = {
   pending: "Хүлээгдэж буй",
   shipped: "Илгээгдсэн",
@@ -84,7 +76,6 @@ export const statusLabel: Record<string, string> = {
   refunded: "Буцаан олгосон",
 };
 
-/** Mongolian label per payment status. Used by OrderTracking. */
 export const paymentStatusLabel: Record<string, string> = {
   pending: "Хүлээгдэж буй",
   customer_claimed_paid: "Төлсөн гэж мэдэгдсэн",

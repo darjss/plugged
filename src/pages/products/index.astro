@@ -3,9 +3,9 @@ import StorefrontLayout from "../../layouts/StorefrontLayout.astro";
 import FilterBar from "../../components/storefront/FilterBar.astro";
 import ProductsList from "../../components/storefront/ProductsList.tsx";
 import ProductCard from "../../components/storefront/ProductCard.tsx";
-import AnalyticsEvent from "../../components/storefront/AnalyticsEvent.tsx";
+import AnalyticsEvent from "../../components/effects/AnalyticsEvent.tsx";
 import { api } from "../../lib/api-client";
-import type { StoreProduct } from "../../components/storefront/product-types";
+import type { StoreProduct } from "@/types/product-types";
 
 export const prerender = false;
 

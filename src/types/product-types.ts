@@ -1,11 +1,8 @@
-/**
- * Storefront-facing product shape. Mirrors the public columns returned by
- * `getProducts` / `GET /products` so SSR (Astro) and client (SolidJS island)
- * share one type without hand-maintained DTOs.
- *
- * Kept as a structural interface (not imported from the server) so the
- * client bundle stays decoupled from Drizzle/Elysia inference.
- */
+// Hand-written because Eden infers the success body as `unknown` due to the
+// server's dynamic `.onError()` status codes (see src/lib/api-client.ts).
+// The shapes mirror the public columns returned by `getProducts` /
+// `GET /products` so SSR (Astro) and client (SolidJS island) share one type.
+
 export interface ProductImage {
   id: string;
   url: string;
@@ -47,20 +44,10 @@ export interface StoreProduct {
   variants: ProductVariant[];
 }
 
-/**
- * Pick the primary image URL (or first available) for a product card.
- * Returns empty string when no images exist so the card can render a
- * halftone placeholder.
- */
 export function primaryImage(product: StoreProduct): string {
   return product.images[0]?.url ?? "";
 }
 
-/**
- * Pick the first active variant for add-to-cart. Falls back to the first
- * variant if none are explicitly active so the button still works on
- * under-seeded data.
- */
 export function firstVariant(product: StoreProduct): ProductVariant | null {
   return product.variants[0] ?? null;
 }
