@@ -5,6 +5,7 @@ import ProductImageCarousel from "../../components/storefront/ProductImageCarous
 import ProductBuyBox from "../../components/storefront/ProductBuyBox.tsx";
 import AnalyticsEvent from "../../components/storefront/AnalyticsEvent.tsx";
 import ProductSpecs from "../../components/storefront/ProductSpecs.astro";
+import type { ProductImage, ProductVariant } from "@/types/product-types";
 
 export const prerender = false;
 
@@ -16,24 +17,6 @@ export const prerender = false;
 function apiBase(): string {
   if (import.meta.env.DEV) return "http://[::1]:4321";
   return Astro.site?.origin ?? "https://pluggedaudio.store";
-}
-
-interface ProductImage {
-  id: string;
-  url: string;
-  alt: string | null;
-  isPrimary: boolean;
-}
-
-interface ProductVariant {
-  id: string;
-  sku: string;
-  name: string;
-  priceMnt: number;
-  compareAtPriceMnt: number | null;
-  stockQuantity: number;
-  reservedQuantity: number;
-  active: boolean;
 }
 
 interface ProductSummary {

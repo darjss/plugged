@@ -4,7 +4,7 @@ import { toast } from "solid-sonner";
 import { cart } from "@/store/cart";
 import { cn, formatMnt } from "@/lib/utils";
 import { scrollReveal } from "@/lib/scroll-reveal";
-import { firstVariant, primaryImage, type StoreProduct } from "./product-types";
+import { firstVariant, primaryImage, type StoreProduct } from "@/types/product-types";
 
 interface ProductCardProps {
   product: StoreProduct;

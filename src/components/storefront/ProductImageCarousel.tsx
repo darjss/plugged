@@ -2,13 +2,7 @@ import { ChevronLeft, ChevronRight } from "lucide-solid";
 import { createSignal, For, Show } from "solid-js";
 
 import { cn } from "@/lib/utils";
-
-interface ProductImage {
-  id: string;
-  url: string;
-  alt: string | null;
-  isPrimary: boolean;
-}
+import type { ProductImage } from "@/types/product-types";
 
 interface Props {
   images: ProductImage[];
