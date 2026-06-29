@@ -13,6 +13,15 @@ export function formatMnt(amount: number): string {
   }).format(amount);
 }
 
+/**
+ * Format a number with mn-MN grouping but NO currency symbol — the
+ * caller appends the currency glyph itself (e.g. `formatMntPlain(n) + " ₮"`).
+ * Distinct from {@link formatMnt}, which uses `style: "currency"`.
+ */
+export function formatMntPlain(amount: number): string {
+  return new Intl.NumberFormat("mn-MN").format(amount);
+}
+
 export function formatDate(date: Date | string): string {
   return new Intl.DateTimeFormat("mn-MN").format(typeof date === "string" ? new Date(date) : date);
 }

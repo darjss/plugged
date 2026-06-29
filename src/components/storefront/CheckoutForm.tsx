@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { cart } from "@/store/cart";
-import { api } from "@/lib/api-client";
+import { api, edErrorMessage } from "@/lib/api-client";
 import { formatMnt, MONGOLIAN_PHONE_REGEX } from "@/lib/utils";
 import { cartAnalyticsProperties, trackAnalytics } from "@/lib/analytics";
 import { deliveryFeeMnt } from "@/server/db/schema";
@@ -50,16 +50,6 @@ interface QpayInvoice {
   qrImage: string;
   qrText: string;
   shortUrl: string;
-}
-
-interface ErrorEnvelope {
-  error: { code: string; message: string; details?: Record<string, unknown> };
-}
-
-/** Pull the human-readable message out of an Eden error (typed as unknown). */
-function edErrorMessage(error: { value: unknown } | null | undefined, fallback: string): string {
-  const envelope = error?.value as ErrorEnvelope | undefined;
-  return envelope?.error?.message ?? fallback;
 }
 
 // Client-side form schema — mirrors the customer-facing fields of
