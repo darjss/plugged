@@ -2,7 +2,7 @@ import { createMutation, createQuery } from "@tanstack/solid-query";
 import { createSignal, createMemo, For, Show, onCleanup } from "solid-js";
 import { toast } from "solid-sonner";
 import { api } from "@/lib/api-client";
-import { cn, formatMntPlain } from "@/lib/utils";
+import { cn, formatMnt } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -83,7 +83,7 @@ function SettingsSection() {
                   </span>
                 </div>
                 <div class="font-mono text-lg font-black text-ink">
-                  {formatMntPlain(status().deliveryFee)} ₮
+                  {formatMnt(status().deliveryFee)}
                 </div>
               </div>
               <ConfigRow label="QPay" status={status().qpayConfigured} />

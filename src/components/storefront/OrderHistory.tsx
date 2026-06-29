@@ -5,84 +5,8 @@ import { queryClient } from "@/lib/query-client";
 import { authClient } from "@/lib/auth-client";
 import { cn, formatMnt, formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-
-/**
- * Order line item shape returned by `/orders?phone=`. Matches the Drizzle
- * `orderItem` row. Inferred from the Elysia route via Eden Treaty, but we
- * declare a local alias so query callbacks stay readable.
- */
-type OrderItem = {
-  id: string;
-  orderId: string;
-  productId: string;
-  variantId: string;
-  productName: string;
-  variantName: string;
-  sku: string;
-  unitPriceMnt: number;
-  quantity: number;
-  lineTotalMnt: number;
-  createdAt: Date;
-};
-
-type OrderPayment = {
-  id: string;
-  orderId: string;
-  paymentNumber: string;
-  provider: string;
-  status: string;
-  amountMnt: number;
-  qpayInvoiceId: string | null;
-  qpayQrText: string | null;
-  qpayQrImage: string | null;
-  qpayUrlsJson: string | null;
-  paidAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-type OrderRow = {
-  id: string;
-  orderNumber: string;
-  userId: string | null;
-  customerPhone: string;
-  customerName: string | null;
-  status: string;
-  subtotalMnt: number;
-  deliveryFeeMnt: number;
-  totalMnt: number;
-  address: string;
-  deliveryProvider: string;
-  notes: string | null;
-  checkoutToken: string;
-  orderedAt: Date;
-  createdAt: Date;
-  updatedAt: Date;
-  cancelledAt: Date | null;
-  items: OrderItem[];
-  payments: OrderPayment[];
-};
-
-type OrdersResponse = { orders: OrderRow[] };
-
-const statusVariant: Record<
-  string,
-  "default" | "stamp" | "success" | "warning" | "destructive" | "secondary"
-> = {
-  pending: "warning",
-  shipped: "default",
-  delivered: "success",
-  cancelled: "destructive",
-  refunded: "secondary",
-};
-
-const statusLabel: Record<string, string> = {
-  pending: "Хүлээгдэж буй",
-  shipped: "Илгээгдсэн",
-  delivered: "Хүргэгдсэн",
-  cancelled: "Цуцлагдсан",
-  refunded: "Буцаан олгосон",
-};
+import type { OrderItem, OrderRow, OrdersResponse } from "@/types/order-types";
+import { statusLabel, statusVariant } from "@/types/order-types";
 
 /**
  * Order history for the profile page. Reads the logged-in user's phone

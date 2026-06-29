@@ -4,7 +4,7 @@ import { Search, X } from "lucide-solid";
 import { cn } from "@/lib/utils";
 import { RECENT_SEARCHES_KEY as RECENT_KEY, readRecentSearches } from "@/lib/recent-searches";
 import ProductCard from "./ProductCard";
-import type { StoreProduct } from "./product-types";
+import type { StoreProduct } from "@/types/product-types";
 
 export default function SearchOverlay() {
   const [open, setOpen] = createSignal(false);

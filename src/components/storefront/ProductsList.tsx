@@ -4,7 +4,7 @@ import { For, Show, createMemo, createSignal, onCleanup, onMount } from "solid-j
 import { api } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 import ProductCard from "./ProductCard";
-import type { StoreProduct } from "./product-types";
+import type { StoreProduct } from "@/types/product-types";
 import StorefrontProviders from "./StorefrontProviders";
 
 interface ProductsListProps {

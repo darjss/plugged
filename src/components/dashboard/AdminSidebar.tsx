@@ -3,7 +3,7 @@ import { createQuery } from "@tanstack/solid-query";
 import { BarChart3, Box, Home, LogOut, Package, Settings } from "lucide-solid";
 import { For, Show, type Component, type JSX } from "solid-js";
 import { authClient } from "@/lib/auth-client";
-import { api } from "@/lib/api-client";
+import { adminSessionApi, adminSessionKeys } from "@/lib/admin-api";
 import { cn } from "@/lib/utils";
 import {
   Sidebar,
@@ -32,34 +32,12 @@ const NAV_ITEMS: NavItem[] = [
   { title: "Settings", href: "/settings", icon: Settings },
 ];
 
-type SessionUser = {
-  name: string;
-  email: string;
-  image: string | null;
-};
-
 export default function AdminSidebar() {
   const location = useLocation();
 
-  // Reuse the same queryKey as AdminTopbar so TanStack Query dedups
-  // the network request across both components (the previous
-  // createResource here issued a second fetch independent of the
-  // topbar's createResource).
   const session = createQuery(() => ({
-    queryKey: ["dashboard", "session"],
-    queryFn: async () => {
-      const { data, error } = await api.dashboard.session.get();
-      if (error || !data) return null;
-      // Eden treaty infers the dashboard/session response as the error
-      // shape (the success body is too deep for route-tree inference).
-      // Cast at the fetch boundary — documented escape hatch.
-      const user = (data as { user?: SessionUser }).user;
-      return {
-        name: user?.name ?? "Admin",
-        email: user?.email ?? "",
-        image: user?.image ?? null,
-      } satisfies SessionUser;
-    },
+    queryKey: adminSessionKeys.detail,
+    queryFn: () => adminSessionApi.me(),
   }));
 
   const isActive = (href: string) =>
@@ -141,5 +119,5 @@ export default function AdminSidebar() {
 
 // Re-export for layout consumers that want the nav list (e.g. mobile drawer).
 export { NAV_ITEMS };
-export type { NavItem, SessionUser };
+export type { NavItem };
 export type AdminSidebarProps = { children?: JSX.Element };

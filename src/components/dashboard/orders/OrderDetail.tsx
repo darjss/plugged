@@ -23,7 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { orderStatusBadgeVariant, paymentStatusBadgeVariant } from "./order-badges";
+import { orderStatusBadgeVariant, paymentStatusBadgeVariant } from "@/lib/order-badges";
 import type { orderStatuses, paymentStatuses } from "@/server/db/schema";
 
 /**
