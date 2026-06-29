@@ -1,6 +1,6 @@
 ---
 import DashboardApp from "../../components/dashboard/DashboardApp";
-import { requireAdmin } from "../../lib/server/require-admin";
+import { requireAdmin } from "../../server/auth/guards";
 import Layout from "../../layouts/Layout.astro";
 
 export const prerender = false;
