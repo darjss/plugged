@@ -1,7 +1,7 @@
 import { env } from "cloudflare:workers";
 import { and, desc, eq, or, sql } from "drizzle-orm";
 
-import { commerceQueries } from "../commerce/queries";
+import { getProductsByIds } from "../commerce/store-queries";
 import { db } from "../db";
 import { brand, category, iemSpec, product, productCategory } from "../db/schema";
 import { getEmbeddingData } from "./embedding";
@@ -17,11 +17,11 @@ export async function searchProducts(input: { q: string; limit?: number }) {
   if (!q) return [];
 
   const vectorIds = await vectorSearchIds(q, limit).catch(() => []);
-  if (vectorIds.length > 0) return commerceQueries.store.getProductsByIds(vectorIds, limit);
+  if (vectorIds.length > 0) return getProductsByIds(vectorIds, limit);
 
   const terms = await expandSearchQuery(q);
   const ids = await keywordSearchIds(terms, limit);
-  return commerceQueries.store.getProductsByIds(ids, limit);
+  return getProductsByIds(ids, limit);
 }
 
 async function vectorSearchIds(query: string, limit: number) {

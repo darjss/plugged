@@ -1,5 +1,9 @@
 import { Elysia } from "elysia";
-import { commerceQueries } from "../../commerce/queries";
+import {
+  confirmQpayPayment,
+  createQpayInvoiceForOrder,
+  getPaymentByNumber,
+} from "../../commerce/payment-queries";
 import { captureServerEvent } from "../../integrations/posthog";
 import { checkQpayInvoice, verifyQpayWebhook } from "../../integrations/qpay";
 import { authPlugin } from "../plugins/auth";
@@ -15,7 +19,7 @@ export const paymentRoutes = new Elysia({ name: "payment-routes" })
   .use(authPlugin)
   .post("/checkout/create-payment", async ({ body }) => {
     const input = parseInput(createPaymentInputSchema, body);
-    return commerceQueries.payments.createQpayInvoiceForOrder(input.orderNumber);
+    return createQpayInvoiceForOrder(input.orderNumber);
   })
   .post("/qpay/webhook", async ({ query, request, status }) => {
     const paymentNumber = typeof query.id === "string" ? query.id : null;
@@ -31,15 +35,12 @@ export const paymentRoutes = new Elysia({ name: "payment-routes" })
     }
 
     try {
-      const targetPayment = await commerceQueries.payments.getPaymentByNumber(paymentNumber);
+      const targetPayment = await getPaymentByNumber(paymentNumber);
       if (!targetPayment.qpayInvoiceId) return status(200, { ok: true });
 
       const invoiceStatus = await checkQpayInvoice(targetPayment.qpayInvoiceId);
       if (invoiceStatus.paid) {
-        await commerceQueries.payments.confirmQpayPayment(
-          targetPayment.id,
-          invoiceStatus.paidAmountMnt,
-        );
+        await confirmQpayPayment(targetPayment.id, invoiceStatus.paidAmountMnt);
         // Server-side order_completed event — uses order id (not phone) as
         // distinct_id to avoid sending PII to PostHog. This is the canonical
         // source; the client-side confirmation page does NOT re-capture.

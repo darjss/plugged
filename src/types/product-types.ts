@@ -1,7 +1,7 @@
 /**
  * Storefront-facing product shape. Mirrors the public columns returned by
- * `commerceQueries.store.getProducts` / `GET /products` so SSR (Astro) and
- * client (SolidJS island) share one type without hand-maintained DTOs.
+ * `getProducts` / `GET /products` so SSR (Astro) and client (SolidJS island)
+ * share one type without hand-maintained DTOs.
  *
  * Kept as a structural interface (not imported from the server) so the
  * client bundle stays decoupled from Drizzle/Elysia inference.
