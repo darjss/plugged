@@ -1,29 +1,11 @@
 import posthog from "posthog-js";
-import { createSignal, onCleanup, onMount, Show } from "solid-js";
+import { onCleanup, onMount } from "solid-js";
 import type { AnalyticsProperties } from "@/lib/analytics";
-
-const CONSENT_KEY = "plugged-analytics-consent";
-
-type Consent = "accepted" | "declined";
 
 type QueuedEvent = {
   event: string;
   properties?: AnalyticsProperties;
 };
-
-function storedConsent(): Consent | null {
-  try {
-    return localStorage.getItem(CONSENT_KEY) as Consent | null;
-  } catch {
-    return null;
-  }
-}
-
-function saveConsent(value: Consent) {
-  try {
-    localStorage.setItem(CONSENT_KEY, value);
-  } catch {}
-}
 
 function doNotTrackEnabled() {
   return navigator.doNotTrack === "1";
@@ -43,7 +25,6 @@ export function useFeatureFlag(key: string): boolean | undefined {
 }
 
 export default function PostHog(props: { apiKey?: string; host?: string }) {
-  const [visible, setVisible] = createSignal(false);
   const queue: QueuedEvent[] = [];
   let ready = false;
 
@@ -73,24 +54,11 @@ export default function PostHog(props: { apiKey?: string; host?: string }) {
     window.posthog = posthog;
   };
 
-  const accept = () => {
-    saveConsent("accepted");
-    setVisible(false);
-    init();
-    posthog.opt_in_capturing();
-  };
-
-  const decline = () => {
-    saveConsent("declined");
-    setVisible(false);
-    if (ready) posthog.opt_out_capturing();
-  };
-
   const onAnalytics = (event: Event) => {
     const custom = event as CustomEvent<QueuedEvent>;
     if (!custom.detail?.event) return;
     if (!ready) {
-      if (storedConsent() === "accepted") queue.push(custom.detail);
+      queue.push(custom.detail);
       return;
     }
     posthog.capture(custom.detail.event, custom.detail.properties);
@@ -101,10 +69,7 @@ export default function PostHog(props: { apiKey?: string; host?: string }) {
   };
 
   onMount(() => {
-    const consent = storedConsent();
-    if (!consent && !doNotTrackEnabled()) setVisible(true);
-    if (consent === "accepted") init();
-    if (consent === "declined") posthog.opt_out_capturing();
+    init();
 
     window.addEventListener("plugged:analytics", onAnalytics);
     document.addEventListener("astro:page-load", onPageLoad);
@@ -115,39 +80,5 @@ export default function PostHog(props: { apiKey?: string; host?: string }) {
     });
   });
 
-  return (
-    <Show when={visible()}>
-      <div class="fixed bottom-4 left-4 right-4 z-[120] border-4 border-ink bg-newsprint-2 p-4 shadow-hard-lg sm:left-auto sm:max-w-md">
-        <div class="flex flex-col gap-3">
-          <div>
-            <p class="font-mono text-micro font-black uppercase tracking-[0.25em] text-orange">
-              Tape log / optional
-            </p>
-            <p class="mt-1 font-display text-2xl uppercase leading-none text-ink">
-              Let us count the noise?
-            </p>
-          </div>
-          <p class="font-mono text-xs font-bold uppercase tracking-wide text-ink-muted">
-            Analytics helps tune drops, funnels, and busted pages. Do Not Track is respected.
-          </p>
-          <div class="flex flex-wrap gap-2">
-            <button
-              type="button"
-              class="border-2 border-ink bg-orange px-4 py-2 font-mono text-xs font-black uppercase text-ink shadow-hard-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
-              onClick={accept}
-            >
-              Count me in
-            </button>
-            <button
-              type="button"
-              class="border-2 border-ink bg-card px-4 py-2 font-mono text-xs font-black uppercase text-ink shadow-hard-sm hover:bg-pink hover:text-newsprint"
-              onClick={decline}
-            >
-              Opt out
-            </button>
-          </div>
-        </div>
-      </div>
-    </Show>
-  );
+  return null;
 }
