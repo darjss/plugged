@@ -18,6 +18,25 @@ const featuredSlugs = new Set([
   "jcally-jm12-portable-dac-amplifier",
 ]);
 
+// Category taxonomy. The source JSON carries a `category` field per result
+// (currently "IEM" and "DAC"). Map each source category to a stable id,
+// slug, display name, and description so category pages and the filter bar
+// resolve correctly. Add new entries here when the source grows new types.
+const categories = {
+  IEM: {
+    id: "category_iem",
+    slug: "iem",
+    name: "IEMs",
+    description: "In-ear monitors — wired earphones tuned for hi-fi listening.",
+  },
+  DAC: {
+    id: "category_dac",
+    slug: "dac",
+    name: "DAC Amps",
+    description: "Portable DAC amplifiers — dongles that drive your IEMs.",
+  },
+};
+
 const knownBrands = [
   "7hz",
   "cca",
@@ -77,6 +96,15 @@ const okResults = source.results.filter((result) => result.status === "ok");
 const statements = [
   "-- Generated from iem-yangkeduo-prices-en.json. Yuan prices are converted with a temporary 1 CNY = 500 MNT rule.",
 ];
+
+// Insert all known categories up front so category pages resolve even if
+// no product in the current source maps to them.
+for (const cat of Object.values(categories)) {
+  statements.push(
+    `INSERT INTO category (id, slug, name, description, created_at, updated_at) VALUES (${sql(cat.id)}, ${sql(cat.slug)}, ${sql(cat.name)}, ${sql(cat.description)}, unixepoch(), unixepoch()) ON CONFLICT(id) DO UPDATE SET slug = excluded.slug, name = excluded.name, description = excluded.description, updated_at = excluded.updated_at;`,
+  );
+}
+
 const brandByName = new Map();
 
 for (const result of okResults) {
@@ -111,6 +139,15 @@ for (const result of okResults) {
   statements.push(
     `INSERT INTO iem_spec (product_id, driver_type, driver_config, impedance_ohms, sensitivity_db, frequency_response, connector, cable, mic, shell_material, nozzle_material, sound_signature, fit, included_accessories) VALUES (${sql(productId)}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT(product_id) DO NOTHING;`,
   );
+
+  // Link product to its source category. Unknown categories are skipped
+  // rather than inventing a taxonomy entry on the fly.
+  const cat = categories[result.category];
+  if (cat) {
+    statements.push(
+      `INSERT INTO product_category (product_id, category_id) VALUES (${sql(productId)}, ${sql(cat.id)}) ON CONFLICT(product_id, category_id) DO NOTHING;`,
+    );
+  }
 
   const variations = result.variations?.length
     ? result.variations
