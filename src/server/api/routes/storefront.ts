@@ -8,6 +8,7 @@ import {
 } from "../../commerce/validation";
 import { searchProducts } from "../../search/search";
 import { MONGOLIAN_PHONE_REGEX } from "../../../lib/utils";
+import { nonEmptyString } from "../../lib/validation-primitives";
 import { authPlugin } from "../plugins/auth";
 import { parseInput, parseQuery } from "../validation";
 
@@ -16,7 +17,7 @@ const ordersPhoneQuerySchema = v.object({
 });
 
 const searchQuerySchema = v.object({
-  q: v.pipe(v.string(), v.minLength(1)),
+  q: nonEmptyString,
   limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(50))),
 });
 
