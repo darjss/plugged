@@ -12,14 +12,14 @@ import {
   productVariant,
 } from "../db/schema";
 import { ConflictError, NotFoundError } from "../lib/errors";
+import { now } from "../lib/datetime";
+import { imageOrderBy } from "../lib/drizzle-helpers";
 import { deleteR2Object, putProductImage } from "../commerce/r2";
 import {
   adminCreateProductSchema,
   adminListProductsSchema,
   adminUpdateProductSchema,
 } from "./validation";
-
-const now = () => new Date();
 
 type CreateInput = v.InferOutput<typeof adminCreateProductSchema>;
 type UpdateInput = v.InferOutput<typeof adminUpdateProductSchema>;
@@ -88,7 +88,7 @@ export const adminProductQueries = {
         brand: { columns: { id: true, name: true } },
         images: {
           columns: { id: true, url: true, isPrimary: true, sortOrder: true },
-          orderBy: [desc(productImage.isPrimary), asc(productImage.sortOrder)],
+          orderBy: imageOrderBy,
           limit: 1,
         },
         variants: {
@@ -134,7 +134,7 @@ export const adminProductQueries = {
         categories: { with: { category: true } },
         iemSpec: true,
         images: {
-          orderBy: [desc(productImage.isPrimary), asc(productImage.sortOrder)],
+          orderBy: imageOrderBy,
         },
         variants: {
           orderBy: [asc(productVariant.createdAt)],

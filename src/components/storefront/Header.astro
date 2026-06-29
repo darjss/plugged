@@ -3,13 +3,7 @@ import { Search } from "lucide-solid";
 import CartButton from "./CartButton.tsx";
 import HeaderAuth from "./HeaderAuth.tsx";
 import MobileMenu from "./MobileMenu.tsx";
-
-const navLinks = [
-  { label: "IEMs", href: "/products?category=iems" },
-  { label: "DAC amps", href: "/products?category=dac-amps" },
-  { label: "Wireless", href: "/products?category=wireless" },
-  { label: "All products", href: "/products" },
-];
+import { NAV_LINKS as navLinks } from "../../lib/nav-links";
 ---
 
 <header
