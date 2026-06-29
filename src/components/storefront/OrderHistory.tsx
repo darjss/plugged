@@ -39,7 +39,7 @@ export default function OrderHistory() {
       <Show when={ordersQuery.isPending}>
         <div class="border-2 border-ink bg-newsprint-2 p-8 text-center shadow-hard-sm">
           <p class="font-mono text-xs font-black uppercase tracking-widest text-ink-muted">
-            Захиалгуудыг ачаалж байна…
+            Loading orders…
           </p>
         </div>
       </Show>
@@ -51,11 +51,12 @@ export default function OrderHistory() {
               Error
             </span>
             <span class="font-display text-lg font-black uppercase tracking-tight text-newsprint">
-              Татахад алдаа
+              Fetch error
             </span>
           </div>
           <p class="font-mono text-xs font-bold text-newsprint/90">
-            Захиалга татахад алдаа гарлаа. Сүлжээний асуудал байж магадгүй — дахин оролдоно уу.
+            Something went wrong while fetching your orders. Might be a network issue — please try
+            again.
           </p>
           <button
             type="button"
@@ -63,22 +64,22 @@ export default function OrderHistory() {
             disabled={ordersQuery.isFetching}
             class="inline-flex items-center justify-center gap-2 border-2 border-ink bg-hazard-stripes px-5 py-3 font-display text-sm font-black uppercase tracking-wide text-ink shadow-hard-sm transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none disabled:opacity-50"
           >
-            {ordersQuery.isFetching ? "ТАТАЖ БАЙНА…" : "↻ Дахин оролдох"}
+            {ordersQuery.isFetching ? "LOADING…" : "↻ Retry"}
           </button>
         </div>
       </Show>
 
       <Show when={ordersQuery.isSuccess && orders().length === 0}>
         <div class="border-2 border-ink bg-newsprint-2 p-8 text-center shadow-hard-sm">
-          <p class="font-display text-2xl uppercase text-ink">Захиалга алга</p>
+          <p class="font-display text-2xl uppercase text-ink">No orders yet</p>
           <p class="mt-2 font-mono text-xs uppercase tracking-wider text-ink-muted">
-            Та одоохондоо ямар ч захиалга хийгээгүй байна
+            You haven't placed any orders yet
           </p>
           <a
             href="/products"
             class="mt-4 inline-block border-2 border-ink bg-orange px-5 py-2.5 font-mono text-xs font-black uppercase tracking-wider text-ink shadow-hard-sm transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
           >
-            Бүтээгдэхүүн үзэх →
+            Browse products →
           </a>
         </div>
       </Show>
@@ -101,7 +102,7 @@ export default function OrderHistory() {
                     <div class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-ink bg-newsprint-dark px-4 py-3">
                       <div class="flex items-center gap-3">
                         <span class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
-                          №
+                          No.
                         </span>
                         <span class="font-mono text-sm font-black text-ink">
                           {order.orderNumber}
@@ -119,7 +120,7 @@ export default function OrderHistory() {
                     <div class="grid grid-cols-2 gap-3 px-4 py-3 sm:grid-cols-4">
                       <div>
                         <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
-                          Огноо
+                          Date
                         </p>
                         <p class="font-mono text-xs font-bold text-ink">
                           {formatDate(order.orderedAt)}
@@ -127,7 +128,7 @@ export default function OrderHistory() {
                       </div>
                       <div>
                         <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
-                          Нийт
+                          Total
                         </p>
                         <p class="font-mono text-xs font-black text-orange">
                           {formatMnt(order.totalMnt)}
@@ -135,7 +136,7 @@ export default function OrderHistory() {
                       </div>
                       <div>
                         <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
-                          Бараа
+                          Items
                         </p>
                         <p class="font-mono text-xs font-bold text-ink">{itemCount}ш</p>
                       </div>
@@ -145,7 +146,7 @@ export default function OrderHistory() {
                             "border-2 border-ink bg-ink px-3 py-1.5 font-mono text-micro font-black uppercase tracking-wider text-newsprint",
                           )}
                         >
-                          Дэлгэрэнгүй →
+                          Details →
                         </span>
                       </div>
                     </div>

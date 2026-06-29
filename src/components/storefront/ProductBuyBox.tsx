@@ -17,15 +17,6 @@ interface Props {
   variants: ProductVariant[];
 }
 
-/**
- * Buy box island — variant selector, quantity, add-to-cart.
- * `client:visible` so it hydrates when scrolled into view.
- *
- * If the product has variants, the selected variant's price/stock
- * drives the display. Otherwise the base price is used and a synthetic
- * "default" variant (the first active variant, if any) is what gets
- * added to the cart.
- */
 export default function ProductBuyBox(props: Props) {
   const hasVariants = () => props.variants.length > 0;
 
@@ -197,7 +188,10 @@ export default function ProductBuyBox(props: Props) {
         <Button
           variant="default"
           size="lg"
-          class={cn("flex-1 gap-2 bg-orange text-ink", !inStock() && "opacity-50")}
+          class={cn(
+            "flex-1 gap-2 bg-orange-dark text-white shadow-hard-lg",
+            !inStock() && "opacity-50",
+          )}
           disabled={!inStock()}
           onClick={onAddToCart}
         >

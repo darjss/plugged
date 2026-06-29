@@ -2,7 +2,7 @@
 import StorefrontLayout from "../layouts/StorefrontLayout.astro";
 import OrderHistory from "../components/storefront/OrderHistory.tsx";
 import LogoutButton from "../components/storefront/LogoutButton.tsx";
-import { requireUser } from "../lib/server/require-user";
+import { requireUser } from "../server/auth/guards";
 
 export const prerender = false;
 
@@ -23,7 +23,7 @@ const phoneDisplay = phone
 const phoneSuffix = phone.slice(-2) || "??";
 ---
 
-<StorefrontLayout title="Профайл | Plugged" description="Таны захиалгын түүх ба профайл.">
+<StorefrontLayout title="Profile | Plugged" description="Your order history and profile.">
   <section class="mx-auto max-w-3xl px-4 py-12 md:py-16">
     {/* Header — stamp-style title */}
     <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
@@ -32,7 +32,7 @@ const phoneSuffix = phone.slice(-2) || "??";
           02:47 AM / your stash
         </p>
         <h1 class="mt-1 font-display text-5xl uppercase leading-none text-ink md:text-6xl">
-          Профайл
+          Profile
         </h1>
       </div>
       <LogoutButton client:only="solid-js" />
@@ -46,7 +46,7 @@ const phoneSuffix = phone.slice(-2) || "??";
         </div>
         <div class="flex-1">
           <p class="font-mono text-micro font-black uppercase tracking-widest text-ink/70">
-            УТАСНЫ ДУГААР
+            PHONE NUMBER
           </p>
           <p class="font-mono text-xl font-black text-ink">{phoneDisplay}</p>
         </div>
@@ -62,7 +62,7 @@ const phoneSuffix = phone.slice(-2) || "??";
     {/* Order history section */}
     <div class="mb-4 flex items-center gap-3">
       <div class="h-6 w-1.5 bg-orange" aria-hidden="true"></div>
-      <h2 class="font-display text-3xl uppercase text-ink">Захиалгын түүх</h2>
+      <h2 class="font-display text-3xl uppercase text-ink">Order history</h2>
     </div>
 
     <OrderHistory client:only="solid-js" />

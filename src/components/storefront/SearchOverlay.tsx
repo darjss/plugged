@@ -184,6 +184,17 @@ export default function SearchOverlay() {
                 <For each={results()}>{(product) => <ProductCard product={product} />}</For>
               </div>
             </Show>
+
+            {/* Screen-reader status announcement */}
+            <p class="sr-only" aria-live="polite">
+              {loading()
+                ? "Searching…"
+                : searched() && results().length === 0
+                  ? `No results found for "${query()}"`
+                  : results().length > 0
+                    ? `${results().length} result${results().length === 1 ? "" : "s"} found`
+                    : ""}
+            </p>
           </section>
         </div>
       </div>

@@ -60,7 +60,7 @@ export default function SignInForm(props: { next?: string }) {
     e.preventDefault();
     setError(null);
     if (!phoneValid()) {
-      setError("Утасны дугаар 8 оронтой байх ёстой (6-9-өөр эхлэх).");
+      setError("Phone number must be 8 digits (starting with 6-9).");
       return;
     }
     setSending(true);
@@ -69,7 +69,7 @@ export default function SignInForm(props: { next?: string }) {
     });
     setSending(false);
     if (sendError) {
-      setError(sendError.message ?? "Код илгээхэд алдаа гарлаа.");
+      setError(sendError.message ?? "Failed to send code.");
       return;
     }
     setStep("otp");
@@ -86,7 +86,7 @@ export default function SignInForm(props: { next?: string }) {
     });
     setVerifying(false);
     if (verifyError) {
-      setError(verifyError.message ?? "Баталгаажуулах код буруу байна.");
+      setError(verifyError.message ?? "Invalid verification code.");
       setOtp("");
       return;
     }
@@ -113,7 +113,7 @@ export default function SignInForm(props: { next?: string }) {
     });
     setSending(false);
     if (sendError) {
-      setError(sendError.message ?? "Код дахин илгээхэд алдаа гарлаа.");
+      setError(sendError.message ?? "Failed to resend code.");
       return;
     }
     startTimer(60);
@@ -126,7 +126,7 @@ export default function SignInForm(props: { next?: string }) {
         <form onSubmit={handleSendOtp} class="space-y-5" novalidate>
           <div class="space-y-2">
             <Label for="phone" class="text-orange">
-              Утасны дугаар
+              Phone number
             </Label>
             <div class="flex items-stretch gap-2">
               <span
@@ -153,7 +153,7 @@ export default function SignInForm(props: { next?: string }) {
               />
             </div>
             <p class="text-micro font-bold uppercase tracking-wider text-ink-muted">
-              8 оронтой, 6-9-өөр эхлэх ёстой
+              8 digits, starting with 6-9
             </p>
           </div>
 
@@ -170,7 +170,7 @@ export default function SignInForm(props: { next?: string }) {
             class="w-full"
             disabled={sending() || !phoneValid()}
           >
-            {sending() ? "ИЛГЭЭЖ БАЙНА…" : "КОД АВАХ"}
+            {sending() ? "SENDING…" : "GET CODE"}
           </Button>
         </form>
       </Show>
@@ -178,7 +178,7 @@ export default function SignInForm(props: { next?: string }) {
       <Show when={step() === "otp"}>
         <div class="space-y-5">
           <div class="space-y-1 text-center">
-            <p class="font-mono text-xs uppercase tracking-widest text-ink-muted">Код илгээгдсэн</p>
+            <p class="font-mono text-xs uppercase tracking-widest text-ink-muted">Code sent to</p>
             <p class="font-mono text-sm font-black text-ink">{fullPhone()}</p>
           </div>
 
@@ -197,7 +197,7 @@ export default function SignInForm(props: { next?: string }) {
               "transition-all placeholder:text-ink-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:shadow-hard",
             )}
             placeholder="----"
-            aria-label="Баталгаажуулах код"
+            aria-label="Verification code"
           />
 
           <Show when={error()}>
@@ -214,12 +214,11 @@ export default function SignInForm(props: { next?: string }) {
                   Expired
                 </span>
                 <span class="font-display text-lg font-black uppercase tracking-tight text-newsprint">
-                  Код хүчингүй болсон
+                  Code expired
                 </span>
               </div>
               <p class="font-mono text-xs font-bold text-newsprint/90">
-                Баталгаажуулах кодын хүчинтэй хугацаа дууссан. Шинэ код авахын тулд доорх товчийг
-                дарна уу.
+                The verification code has expired. Press the button below to get a new one.
               </p>
               <Button
                 type="button"
@@ -229,7 +228,7 @@ export default function SignInForm(props: { next?: string }) {
                 disabled={sending()}
                 onClick={handleResend}
               >
-                {sending() ? "ИЛГЭЭЖ БАЙНА…" : "↻ Шинэ код авах"}
+                {sending() ? "SENDING…" : "↻ Get new code"}
               </Button>
             </div>
           </Show>
@@ -242,7 +241,7 @@ export default function SignInForm(props: { next?: string }) {
             disabled={verifying() || otp().length !== 4 || expired()}
             onClick={() => void handleVerifyOtp(otp())}
           >
-            {verifying() ? "БАТАЛГААЖУУЛЖ БАЙНА…" : "НЭВТРЭХ"}
+            {verifying() ? "VERIFYING…" : "SIGN IN"}
           </Button>
 
           <div class="flex items-center justify-between gap-2">
@@ -256,7 +255,7 @@ export default function SignInForm(props: { next?: string }) {
                 if (interval) clearInterval(interval);
               }}
             >
-              ← Буцах
+              ← Back
             </button>
             <Show
               when={timer() > 0}
@@ -267,12 +266,12 @@ export default function SignInForm(props: { next?: string }) {
                   onClick={handleResend}
                   class="font-mono text-xs font-black uppercase tracking-wider text-orange underline decoration-2 underline-offset-4 hover:text-orange-dark disabled:opacity-50"
                 >
-                  {sending() ? "ИЛГЭЭЖ БАЙНА…" : "КОД ДАХИН ИЛГЭЭХ"}
+                  {sending() ? "SENDING…" : "RESEND CODE"}
                 </button>
               }
             >
               <span class="font-mono text-xs font-black uppercase tracking-wider text-ink-muted">
-                Дахин илгээх: {timer()}с
+                Resend in: {timer()}s
               </span>
             </Show>
           </div>

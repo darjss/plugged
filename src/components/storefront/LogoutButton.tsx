@@ -2,10 +2,7 @@ import { createSignal } from "solid-js";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
-/**
- * Sign-out button. Calls `authClient.signOut()` then redirects to the
- * homepage. `client:only` to avoid SSR/localStorage session mismatch.
- */
+// `client:only` to avoid SSR/localStorage session mismatch.
 export default function LogoutButton() {
   const [pending, setPending] = createSignal(false);
 
@@ -26,7 +23,7 @@ export default function LogoutButton() {
         "disabled:opacity-50",
       )}
     >
-      {pending() ? "ГАРАЖ БАЙНА…" : "ГАРАХ"}
+      {pending() ? "LEAVING…" : "LOG OUT"}
     </button>
   );
 }

@@ -18,19 +18,19 @@ brand
 
 **Color strategy: Full palette / Drenched moments.** The base is muted newsprint, but accent colors hit like highlighters and spray paint. Orange owns the brand voice; secondary "flyer" colors (hazard yellow, stamp red, photocopy cyan) appear in small, violent doses.
 
-| Token            | OKLCH        | Hex       | Usage                                                |
-| ---------------- | ------------ | --------- | ---------------------------------------------------- |
-| `newsprint`      | 94% 0.02 92  | `#F2ECD8` | Page background, aged paper                          |
-| `newsprint-2`    | 90% 0.025 95 | `#E8DFBF` | Layered paper, cards, tape                           |
-| `newsprint-dark` | 82% 0.02 95  | `#D4C9A8` | Torn edges, shadows, distressed areas                |
-| `ink`            | 15% 0.01 85  | `#161513` | Primary text, photocopy black                        |
-| `ink-muted`      | 42% 0.01 85  | `#6B6659` | Secondary text, halftone shadows                     |
-| `orange`         | 64% 0.26 55  | `#EA580C` | Brand accent: CTAs, stamps, highlights, hazard marks |
-| `orange-dark`    | 52% 0.26 55  | `#C2410C` | Hover, pressed states                                |
-| `yellow`         | 88% 0.18 98  | `#FDE047` | Highlighter, warning tape, featured tags             |
-| `pink`           | 72% 0.28 355 | `#F43F5E` | Stamp red, "sold out", urgent tags                   |
-| `cyan`           | 65% 0.18 230 | `#2A9DCC` | Technical trust: sound graphs, bundles, EQ           |
-| `green`          | 65% 0.16 145 | `#3FA66B` | In stock, low distortion, added                      |
+| Token            | OKLCH        | Hex       | Usage                                                   |
+| ---------------- | ------------ | --------- | ------------------------------------------------------- |
+| `newsprint`      | 94% 0.02 92  | `#F2ECD8` | Page background, aged paper                             |
+| `newsprint-2`    | 90% 0.025 95 | `#E8DFBF` | Layered paper, cards, tape                              |
+| `newsprint-dark` | 82% 0.02 95  | `#D4C9A8` | Torn edges, shadows, distressed areas                   |
+| `ink`            | 15% 0.01 85  | `#161513` | Primary text, photocopy black                           |
+| `ink-muted`      | 28% 0.01 85  | `#3D3A33` | Secondary text, halftone shadows (WCAG AA on newsprint) |
+| `orange`         | 64% 0.26 55  | `#EA580C` | Brand accent: CTAs, stamps, highlights, hazard marks    |
+| `orange-dark`    | 52% 0.26 55  | `#C2410C` | Hover, pressed states                                   |
+| `yellow`         | 88% 0.18 98  | `#FDE047` | Highlighter, warning tape, featured tags                |
+| `pink`           | 72% 0.28 355 | `#F43F5E` | Stamp red, "sold out", urgent tags                      |
+| `cyan`           | 65% 0.18 230 | `#2A9DCC` | Technical trust: sound graphs, bundles, EQ              |
+| `green`          | 65% 0.16 145 | `#3FA66B` | In stock, low distortion, added                         |
 
 ### Color rules
 

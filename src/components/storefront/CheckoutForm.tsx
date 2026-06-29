@@ -275,47 +275,60 @@ export default function CheckoutForm(props: { user: CheckoutUser | null }) {
             {/* Phone */}
             <Field
               label="Phone number"
+              name="customerPhone"
               icon={<Phone class="size-3.5" />}
               error={errors().customerPhone}
               required
             >
               <Input
                 type="tel"
+                id="customerPhone"
+                name="customerPhone"
                 placeholder="+97688123456"
                 value={values().customerPhone}
                 onInput={(e) => update("customerPhone", e.currentTarget.value)}
                 aria-invalid={Boolean(errors().customerPhone)}
+                autocomplete="tel"
               />
             </Field>
 
             {/* Name */}
-            <Field label="Name (optional)" icon={<User class="size-3.5" />}>
+            <Field label="Name (optional)" name="customerName" icon={<User class="size-3.5" />}>
               <Input
                 type="text"
+                id="customerName"
+                name="customerName"
                 placeholder="Your name"
                 value={values().customerName ?? ""}
                 onInput={(e) => update("customerName", e.currentTarget.value)}
+                autocomplete="name"
               />
             </Field>
 
             {/* Address */}
             <Field
               label="Delivery address"
+              name="address"
               icon={<MapPin class="size-3.5" />}
               error={errors().address}
               required
             >
               <Textarea
+                id="address"
+                name="address"
                 placeholder="District, khoroo, building, apartment, door"
                 value={values().address}
                 onInput={(e) => update("address", e.currentTarget.value)}
                 aria-invalid={Boolean(errors().address)}
+                autocomplete="street-address"
               />
             </Field>
 
             {/* Notes */}
-            <Field label="Notes (optional)" icon={<StickyNote class="size-3.5" />}>
+            <Field label="Notes (optional)" name="notes" icon={<StickyNote class="size-3.5" />}>
               <Textarea
+                id="notes"
+                name="notes"
                 placeholder="Gate code, leave with guard, etc."
                 value={values().notes ?? ""}
                 onInput={(e) => update("notes", e.currentTarget.value)}
@@ -430,6 +443,7 @@ export default function CheckoutForm(props: { user: CheckoutUser | null }) {
 
 function Field(props: {
   label: string;
+  name: string;
   icon: JSX.Element;
   error?: string;
   required?: boolean;
@@ -437,16 +451,20 @@ function Field(props: {
 }) {
   return (
     <div class="flex flex-col gap-1.5">
-      <Label class="flex items-center gap-1.5 text-ink">
+      <Label for={props.name} class="flex items-center gap-1.5 text-ink">
         <span class="text-orange">{props.icon}</span>
         {props.label}
         <Show when={props.required}>
-          <span class="text-pink">*</span>
+          <span class="text-pink" aria-hidden="true">
+            *
+          </span>
         </Show>
       </Label>
       {props.children}
       <Show when={props.error}>
-        <p class="text-xs font-bold text-pink">{props.error}</p>
+        <p role="alert" class="text-xs font-bold text-pink">
+          {props.error}
+        </p>
       </Show>
     </div>
   );

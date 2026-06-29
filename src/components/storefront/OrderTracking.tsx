@@ -60,7 +60,7 @@ export default function OrderTracking(props: { initialPhone?: string }) {
       >
         <div class="space-y-3">
           <Label for="track-phone" class="text-orange">
-            Утасны дугаар
+            Phone number
           </Label>
           <div class="flex items-stretch gap-2">
             <span
@@ -85,7 +85,7 @@ export default function OrderTracking(props: { initialPhone?: string }) {
             />
           </div>
           <p class="text-micro font-bold uppercase tracking-wider text-ink-muted">
-            Захиалга хийсэн утасны дугаараа оруулна уу
+            Enter the phone number you used at checkout
           </p>
         </div>
         <Button
@@ -95,7 +95,7 @@ export default function OrderTracking(props: { initialPhone?: string }) {
           class="mt-4 w-full"
           disabled={!phoneValid()}
         >
-          ЗАХИАЛГА ХАЙХ
+          FIND ORDERS
         </Button>
       </form>
 
@@ -105,14 +105,14 @@ export default function OrderTracking(props: { initialPhone?: string }) {
           <div class="flex items-center gap-3">
             <div class="h-6 w-1.5 bg-orange" aria-hidden="true"></div>
             <h2 class="font-display text-2xl uppercase text-ink">
-              {submittedPhone()?.slice(4)} — захиалгууд
+              {submittedPhone()?.slice(4)} — orders
             </h2>
           </div>
 
           <Show when={ordersQuery.isPending}>
             <div class="border-2 border-ink bg-newsprint-2 p-8 text-center shadow-hard-sm">
               <p class="font-mono text-xs font-black uppercase tracking-widest text-ink-muted">
-                Хайж байна…
+                Searching…
               </p>
             </div>
           </Show>
@@ -124,11 +124,12 @@ export default function OrderTracking(props: { initialPhone?: string }) {
                   Error
                 </span>
                 <span class="font-display text-lg font-black uppercase tracking-tight text-newsprint">
-                  Татахад алдаа
+                  Fetch error
                 </span>
               </div>
               <p class="font-mono text-xs font-bold text-newsprint/90">
-                Захиалга татахад алдаа гарлаа. Сүлжээний асуудал байж магадгүй — дахин оролдоно уу.
+                Something went wrong while fetching your orders. Might be a network issue — please
+                try again.
               </p>
               <button
                 type="button"
@@ -136,16 +137,16 @@ export default function OrderTracking(props: { initialPhone?: string }) {
                 disabled={ordersQuery.isFetching}
                 class="inline-flex items-center justify-center gap-2 border-2 border-ink bg-hazard-stripes px-5 py-3 font-display text-sm font-black uppercase tracking-wide text-ink shadow-hard-sm transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none disabled:opacity-50"
               >
-                {ordersQuery.isFetching ? "ТАТАЖ БАЙНА…" : "↻ Дахин оролдох"}
+                {ordersQuery.isFetching ? "LOADING…" : "↻ Retry"}
               </button>
             </div>
           </Show>
 
           <Show when={ordersQuery.isSuccess && orders().length === 0}>
             <div class="border-2 border-ink bg-newsprint-2 p-8 text-center shadow-hard-sm">
-              <p class="font-display text-2xl uppercase text-ink">Захиалга олдсонгүй</p>
+              <p class="font-display text-2xl uppercase text-ink">No orders found</p>
               <p class="mt-2 font-mono text-xs uppercase tracking-wider text-ink-muted">
-                Энэ утасны дугаарт харгалзах захиалга алга байна
+                No orders match this phone number
               </p>
             </div>
           </Show>
@@ -167,7 +168,7 @@ export default function OrderTracking(props: { initialPhone?: string }) {
                       <div class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-ink bg-newsprint-dark px-4 py-3">
                         <div class="flex items-center gap-3">
                           <span class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
-                            №
+                            No.
                           </span>
                           <span class="font-mono text-sm font-black text-ink">
                             {order.orderNumber}
@@ -185,7 +186,7 @@ export default function OrderTracking(props: { initialPhone?: string }) {
                       <div class="grid grid-cols-2 gap-3 px-4 py-3 sm:grid-cols-3">
                         <div>
                           <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
-                            Огноо
+                            Date
                           </p>
                           <p class="font-mono text-xs font-bold text-ink">
                             {formatDate(order.orderedAt)}
@@ -193,7 +194,7 @@ export default function OrderTracking(props: { initialPhone?: string }) {
                         </div>
                         <div>
                           <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
-                            Нийт
+                            Total
                           </p>
                           <p class="font-mono text-xs font-black text-orange">
                             {formatMnt(order.totalMnt)}
@@ -201,7 +202,7 @@ export default function OrderTracking(props: { initialPhone?: string }) {
                         </div>
                         <div>
                           <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
-                            Бараа
+                            Items
                           </p>
                           <p class="font-mono text-xs font-bold text-ink">{itemCount}ш</p>
                         </div>
@@ -210,7 +211,7 @@ export default function OrderTracking(props: { initialPhone?: string }) {
                       {/* Delivery address */}
                       <div class="border-t-2 border-ink/30 px-4 py-3">
                         <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
-                          Хүргэлтийн хаяг
+                          Delivery address
                         </p>
                         <p class="mt-1 font-mono text-xs font-bold text-ink">{order.address}</p>
                       </div>
@@ -219,7 +220,7 @@ export default function OrderTracking(props: { initialPhone?: string }) {
                       <Show when={qpayPayment}>
                         <div class="border-t-2 border-ink/30 px-4 py-3">
                           <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
-                            Төлбөр (QPay)
+                            Payment (QPay)
                           </p>
                           <p class="mt-1 font-mono text-xs font-bold text-ink">
                             {paymentStatusLabel[qpayPayment!.status] ?? qpayPayment!.status}
@@ -231,7 +232,7 @@ export default function OrderTracking(props: { initialPhone?: string }) {
                       <Show when={order.items.length > 0}>
                         <div class="border-t-2 border-ink/30 bg-newsprint px-4 py-3">
                           <p class="mb-2 font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
-                            Бараанууд
+                            Items
                           </p>
                           <ul class="space-y-1.5">
                             <For each={order.items}>
