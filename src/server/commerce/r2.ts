@@ -4,7 +4,7 @@ import { env } from "cloudflare:workers";
  * R2 helpers for product images.
  *
  * Images are stored in the `BUCKET` R2 binding under `products/<id>/<uuid>.<ext>`
- * and served publicly via the `/img/*` worker route (see `src/server/api/app.ts`).
+ * and served publicly via the `/img/*` worker route (see `src/server/api/routes/images.ts`).
  * The `productImage.url` column stores the public path (`/img/<key>`), so the
  * storefront and admin share one URL space and never need a signed CDN config.
  */
