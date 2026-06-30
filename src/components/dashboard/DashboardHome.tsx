@@ -119,9 +119,8 @@ const DashboardHome: Component = () => {
     queryFn: async () => {
       const { data, error } = await api.admin.orders.get({ query: { limit: "10" } });
       if (error) throw error;
-      // The `/admin/orders` route dispatches to the full filtered-list
-      // handler, which returns `{ orders, total, limit, offset }` with each
-      // order carrying a singular `payment` object (not a `payments` array).
+      // The admin orders list endpoint returns `{ orders, total }` with
+      // each order carrying a singular `payment` object.
       return data.orders;
     },
   }));
