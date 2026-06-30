@@ -1,0 +1,240 @@
+---
+import "./restored-styles.css";
+const products = [
+  {
+    name: "MOONDROP CHU II",
+    price: "$19",
+    tag: "metal shell starter",
+    color: "var(--rust)",
+    image:
+      "https://cn.cdn.moondroplab.com/627128d862c9a44234848dda/64a67decb6354a3471c0d4cd_CHU2.jpg",
+  },
+  {
+    name: "7Hz Zero:2",
+    price: "$24",
+    tag: "crinacle street pick",
+    color: "var(--clay)",
+    image:
+      "https://www.theaudiostore.in/cdn/shop/files/7hz-x-crinacle-zero-2-iem-with-mic-orange-44271691333887.webp?v=1744393797&width=900",
+  },
+  {
+    name: "Kiwi Ears Belle",
+    price: "$30",
+    tag: "black plate daily",
+    color: "var(--ash)",
+    image:
+      "https://kiwiears.com/cdn/shop/files/KiwiEarsBelle_2_08949fc3-017c-4815-a6cb-8caa6ad6a52f.jpg?v=1773412066&width=1200",
+  },
+  {
+    name: "TRUTHEAR Zero:Red",
+    price: "$55",
+    tag: "red shell pressure",
+    color: "var(--blood)",
+    image:
+      "https://prom.ua/img/2458303318_w640_h640_vnutrikanalnye-iem-naushniki.jpg",
+  },
+];
+
+const drops = [
+  "bass with concrete dust on it",
+  "vocals folded into a ripped black hoodie",
+  "pocket gear for the friend who vanishes at 3:11",
+  "for walking home with your fit still smoking",
+];
+---
+
+    <main class="shop-stage" data-stage>
+      <div class="grain" aria-hidden="true"></div>
+      <div class="scan" aria-hidden="true"></div>
+      <div class="paste-wall" aria-hidden="true">
+        <span>AUTHORIZED LOITERING</span>
+        <span>PLUG IN OR LEAVE</span>
+        <span>NO WINDOW SHOPPING AFTER MIDNIGHT</span>
+        <span>BOOTLEG FEEL / REAL STOCK</span>
+      </div>
+
+      <header class="site-head" aria-label="Primary">
+        <a class="mark" href="/">
+          <span>PLUGGED</span>
+          <small>private audio supply</small>
+        </a>
+        <nav>
+          <a href="#drop">drop</a>
+          <a href="#tunnel">tunnel</a>
+          <a href="#cart">cart</a>
+        </nav>
+        <button class="bag" type="button" data-cart-button aria-label="Open bag">
+          <span data-count>0</span>
+        </button>
+      </header>
+
+      <section class="hero" id="drop" aria-labelledby="home-title">
+        <div class="hero-copy">
+          <p class="kicker">02:47 AM / no receipt no problem</p>
+          <h1 id="home-title" data-glitch="PLUGGED">PLUGGED</h1>
+          <p class="manifesto">
+            Pocket audio for kids who dress like the venue lost power and still
+            know exactly where the bass is buried.
+          </p>
+          <div class="hero-actions" aria-label="Shopping actions">
+            <a href="#wall">raid the wall</a>
+            <a href="#cart">stash a kit</a>
+          </div>
+        </div>
+
+        <div class="signal-orbit" aria-hidden="true">
+          <span style="--i:0"></span>
+          <span style="--i:1"></span>
+          <span style="--i:2"></span>
+          <span style="--i:3"></span>
+          <span style="--i:4"></span>
+          <span style="--i:5"></span>
+        </div>
+
+        <div class="hero-product" aria-label="Featured product">
+          <div class="iem-object">
+            <div class="shell shell-left"></div>
+            <div class="shell shell-right"></div>
+            <div class="cable"></div>
+          </div>
+          <span class="hero-photo">
+            <img src={products[0].image} alt="MOONDROP CHU II in-ear monitors" />
+          </span>
+          <p>MOONDROP CHU II</p>
+          <strong>$19 / floor model energy</strong>
+        </div>
+      </section>
+
+      <section class="ticker" aria-label="Store mood">
+        <div>
+          <span>DIRTY FIT CLEAN SIGNAL</span>
+          <span>POCKET HI-FI</span>
+          <span>BLACK FOAM / NO SMALL TALK</span>
+          <span>STOCK DROPS WHEN THE LIGHTS CUT</span>
+          <span>DIRTY FIT CLEAN SIGNAL</span>
+          <span>POCKET HI-FI</span>
+        </div>
+      </section>
+
+      <section class="product-wall" id="wall" aria-labelledby="wall-title">
+        <div class="wall-intro">
+          <p class="kicker">shop like you found it taped to a pole</p>
+          <h2 id="wall-title">If it looks stolen, it probably sounds expensive.</h2>
+        </div>
+
+        <div class="wall-grid">
+          {
+            products.map((product, index) => (
+              <article
+                class="product-slab"
+                style={`--accent:${product.color}; --delay:${index * 90}ms`}
+              >
+                <button
+                  type="button"
+                  class="buy-zone"
+                  data-add
+                  data-product={product.name}
+                  aria-label={`Add ${product.name} to cart`}
+                >
+                  <span class="product-visual" aria-hidden="true">
+                    <img
+                      src={product.image}
+                      alt={`${product.name} in-ear monitor product photo`}
+                      loading={index === 0 ? "eager" : "lazy"}
+                    />
+                  </span>
+                  <span class="product-meta">
+                    <small>{product.tag}</small>
+                    <strong>{product.name}</strong>
+                    <em>{product.price}</em>
+                  </span>
+                  <span class="add-flash">add</span>
+                </button>
+              </article>
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="tunnel" id="tunnel" aria-labelledby="tunnel-title">
+        <div class="tunnel-copy">
+          <p class="kicker">underpass listening test</p>
+          <h2 id="tunnel-title">The drop is quiet until it owns you.</h2>
+        </div>
+        <div class="tunnel-rails" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <ol class="drop-list">
+          {drops.map((drop) => <li>{drop}</li>)}
+        </ol>
+      </section>
+
+      <section class="cart-lab" id="cart" aria-labelledby="cart-title">
+        <div>
+          <p class="kicker">checkout for the unavailable</p>
+          <h2 id="cart-title">Make your pockets heavier.</h2>
+          <p>
+            Start with the shells, grab the cable, seal the city out, and act
+            like you did not spend rent money on tiny speakers.
+          </p>
+        </div>
+        <div class="receipt" data-receipt>
+          <span>empty bag</span>
+          <strong>$0</strong>
+          <button type="button" data-add-random>grab blind</button>
+        </div>
+      </section>
+    </main>
+
+<script is:inline>
+      const stage = document.querySelector("[data-stage]");
+      const count = document.querySelector("[data-count]");
+      const receipt = document.querySelector("[data-receipt]");
+      const addButtons = document.querySelectorAll("[data-add]");
+      const randomButton = document.querySelector("[data-add-random]");
+      const products = [
+        ["MOONDROP CHU II", 19],
+        ["7Hz Zero:2", 24],
+        ["Kiwi Ears Belle", 30],
+        ["TRUTHEAR Zero:Red", 55],
+      ];
+      let cart = [];
+
+      function renderCart() {
+        const total = cart.reduce((sum, item) => sum + item[1], 0);
+        count.textContent = String(cart.length);
+        receipt.innerHTML = `
+          <span>${cart.length ? cart.map((item) => item[0]).join(" / ") : "empty bag"}</span>
+          <strong>$${total}</strong>
+          <button type="button" data-add-random>grab blind</button>
+        `;
+        receipt.querySelector("[data-add-random]").addEventListener("click", addRandom);
+        stage.classList.remove("cart-hit");
+        requestAnimationFrame(() => stage.classList.add("cart-hit"));
+      }
+
+      function addItem(name) {
+        const item = products.find((product) => product[0] === name);
+        if (!item) return;
+        cart = [...cart, item];
+        renderCart();
+      }
+
+      function addRandom() {
+        addItem(products[Math.floor(Math.random() * products.length)][0]);
+      }
+
+      addButtons.forEach((button) => {
+        button.addEventListener("click", () => addItem(button.dataset.product));
+      });
+      randomButton.addEventListener("click", addRandom);
+
+      window.addEventListener(
+        "pointermove",
+        (event) => {
+          stage.style.setProperty("--mx", `${(event.clientX / window.innerWidth) * 100}%`);
+          stage.style.setProperty("--my", `${(event.clientY / window.innerHeight) * 100}%`);
+        },
+        { passive: true },
+      );
+</script>

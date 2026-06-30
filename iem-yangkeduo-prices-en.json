@@ -1101,7 +1101,7 @@
       }
     },
     {
-      "query": "gk gunten",
+      "query": "gk kunten",
       "category": "IEM",
       "status": "ok",
       "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=gk%20gunten",
@@ -2589,6 +2589,168 @@
         "hits": ["truthear", "keyx", "First ear"],
         "terms": ["truthear", "keyx", "portable", "dac", "amplifier", "First ear"],
         "requiredMissing": []
+      }
+    },
+    {
+      "query": "KZ Castor Pro",
+      "category": "IEM",
+      "status": "ok",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=KZ%20Castor",
+      "search_results": [],
+      "matched_search_result": {
+        "title": "KZ Castor Pro双动圈有线耳机入耳式高保真HIFI耳塞重低音监听",
+        "price_yuan": "63",
+        "audit": {
+          "score": 2,
+          "hits": ["kz", "castor"],
+          "terms": ["kz", "castor", "pro"]
+        }
+      },
+      "product_title": "KZ Castor Pro双动圈有线耳机入耳式高保真HIFI耳塞重低音监听",
+      "product_url": "https://mobile.yangkeduo.com/search_result.html?search_key=KZ%20Castor",
+      "base_price_yuan": "63",
+      "variations": [
+        {
+          "selected": "银色（标准）",
+          "price_yuan": "63",
+          "promo_price_before_coupon_yuan": "108",
+          "chosen_options": {
+            "color": "银色",
+            "mic": "无麦"
+          }
+        },
+        {
+          "selected": "银色（带麦）",
+          "price_yuan": "70",
+          "promo_price_before_coupon_yuan": "115",
+          "chosen_options": {
+            "color": "银色",
+            "mic": "带麦"
+          }
+        },
+        {
+          "selected": "黑色（标准）",
+          "price_yuan": "75",
+          "promo_price_before_coupon_yuan": "120",
+          "chosen_options": {
+            "color": "黑色",
+            "mic": "无麦"
+          }
+        },
+        {
+          "selected": "黑色（带麦）",
+          "price_yuan": "79",
+          "promo_price_before_coupon_yuan": "124",
+          "chosen_options": {
+            "color": "黑色",
+            "mic": "带麦"
+          }
+        }
+      ],
+      "notes": "Dual dynamic driver, Harman target with tuning switches. ¥63-79 after coupon.",
+      "product_audit": {
+        "score": 2,
+        "hits": ["kz", "castor", "pro"],
+        "terms": ["kz", "castor", "pro", "双动圈"]
+      }
+    },
+    {
+      "query": "KZ ZVX Pro",
+      "category": "IEM",
+      "status": "ok",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=KZ%20ZVX%20Pro",
+      "search_results": [],
+      "matched_search_result": {
+        "title": "KZ-ZVX PRO 动圈式入耳式耳机线控带麦重低音发烧HIFI监听耳麦",
+        "price_yuan": "67",
+        "audit": {
+          "score": 2,
+          "hits": ["kz", "zvx", "pro"],
+          "terms": ["kz", "zvx", "pro"]
+        }
+      },
+      "product_title": "KZ-ZVX PRO 动圈式入耳式耳机线控带麦重低音发烧HIFI监听耳麦",
+      "product_url": "https://mobile.yangkeduo.com/search_result.html?search_key=KZ%20ZVX%20Pro",
+      "base_price_yuan": "67",
+      "variations": [
+        {
+          "selected": "默认",
+          "price_yuan": "67",
+          "promo_price_before_coupon_yuan": "0",
+          "chosen_options": {}
+        }
+      ],
+      "notes": "Single 10mm DD, all-metal build, V-shaped with powerful bass. Best ultra-budget KZ.",
+      "product_audit": {
+        "score": 2,
+        "hits": ["kz", "zvx", "pro"],
+        "terms": ["kz", "zvx", "pro", "动圈"]
+      }
+    },
+    {
+      "query": "KZ ZSN Pro 2",
+      "category": "IEM",
+      "status": "ok",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=KZ%20ZSN%20Pro%202",
+      "search_results": [],
+      "matched_search_result": {
+        "title": "KZZSNPRO2发烧级圈铁入耳式有线耳机HIFI高音质耳塞动铁耳机",
+        "price_yuan": "74.84",
+        "audit": {
+          "score": 2,
+          "hits": ["kz", "zsn", "pro"],
+          "terms": ["kz", "zsn", "pro", "2"]
+        }
+      },
+      "product_title": "KZZSNPRO2发烧级圈铁入耳式有线耳机HIFI高音质耳塞动铁耳机",
+      "product_url": "https://mobile.yangkeduo.com/search_result.html?search_key=KZ%20ZSN%20Pro%202",
+      "base_price_yuan": "74.84",
+      "variations": [
+        {
+          "selected": "默认",
+          "price_yuan": "74.84",
+          "promo_price_before_coupon_yuan": "0",
+          "chosen_options": {}
+        }
+      ],
+      "notes": "1DD+1BA hybrid, V-shaped with wicked bass. Nostalgic KZ sound revival.",
+      "product_audit": {
+        "score": 2,
+        "hits": ["kz", "zsn", "pro", "2"],
+        "terms": ["kz", "zsn", "pro", "2", "圈铁"]
+      }
+    },
+    {
+      "query": "KZ PRX",
+      "category": "IEM",
+      "status": "ok",
+      "search_url": "https://mobile.yangkeduo.com/search_result.html?search_key=KZ%20PRX%20planar",
+      "search_results": [],
+      "matched_search_result": {
+        "title": "KZPRX平板振膜平面耳机入耳式有线专业发烧高保真HIFI监听耳返",
+        "price_yuan": "118.8",
+        "audit": {
+          "score": 2,
+          "hits": ["kz", "prx"],
+          "terms": ["kz", "prx", "planar", "平板"]
+        }
+      },
+      "product_title": "KZPRX平板振膜平面耳机入耳式有线专业发烧高保真HIFI监听耳返",
+      "product_url": "https://mobile.yangkeduo.com/search_result.html?search_key=KZ%20PRX%20planar",
+      "base_price_yuan": "118.8",
+      "variations": [
+        {
+          "selected": "默认",
+          "price_yuan": "118.8",
+          "promo_price_before_coupon_yuan": "173",
+          "chosen_options": {}
+        }
+      ],
+      "notes": "13.2mm planar magnetic, 4th gen. Most mature sounding KZ planar. Warm U-shape to neutral.",
+      "product_audit": {
+        "score": 2,
+        "hits": ["kz", "prx"],
+        "terms": ["kz", "prx", "planar", "平板振膜"]
       }
     }
   ]
