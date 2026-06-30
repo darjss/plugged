@@ -1,7 +1,7 @@
 import * as CheckboxPrimitive from "@kobalte/core/checkbox";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import { CheckIcon } from "lucide-solid";
-import type { ComponentProps, ValidComponent } from "solid-js";
+import type { ComponentProps, JSX, ValidComponent } from "solid-js";
 import { splitProps } from "solid-js";
 
 import { cn } from "@/lib/utils";
@@ -10,10 +10,10 @@ type CheckboxProps<T extends ValidComponent = "div"> = PolymorphicProps<
   T,
   CheckboxPrimitive.CheckboxRootProps<T>
 > &
-  Pick<ComponentProps<T>, "class">;
+  Pick<ComponentProps<T>, "class" | "id" | "children">;
 
 const Checkbox = <T extends ValidComponent = "div">(props: CheckboxProps<T>) => {
-  const [local, others] = splitProps(props, ["class", "id"]);
+  const [local, others] = splitProps(props, ["class", "id", "children"]);
   return (
     <CheckboxPrimitive.Root
       data-slot="checkbox"
@@ -34,6 +34,7 @@ const Checkbox = <T extends ValidComponent = "div">(props: CheckboxProps<T>) => 
           <CheckIcon class="size-3.5" />
         </CheckboxPrimitive.Indicator>
       </CheckboxPrimitive.Control>
+      {local.children as JSX.Element}
     </CheckboxPrimitive.Root>
   );
 };

@@ -10,8 +10,10 @@ const user = await requireAdmin(Astro);
 if (user instanceof Response) {
   return user;
 }
+
+const url = Astro.url.pathname + Astro.url.search;
 ---
 
 <Layout title="Dashboard | Plugged">
-  <DashboardApp client:load />
+  <DashboardApp client:load url={url} />
 </Layout>

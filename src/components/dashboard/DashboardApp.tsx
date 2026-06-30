@@ -1,4 +1,5 @@
 import { Route, Router } from "@solidjs/router";
+import type { JSX } from "solid-js";
 
 import DashboardProviders from "./DashboardProviders";
 import DashboardLayout from "./DashboardLayout";
@@ -12,17 +13,25 @@ import AnalyticsPage from "./AnalyticsPage";
 
 /**
  * Admin SPA. Mounted at `/dashboard/*` via `client:load` in
- * `src/pages/dashboard/index.astro`. The Astro page enforces the admin
- * guard server-side; the router only handles in-shell sub-routes.
+ * `src/pages/dashboard/index.astro` (and `[...slug].astro` for deep
+ * links). The Astro page enforces the admin guard server-side; the
+ * router only handles in-shell sub-routes.
  *
  * Route base is `/dashboard` so `<Route path="/">` maps to `/dashboard`
  * and `<Route path="/products">` maps to `/dashboard/products`.
+ *
+ * `url` is passed from the Astro page so the SolidJS `StaticRouter` can
+ * match the correct route during SSR. Without it, `getRequestEvent()`
+ * returns `undefined` in the Astro-island context, the router defaults
+ * to the `base` path, and every deep link renders the `/` fallthrough.
+ * On the client the `url` prop is ignored — `Router` uses
+ * `window.location` when `isServer` is false.
  */
 
-export default function DashboardApp() {
+export default function DashboardApp(props: { url?: string }): JSX.Element {
   return (
     <DashboardProviders>
-      <Router root={DashboardLayout} base="/dashboard">
+      <Router root={DashboardLayout} base="/dashboard" url={props.url}>
         <Route path="/" component={DashboardHome} />
         <Route path="/products" component={ProductsList} />
         <Route path="/products/new" component={ProductForm} />
