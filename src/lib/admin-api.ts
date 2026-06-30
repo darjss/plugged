@@ -146,18 +146,18 @@ async function unwrap<TOut>(
 
 export const adminProductsApi = {
   async list(filters: AdminProductListFilters): Promise<AdminProductList> {
-    return unwrap<AdminProductList>(
-      api.admin.products.get({
-        query: {
-          brandId: filters.brandId ?? "",
-          categoryId: filters.categoryId ?? "",
-          status: filters.status ?? "",
-          search: filters.search ?? "",
-          limit: filters.limit ?? 25,
-          offset: filters.offset ?? 0,
-        },
-      }),
-    );
+    // Omit empty/null filter params instead of sending "" — the backend
+    // `adminListProductsSchema` uses `v.optional(v.nullable(...))` which
+    // rejects empty strings. Only send params that have values.
+    const query = {
+      limit: filters.limit ?? 25,
+      offset: filters.offset ?? 0,
+      ...(filters.brandId && { brandId: filters.brandId }),
+      ...(filters.categoryId && { categoryId: filters.categoryId }),
+      ...(filters.status && { status: filters.status }),
+      ...(filters.search && { search: filters.search }),
+    };
+    return unwrap<AdminProductList>(api.admin.products.get({ query }));
   },
 
   async get(id: string): Promise<AdminProductDetail> {
