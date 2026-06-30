@@ -54,9 +54,6 @@
       "index_name": "plugged-products",
     },
   ],
-  "placement": {
-    "region": "aws:ap-southeast-1",
-  },
   "vars": {
     "BETTER_AUTH_URL": "https://pluggedaudio.store",
     "GOOGLE_CLIENT_ID": "294993919311-amrao4b8jge8sgdkiu8vptsurj5vj3s2.apps.googleusercontent.com",
