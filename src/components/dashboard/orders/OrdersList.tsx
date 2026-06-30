@@ -149,6 +149,7 @@ export default function OrdersList() {
           <TableHeader>
             <TableRow>
               <TableHead>Order</TableHead>
+              <TableHead>Products</TableHead>
               <TableHead>Customer</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Status</TableHead>
@@ -161,6 +162,45 @@ export default function OrdersList() {
               {(row) => (
                 <TableRow class="cursor-pointer" onClick={() => navigate(`/orders/${row.id}`)}>
                   <TableCell class="font-black uppercase">{row.orderNumber}</TableCell>
+                  <TableCell>
+                    <Show
+                      when={row.items.length > 0}
+                      fallback={<span class="font-mono text-xs text-muted-foreground">—</span>}
+                    >
+                      <div class="flex flex-wrap items-center gap-1">
+                        <For each={row.items}>
+                          {(item) => (
+                            <div
+                              class="group/img relative flex size-8 items-center justify-center border-2 border-ink bg-muted"
+                              title={item.productName}
+                            >
+                              <Show
+                                when={item.product.image}
+                                fallback={
+                                  <span class="font-mono text-[10px] uppercase text-muted-foreground">
+                                    {item.productName.slice(0, 2)}
+                                  </span>
+                                }
+                              >
+                                {(img) => (
+                                  <img
+                                    src={img().url}
+                                    alt={img().alt ?? item.productName}
+                                    class="size-full object-cover"
+                                  />
+                                )}
+                              </Show>
+                            </div>
+                          )}
+                        </For>
+                        <Show when={row.items.length >= 3}>
+                          <span class="font-mono text-[10px] uppercase text-muted-foreground">
+                            +more
+                          </span>
+                        </Show>
+                      </div>
+                    </Show>
+                  </TableCell>
                   <TableCell>
                     <div class="flex flex-col">
                       <span class="font-mono text-sm">{row.customerPhone}</span>

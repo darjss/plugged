@@ -822,6 +822,21 @@ export const commerceQueries = {
               paymentNumber: true,
             },
           },
+          items: {
+            limit: 3,
+            columns: { productName: true, productId: true },
+            with: {
+              product: {
+                with: {
+                  images: {
+                    orderBy: imageOrderBy,
+                    limit: 1,
+                    columns: { url: true, alt: true },
+                  },
+                },
+              },
+            },
+          },
         },
       });
 
