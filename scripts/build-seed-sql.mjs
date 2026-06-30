@@ -68,11 +68,18 @@ const categories = [
     name: "DAC Amps",
     description: "Portable DAC amplifiers — dongles that drive your IEMs.",
   },
+  {
+    id: "category_wireless",
+    slug: "wireless",
+    name: "Wireless",
+    description: "True wireless earbuds — Bluetooth that doesn't suck.",
+  },
 ];
 
 const categoryByJsonCategory = {
   IEM: "category_iem",
   DAC: "category_dac",
+  Wireless: "category_wireless",
 };
 
 // ── Brand detection ──────────────────────────────────────────────────
