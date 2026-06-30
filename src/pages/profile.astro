@@ -2,7 +2,7 @@
 import StorefrontLayout from "../layouts/StorefrontLayout.astro";
 import OrderHistory from "../components/storefront/OrderHistory.tsx";
 import LogoutButton from "../components/storefront/LogoutButton.tsx";
-import { requireUser } from "../server/auth/guards";
+import { requireUser } from "../lib/server/require-user";
 
 export const prerender = false;
 
