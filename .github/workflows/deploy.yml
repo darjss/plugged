@@ -1,0 +1,50 @@
+name: Deploy to Cloudflare
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: voidzero-dev/setup-vp@v1
+        with:
+          node-version: "24"
+          cache: true
+
+      - name: Install dependencies
+        run: vp install
+
+      - name: Build
+        run: vp run build
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
+          SMS_GATEWAY_BASE_URL: ${{ secrets.SMS_GATEWAY_BASE_URL }}
+          SMS_GATEWAY_LOGIN: ${{ secrets.SMS_GATEWAY_LOGIN }}
+          SMS_GATEWAY_PASSWORD: ${{ secrets.SMS_GATEWAY_PASSWORD }}
+          QPAY_URL: ${{ secrets.QPAY_URL }}
+          QPAY_USERNAME: ${{ secrets.QPAY_USERNAME }}
+          QPAY_PASSWORD: ${{ secrets.QPAY_PASSWORD }}
+          QPAY_CALLBACK_URL: ${{ secrets.QPAY_CALLBACK_URL }}
+          QPAY_INVOICE_CODE: ${{ secrets.QPAY_INVOICE_CODE }}
+          QPAY_WEBHOOK_SECRET: ${{ secrets.QPAY_WEBHOOK_SECRET }}
+          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
+          POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
+          POSTHOG_PERSONAL_API_KEY: ${{ secrets.POSTHOG_PERSONAL_API_KEY }}
+          POSTHOG_PROJECT_ID: ${{ secrets.POSTHOG_PROJECT_ID }}
+          PUBLIC_POSTHOG_KEY: ${{ secrets.PUBLIC_POSTHOG_KEY }}
+          PUBLIC_POSTHOG_HOST: ${{ secrets.PUBLIC_POSTHOG_HOST }}
+          AI_SEARCH_INDEX_ID: ${{ secrets.AI_SEARCH_INDEX_ID }}
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
