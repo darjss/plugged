@@ -81,10 +81,8 @@ export const adminStatsQueries = {
   async getLowStockProducts() {
     return db
       .select({
-        productId: product.id,
         productSlug: product.slug,
         productName: product.name,
-        variantId: productVariant.id,
         variantName: productVariant.name,
         sku: productVariant.sku,
         stockQuantity: productVariant.stockQuantity,
