@@ -34,6 +34,10 @@
       "binding": "SESSION",
       "id": "26d058168b5d44c1a8b6f0b27bdb196b",
     },
+    {
+      "binding": "PLUGGED_SESSION",
+      "id": "d42aa73c25e641f6997bc2cd91b7ccf9",
+    },
   ],
   "r2_buckets": [
     {

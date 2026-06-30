@@ -1,3 +1,4 @@
+import { env as cfEnv } from "cloudflare:workers";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { phoneNumber } from "better-auth/plugins/phone-number";
@@ -15,6 +16,15 @@ function createAuth() {
       provider: "sqlite",
       schema,
     }),
+    secondaryStorage: {
+      get: (key) => cfEnv.PLUGGED_SESSION.get(key),
+      set: (key, value, ttl) =>
+        cfEnv.PLUGGED_SESSION.put(key, value, ttl ? { expirationTtl: ttl } : undefined),
+      delete: (key) => cfEnv.PLUGGED_SESSION.delete(key),
+    },
+    session: {
+      storeSessionInDatabase: true,
+    },
     emailAndPassword: {
       enabled: false,
     },
