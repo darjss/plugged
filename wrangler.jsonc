@@ -55,7 +55,7 @@
     },
   ],
   "placement": {
-    "mode": "smart",
+    "region": "aws:ap-southeast-1",
   },
   "vars": {
     "BETTER_AUTH_URL": "https://pluggedaudio.store",
