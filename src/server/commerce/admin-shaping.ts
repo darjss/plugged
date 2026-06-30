@@ -27,6 +27,12 @@ export function shapeAdminOrderListRow<
     createdAt: Date;
     user: { email: string; name: string | null; phoneNumber: string | null } | null;
     payments: { status: string; provider: string; paymentNumber: string }[];
+    items: {
+      productName: string;
+      product: {
+        images: { url: string; alt: string | null }[];
+      };
+    }[];
   },
 >(
   o: T,
@@ -47,6 +53,12 @@ export function shapeAdminOrderListRow<
     provider: T["payments"][number]["provider"];
     paymentNumber: T["payments"][number]["paymentNumber"];
   } | null;
+  items: {
+    productName: string;
+    product: {
+      image: { url: string; alt: string | null } | null;
+    };
+  }[];
 } {
   return {
     id: o.id,
@@ -73,6 +85,17 @@ export function shapeAdminOrderListRow<
           paymentNumber: o.payments[0].paymentNumber,
         }
       : null,
+    items: o.items.map((item) => ({
+      productName: item.productName,
+      product: {
+        image: item.product.images[0]
+          ? {
+              url: item.product.images[0].url,
+              alt: item.product.images[0].alt,
+            }
+          : null,
+      },
+    })),
   };
 }
 
