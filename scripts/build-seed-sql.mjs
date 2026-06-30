@@ -12,6 +12,7 @@
  *   wrangler d1 execute plugged --remote --file seed.sql
  */
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 
 const repoRoot = new URL("../", import.meta.url);
 const source = JSON.parse(readFileSync(new URL("iem-yangkeduo-prices-en.json", repoRoot), "utf8"));
@@ -103,6 +104,20 @@ function productNameFor(result) {
   return titleCase(result.query.replaceAll(/\s+/g, " ").trim());
 }
 
+// ── Variant name translation (Chinese → English) ────────────────────
+const variantTranslations = {
+  "银色（标准）": "Silver Standard",
+  "银色（带麦）": "Silver With Mic",
+  "黑色（标准）": "Black Standard",
+  "黑色（带麦）": "Black With Mic",
+  默认: "Default",
+};
+
+function translateVariant(name) {
+  if (!name) return "Default";
+  return variantTranslations[name] ?? name;
+}
+
 // ── Generate SQL ─────────────────────────────────────────────────────
 const okResults = source.results.filter((r) => r.status === "ok");
 const statements = [
@@ -174,10 +189,19 @@ for (const result of okResults) {
     : [{ selected: productName, price_yuan: result.base_price_yuan }];
 
   for (const [index, variation] of variations.entries()) {
-    const variantName = variation.selected || productName;
-    const variantSlug = slugify(`${productSlug}-${variantName || index}`);
+    const variantName = translateVariant(variation.selected || productName);
+    let variantSlug = slugify(`${productSlug}-${variantName}`);
+    // If slug is too long or would collide, append a short hash of the
+    // original variant name to guarantee uniqueness.
+    if (variantSlug.length > 60) {
+      const hash = createHash("sha1")
+        .update(variation.selected ?? "")
+        .digest("hex")
+        .slice(0, 8);
+      variantSlug = `${slugify(productSlug)}-${hash}`;
+    }
     const variantId = `variant_${variantSlug}`.slice(0, 120);
-    const sku = `PLG-${variantSlug}`.toUpperCase().slice(0, 80);
+    const sku = `PLG-${variantSlug.slice(0, 72)}`.toUpperCase();
     const priceMnt = moneyMnt(variation.price_yuan || result.base_price_yuan);
     const compareAtPriceMnt = moneyMnt(variation.promo_price_before_coupon_yuan);
 
