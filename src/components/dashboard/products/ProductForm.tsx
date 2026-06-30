@@ -477,10 +477,11 @@ const ProductForm: Component = () => {
                     id="featured"
                     checked={form.featured}
                     onChange={(checked) => setForm("featured", checked)}
-                  />
-                  <CheckboxLabel for="featured" class="font-mono text-sm">
-                    Featured on homepage
-                  </CheckboxLabel>
+                  >
+                    <CheckboxLabel for="featured" class="font-mono text-sm">
+                      Featured on homepage
+                    </CheckboxLabel>
+                  </Checkbox>
                 </div>
               </div>
             </section>
@@ -506,10 +507,11 @@ const ProductForm: Component = () => {
                               id={`cat-${cat.id}`}
                               checked={checked()}
                               onChange={(c) => toggleCategory(cat.id, c)}
-                            />
-                            <CheckboxLabel for={`cat-${cat.id}`} class="font-mono text-sm">
-                              {cat.name}
-                            </CheckboxLabel>
+                            >
+                              <CheckboxLabel for={`cat-${cat.id}`} class="font-mono text-sm">
+                                {cat.name}
+                              </CheckboxLabel>
+                            </Checkbox>
                           </div>
                         );
                       }}
@@ -625,10 +627,11 @@ const ProductForm: Component = () => {
                       id="iem-mic"
                       checked={form.iemSpec.mic}
                       onChange={(c) => setForm("iemSpec", "mic", c)}
-                    />
-                    <CheckboxLabel for="iem-mic" class="font-mono text-sm">
-                      Has microphone
-                    </CheckboxLabel>
+                    >
+                      <CheckboxLabel for="iem-mic" class="font-mono text-sm">
+                        Has microphone
+                      </CheckboxLabel>
+                    </Checkbox>
                   </div>
                 </div>
               </section>

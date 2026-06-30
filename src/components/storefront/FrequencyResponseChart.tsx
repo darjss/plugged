@@ -1,14 +1,6 @@
 import { scaleLinear, scaleLog } from "d3-scale";
 import { curveMonotoneX, line } from "d3-shape";
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  For,
-  onCleanup,
-  onMount,
-  Show,
-} from "solid-js";
+import { createEffect, createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 
 import { api } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
@@ -57,7 +49,10 @@ function normalizeChannel(channel: { freq: number; db: number }[]): { freq: numb
 }
 
 export default function FrequencyResponseChart(props: Props) {
-  const [data, setData] = createSignal<{ left: { freq: number; db: number }[]; right: { freq: number; db: number }[] } | null>(null);
+  const [data, setData] = createSignal<{
+    left: { freq: number; db: number }[];
+    right: { freq: number; db: number }[];
+  } | null>(null);
   const [failed, setFailed] = createSignal(false);
   const [width, setWidth] = createSignal(640);
   const [dbRange, setDbRange] = createSignal(50);
@@ -72,7 +67,9 @@ export default function FrequencyResponseChart(props: Props) {
 
   onMount(async () => {
     try {
-      const { data: result, error } = await api.products({ slug: props.slug })["frequency-response"].get();
+      const { data: result, error } = await api
+        .products({ slug: props.slug })
+        ["frequency-response"].get();
       if (error || !result) {
         setFailed(true);
         return;
@@ -191,7 +188,10 @@ export default function FrequencyResponseChart(props: Props) {
               </span>
             </div>
             <div class="clip-torn-edges relative border-2 border-ink bg-newsprint-2 p-8 shadow-hard-lg">
-              <div class="bg-noise pointer-events-none absolute inset-0 opacity-15" aria-hidden="true" />
+              <div
+                class="bg-noise pointer-events-none absolute inset-0 opacity-15"
+                aria-hidden="true"
+              />
               <div class="relative z-10 flex flex-col items-center gap-3 py-6 text-center">
                 <span class="rotate-2 border-2 border-ink bg-yellow px-4 py-2 font-display text-heading font-black uppercase tracking-tight text-ink shadow-hard-sm">
                   Measurement unavailable

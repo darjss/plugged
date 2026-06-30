@@ -14,8 +14,13 @@ const user = await requireAdmin(Astro);
 if (user instanceof Response) {
   return user;
 }
+
+// Pass the full pathname+search to the SolidJS Router so the StaticRouter
+// can match the correct sub-route during SSR. Without this, the router
+// defaults to the base path and every deep link renders the home page.
+const url = Astro.url.pathname + Astro.url.search;
 ---
 
 <Layout title="Dashboard | Plugged">
-  <DashboardApp client:load />
+  <DashboardApp client:load url={url} />
 </Layout>
