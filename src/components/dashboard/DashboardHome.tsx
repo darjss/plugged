@@ -119,34 +119,26 @@ const DashboardHome: Component = () => {
     queryFn: async () => {
       const { data, error } = await api.admin.orders.get({ query: { limit: "10" } });
       if (error) throw error;
-      return data;
+      // The `/admin/orders` route dispatches to the full filtered-list
+      // handler, which returns `{ orders, total, limit, offset }` with each
+      // order carrying a singular `payment` object (not a `payments` array).
+      return data.orders;
     },
   }));
 
   const lowStock = createQuery(() => ({
-    queryKey: ["admin", "products", "lowStock"],
+    queryKey: ["admin", "products", "low-stock"],
     queryFn: async () => {
-      const { data, error } = await api.admin.products.get({ query: { lowStock: "true" } });
+      const { data, error } = await api.admin.products["low-stock"].get();
       if (error) throw error;
-      return data.products;
+      return data;
     },
   }));
 
-  // Pick the most informative payment status rather than blindly
-  // taking `payments[0]` (which assumes insertion order and can show
-  // "pending" when a later payment on the same order is "success").
-  const PAYMENT_STATUS_PRIORITY: Record<PaymentStatus, number> = {
-    success: 0,
-    customer_claimed_paid: 1,
-    pending: 2,
-    failed: 3,
-  };
-  const primaryPaymentStatus = (payments: { status: PaymentStatus }[]): PaymentStatus | null => {
-    if (payments.length === 0) return null;
-    return payments.reduce((best, p) =>
-      PAYMENT_STATUS_PRIORITY[p.status] < PAYMENT_STATUS_PRIORITY[best.status] ? p : best,
-    ).status;
-  };
+  // The flat admin order list attaches a single primary `payment` object
+  // (the most recently updated payment) per order, not a `payments` array.
+  const primaryPaymentStatus = (payment: { status: PaymentStatus } | null): PaymentStatus | null =>
+    payment?.status ?? null;
 
   return (
     <div class="mx-auto flex max-w-6xl flex-col gap-8">
@@ -242,7 +234,7 @@ const DashboardHome: Component = () => {
                   <TableBody>
                     <For each={orders()}>
                       {(row) => {
-                        const payStatus = primaryPaymentStatus(row.payments);
+                        const payStatus = primaryPaymentStatus(row.payment);
                         return (
                           <TableRow>
                             <TableCell>

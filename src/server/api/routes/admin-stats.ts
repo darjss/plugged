@@ -14,20 +14,13 @@ export const adminStatsRoutes = new Elysia({ name: "admin-stats-routes" })
   .get("/admin/stats", () => adminStatsQueries.getStats(), { requireAdmin: true })
   .get("/admin/analytics/overview", () => getAnalyticsOverview(), { requireAdmin: true })
   .get("/admin/settings", () => adminSettingsQueries.getSettings(), { requireAdmin: true })
-  // Low-stock shortcut at `/admin/products?lowStock=true`. The full
-  // `/admin/products` list lives in `adminRoutes` (registered first, so it
-  // wins runtime dispatch); this duplicate is kept so Eden Treaty
-  // intersects the `{ products }` shape into the route's inferred type,
-  // which the dashboard home low-stock query depends on.
-  .get(
-    "/admin/products",
-    ({ query }) => {
-      const raw = query as Record<string, string | undefined>;
-      if (raw.lowStock !== "true") return { products: [] };
-      return adminStatsQueries.getLowStockProducts().then((products) => ({ products }));
-    },
-    { requireAdmin: true },
-  )
+  // Low-stock variants for the dashboard home alerts list. Dedicated
+  // endpoint so the home widget doesn't fight the full `/admin/products`
+  // list handler for runtime dispatch. Returns exactly the fields the
+  // widget renders: productSlug, productName, variantName, sku, stockQuantity.
+  .get("/admin/products/low-stock", () => adminStatsQueries.getLowStockProducts(), {
+    requireAdmin: true,
+  })
   .get(
     "/admin/users",
     async ({ query }) => {

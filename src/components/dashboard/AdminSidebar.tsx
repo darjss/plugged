@@ -76,12 +76,7 @@ export default function AdminSidebar() {
       </SidebarContent>
 
       <SidebarFooter class="border-t-2 border-newsprint/15 p-3">
-        <Show
-          when={session.data}
-          fallback={
-            <div class="px-2 py-2 font-mono text-xs text-newsprint/50">Loading session…</div>
-          }
-        >
+        <Show when={session.data}>
           {(user) => (
             <div class="flex items-center gap-3 px-2 py-2">
               <div
@@ -98,6 +93,9 @@ export default function AdminSidebar() {
               </div>
             </div>
           )}
+        </Show>
+        <Show when={session.isLoading && !session.data}>
+          <div class="px-2 py-2 font-mono text-xs text-newsprint/50">Loading session…</div>
         </Show>
         <Button
           variant="ghost"

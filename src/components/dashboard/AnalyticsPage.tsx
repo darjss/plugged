@@ -62,8 +62,8 @@ export default function AnalyticsPage() {
         </p>
         <h1 class="mt-1 font-display text-5xl uppercase leading-none text-ink">Analytics</h1>
         <Show when={overview() && !overview()!.configured}>
-          <p class="mt-3 border-2 border-ink bg-yellow px-3 py-2 font-mono text-xs font-black uppercase text-ink shadow-hard-sm">
-            Set real PUBLIC_POSTHOG_KEY and POSTHOG_PROJECT_ID to query live data.
+          <p class="mt-3 border-2 border-ink bg-yellow px-3 py-2 font-mono text-xs text-ink shadow-hard-sm">
+            Analytics not configured. Connect PostHog to see traffic and conversion data.
           </p>
         </Show>
       </div>
