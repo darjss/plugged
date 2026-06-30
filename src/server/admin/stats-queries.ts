@@ -29,27 +29,26 @@ export const adminStatsQueries = {
   async getStats() {
     const start = startOfTodayUtc();
 
-    const [todayOrders] = await db
-      .select({ value: count() })
-      .from(order)
-      .where(gte(order.createdAt, start));
+    // The four aggregates below are independent reads, so we dispatch
+    // them as a single D1 batch (one round trip) instead of four
+    // sequential queries (~400ms saved at ~100ms/round trip).
+    const [todayOrdersRows, revenueRows, pendingRows, lowStockRows] = await db.batch([
+      db.select({ value: count() }).from(order).where(gte(order.createdAt, start)),
+      db
+        .select({ value: sum(payment.amountMnt) })
+        .from(payment)
+        .where(and(eq(payment.status, "success"), gte(payment.paidAt, start))),
+      db.select({ value: count() }).from(order).where(eq(order.status, "pending")),
+      db
+        .select({ value: sql<number>`count(distinct ${productVariant.productId})` })
+        .from(productVariant)
+        .where(sql`${productVariant.stockQuantity} < ${LOW_STOCK_THRESHOLD}`),
+    ]);
 
-    const [revenue] = await db
-      .select({ value: sum(payment.amountMnt) })
-      .from(payment)
-      .where(and(eq(payment.status, "success"), gte(payment.paidAt, start)));
-
-    const [pending] = await db
-      .select({ value: count() })
-      .from(order)
-      .where(eq(order.status, "pending"));
-
-    const [lowStock] = await db
-      .select({
-        value: sql<number>`count(distinct ${productVariant.productId})`,
-      })
-      .from(productVariant)
-      .where(sql`${productVariant.stockQuantity} < ${LOW_STOCK_THRESHOLD}`);
+    const todayOrders = todayOrdersRows[0];
+    const revenue = revenueRows[0];
+    const pending = pendingRows[0];
+    const lowStock = lowStockRows[0];
 
     return {
       todayOrderCount: todayOrders?.value ?? 0,
