@@ -1,4 +1,5 @@
 import { Elysia } from "elysia";
+import { env } from "cloudflare:workers";
 import { adminSettingsQueries, adminStatsQueries } from "../../admin";
 import { adminUpdateUserSchema, adminUsersQuerySchema } from "../../admin/validation";
 import { getAnalyticsOverview } from "../../integrations/posthog";
@@ -9,10 +10,31 @@ import { parseInput, parseQuery } from "../validation";
  * Admin dashboard stats, analytics overview, settings, and user-admin
  * management. All guarded by `requireAdmin`.
  */
+
+// Analytics overview is a 30-day aggregate that changes slowly; cache it
+// in the CACHE KV namespace for 60s to avoid re-running three HogQL
+// queries on every dashboard load. The fresher `/admin/stats` endpoint
+// (today's orders/revenue) is intentionally NOT cached.
+const ANALYTICS_CACHE_KEY = "analytics:overview";
+const ANALYTICS_CACHE_TTL = 60;
+
 export const adminStatsRoutes = new Elysia({ name: "admin-stats-routes" })
   .use(authPlugin)
   .get("/admin/stats", () => adminStatsQueries.getStats(), { requireAdmin: true })
-  .get("/admin/analytics/overview", () => getAnalyticsOverview(), { requireAdmin: true })
+  .get(
+    "/admin/analytics/overview",
+    async () => {
+      const cached = await env.CACHE.get(ANALYTICS_CACHE_KEY);
+      if (cached) return JSON.parse(cached);
+
+      const result = await getAnalyticsOverview();
+      await env.CACHE.put(ANALYTICS_CACHE_KEY, JSON.stringify(result), {
+        expirationTtl: ANALYTICS_CACHE_TTL,
+      });
+      return result;
+    },
+    { requireAdmin: true },
+  )
   .get("/admin/settings", () => adminSettingsQueries.getSettings(), { requireAdmin: true })
   // Low-stock variants for the dashboard home alerts list. Dedicated
   // endpoint so the home widget doesn't fight the full `/admin/products`

@@ -804,51 +804,57 @@ export const commerceQueries = {
 
       const where = conditions.length > 0 ? and(...conditions) : undefined;
 
-      const rows = await db.query.order.findMany({
-        where,
-        orderBy: desc(order.orderedAt),
-        limit,
-        offset,
-        with: {
-          user: {
-            columns: { email: true, name: true, phoneNumber: true },
-          },
-          payments: {
-            orderBy: (p, { desc }) => [desc(p.updatedAt)],
-            limit: 1,
-            columns: {
-              status: true,
-              provider: true,
-              paymentNumber: true,
+      // The row query and the total-count query are independent reads, so
+      // dispatch them as a single D1 batch (one round trip) instead of two
+      // sequential queries.
+      const [rows, countRows] = await db.batch([
+        db.query.order.findMany({
+          where,
+          orderBy: desc(order.orderedAt),
+          limit,
+          offset,
+          with: {
+            user: {
+              columns: { email: true, name: true, phoneNumber: true },
             },
-          },
-          items: {
-            limit: 4,
-            orderBy: (i, { asc }) => [asc(i.createdAt)],
-            columns: { productName: true, productId: true },
-            with: {
-              product: {
-                with: {
-                  images: {
-                    orderBy: imageOrderBy,
-                    limit: 1,
-                    columns: { url: true, alt: true },
+            payments: {
+              orderBy: (p, { desc }) => [desc(p.updatedAt)],
+              limit: 1,
+              columns: {
+                status: true,
+                provider: true,
+                paymentNumber: true,
+              },
+            },
+            items: {
+              limit: 4,
+              orderBy: (i, { asc }) => [asc(i.createdAt)],
+              columns: { productName: true, productId: true },
+              with: {
+                product: {
+                  with: {
+                    images: {
+                      orderBy: imageOrderBy,
+                      limit: 1,
+                      columns: { url: true, alt: true },
+                    },
                   },
                 },
               },
             },
           },
-        },
-      });
+        }),
+        db
+          .select({ count: sql<number>`count(*)` })
+          .from(order)
+          .where(where),
+      ]);
 
-      const [{ count }] = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(order)
-        .where(where);
+      const total = Number(countRows[0]?.count ?? 0);
 
       return {
         orders: rows.map(shapeAdminOrderListRow),
-        total: Number(count),
+        total,
         limit,
         offset,
       };
