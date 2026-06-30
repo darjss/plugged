@@ -823,7 +823,8 @@ export const commerceQueries = {
             },
           },
           items: {
-            limit: 3,
+            limit: 4,
+            orderBy: (i, { asc }) => [asc(i.createdAt)],
             columns: { productName: true, productId: true },
             with: {
               product: {

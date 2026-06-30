@@ -168,7 +168,7 @@ export default function OrdersList() {
                       fallback={<span class="font-mono text-xs text-muted-foreground">—</span>}
                     >
                       <div class="flex flex-wrap items-center gap-1">
-                        <For each={row.items}>
+                        <For each={row.items.slice(0, 3)}>
                           {(item) => (
                             <div
                               class="group/img relative flex size-8 items-center justify-center border-2 border-ink bg-muted"
@@ -177,7 +177,10 @@ export default function OrdersList() {
                               <Show
                                 when={item.product.image}
                                 fallback={
-                                  <span class="font-mono text-[10px] uppercase text-muted-foreground">
+                                  <span
+                                    class="font-mono text-[10px] uppercase text-muted-foreground"
+                                    aria-label={item.productName}
+                                  >
                                     {item.productName.slice(0, 2)}
                                   </span>
                                 }
@@ -187,15 +190,17 @@ export default function OrdersList() {
                                     src={img().url}
                                     alt={img().alt ?? item.productName}
                                     class="size-full object-cover"
+                                    loading="lazy"
+                                    decoding="async"
                                   />
                                 )}
                               </Show>
                             </div>
                           )}
                         </For>
-                        <Show when={row.items.length >= 3}>
+                        <Show when={row.items.length > 3}>
                           <span class="font-mono text-[10px] uppercase text-muted-foreground">
-                            +more
+                            +{row.items.length - 3} more
                           </span>
                         </Show>
                       </div>
