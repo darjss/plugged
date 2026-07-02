@@ -1,47 +1,35 @@
 import { Menu, X } from "lucide-solid";
-import { createEffect, createSignal, For, onCleanup, onMount, Show } from "solid-js";
+import { createSignal, For, onCleanup, onMount } from "solid-js";
 import { cn } from "@/lib/utils";
 import { NAV_LINKS } from "@/lib/nav-links";
+import { Dialog, DialogClose, DialogContent } from "@/components/ui/dialog";
 
 /**
- * Mobile menu island. Replaces the vanilla `<script>` in Header.astro
- * that re-bound listeners on every `astro:page-load` (leaking
- * listeners against a `transition:persist` header). The island mounts
- * once on the persisted header and owns its open state as a signal;
- * no re-bind, no leak. Adds `aria-expanded`/`aria-controls` and
- * Escape-to-close for a11y.
+ * Mobile menu island, built on the Kobalte Dialog primitive (same one
+ * `src/components/ui/dialog.tsx` gives every other overlay in the app) so
+ * focus trap, focus restore, and Escape-to-close come for free instead of
+ * being hand-rolled. Previously this was a bare `role="dialog"
+ * aria-modal` `<div>` toggled by a signal with none of that — Tab could
+ * walk focus out into the page behind it, and closing didn't return
+ * focus to the trigger.
+ *
+ * `DialogContent`'s default styling is a centered card; it's overridden
+ * here to a full-screen panel (`fixed inset-0 ... md:hidden`) to keep
+ * the exact prior visual design. The prior version had no open/close
+ * animation (an instant `<Show>` toggle) — Kobalte's presence layer
+ * defaults to the same instant mount/unmount when no CSS transition is
+ * defined, so behavior is unchanged.
  */
-
 export default function MobileMenu() {
   const [open, setOpen] = createSignal(false);
 
   const close = () => setOpen(false);
 
-  // Lock body scroll while the menu is open. Driven from a single
-  // createEffect keyed on `open()` so every close path — Escape,
-  // astro:before-swap, link click, X button — releases the scroll
-  // lock. The previous code had separate `closeMenu`/`close` helpers;
-  // Escape used `close()` which didn't clear `body.style.overflow`,
-  // leaving the page scroll-locked.
-  createEffect(() => {
-    if (typeof document === "undefined") return;
-    document.body.style.overflow = open() ? "hidden" : "";
-    // Restore on cleanup so HMR / unmount doesn't leave the page
-    // scroll-locked.
-    onCleanup(() => {
-      if (typeof document !== "undefined") document.body.style.overflow = "";
-    });
-  });
-
+  // The header (and this island with it) is `transition:persist`, so a
+  // page swap that doesn't go through a menu link's `onClick={close}`
+  // (browser back/forward, programmatic navigation) must still close the
+  // menu — otherwise the next page loads with it stuck open.
   onMount(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
-    };
-    window.addEventListener("keydown", onKeyDown);
-    onCleanup(() => window.removeEventListener("keydown", onKeyDown));
-
-    // Close on Astro View Transition swap so the next page doesn't
-    // start with the menu open and scroll locked.
     document.addEventListener("astro:before-swap", close);
     onCleanup(() => document.removeEventListener("astro:before-swap", close));
   });
@@ -59,26 +47,23 @@ export default function MobileMenu() {
         <Menu class="size-5" />
       </button>
 
-      <Show when={open()}>
-        <div
+      <Dialog open={open()} onOpenChange={setOpen}>
+        <DialogContent
           id="mobile-menu"
-          class="fixed inset-0 z-50 flex flex-col bg-newsprint bg-noise md:hidden"
-          role="dialog"
-          aria-modal="true"
+          showCloseButton={false}
           aria-label="Mobile navigation"
+          class="left-0 top-0 flex h-full max-h-none w-full max-w-none translate-x-0 translate-y-0 flex-col border-0 bg-newsprint bg-noise shadow-none md:hidden"
         >
           <div class="flex items-center justify-between border-b-4 border-ink bg-hazard-stripes p-4">
             <span class="font-display text-2xl font-black uppercase tracking-tight text-ink">
               Menu
             </span>
-            <button
-              type="button"
+            <DialogClose
               aria-label="Close menu"
               class="flex size-10 items-center justify-center border-2 border-ink bg-newsprint shadow-hard-sm"
-              onClick={close}
             >
               <X class="size-5" />
-            </button>
+            </DialogClose>
           </div>
           <nav class="flex flex-col gap-2 p-4" aria-label="Mobile primary">
             <For each={NAV_LINKS}>
@@ -110,8 +95,8 @@ export default function MobileMenu() {
               Track order
             </a>
           </nav>
-        </div>
-      </Show>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

@@ -6,8 +6,12 @@
 import StorefrontLayout from "../layouts/StorefrontLayout.astro";
 import InfoPageHeader from "../components/storefront/InfoPageHeader.astro";
 import LegalSections from "../components/storefront/LegalSections.astro";
+import { formatMnt } from "../lib/utils";
 
 export const prerender = true;
+
+const SHIPPING_FEE_MNT = 6000;
+const FREE_SHIPPING_THRESHOLD_MNT = 150000;
 
 const sections = [
   {
@@ -43,7 +47,7 @@ const sections = [
     num: "05",
     title: "Delivery",
     body: [
-      "Delivery is a flat 6,000 MNT anywhere in Mongolia, free on orders over 150,000 MNT. Estimated delivery times are guidance, not guarantees. See the Shipping page for full details.",
+      `Delivery is a flat ${formatMnt(SHIPPING_FEE_MNT)} anywhere in Mongolia, free on orders over ${formatMnt(FREE_SHIPPING_THRESHOLD_MNT)}. Estimated delivery times are guidance, not guarantees. See the Shipping page for full details.`,
     ],
   },
   {

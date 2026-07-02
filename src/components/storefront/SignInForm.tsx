@@ -27,28 +27,36 @@ export default function SignInForm(props: { next?: string }) {
   const [error, setError] = createSignal<string | null>(null);
   const [sending, setSending] = createSignal(false);
   const [verifying, setVerifying] = createSignal(false);
-  const [timer, setTimer] = createSignal(0);
+  // Two independent clocks: `resendTimer` is a 60s cooldown before the
+  // user may request another SMS (cost control); the 300s code EXPIRY
+  // mirrors the server's OTP validity window (src/server/lib/auth.ts:43)
+  // and is tracked internally (not rendered) — only its terminal
+  // `expired` flag drives UI. They must not be conflated: submitting
+  // must stay enabled for the full 61-299s window.
+  const RESEND_COOLDOWN_S = 60;
+  const CODE_EXPIRY_S = 300;
+  const [resendTimer, setResendTimer] = createSignal(0);
   const [expired, setExpired] = createSignal(false);
 
   let interval: ReturnType<typeof setInterval> | undefined;
+  let expirySecondsLeft = 0;
 
   const fullPhone = () => `+976${phoneDigits()}`;
   const phoneValid = () => MONGOLIAN_PHONE_REGEX.test(fullPhone());
   const next = () => props.next || "/";
 
-  function startTimer(seconds: number) {
+  function startTimer() {
     if (interval) clearInterval(interval);
     setExpired(false);
-    setTimer(seconds);
+    setResendTimer(RESEND_COOLDOWN_S);
+    expirySecondsLeft = CODE_EXPIRY_S;
     interval = setInterval(() => {
-      setTimer((t) => {
-        if (t <= 1) {
-          if (interval) clearInterval(interval);
-          setExpired(true);
-          return 0;
-        }
-        return t - 1;
-      });
+      setResendTimer((t) => (t <= 1 ? 0 : t - 1));
+      expirySecondsLeft -= 1;
+      if (expirySecondsLeft <= 0) {
+        if (interval) clearInterval(interval);
+        setExpired(true);
+      }
     }, 1000);
   }
 
@@ -73,7 +81,7 @@ export default function SignInForm(props: { next?: string }) {
       return;
     }
     setStep("otp");
-    startTimer(60);
+    startTimer();
     setOtp("");
   }
 
@@ -96,8 +104,8 @@ export default function SignInForm(props: { next?: string }) {
   }
 
   // Auto-submit when OTP reaches 4 digits (server otpLength). Gated on
-  // `!expired()` so a stale code sitting in the field after the 60s timer
-  // ran out doesn't fire a verify against an expired OTP.
+  // `!expired()` so a stale code sitting in the field after the 300s
+  // server-side expiry doesn't fire a verify against an expired OTP.
   createEffect(() => {
     if (otp().length === 4 && !verifying() && !expired()) {
       void handleVerifyOtp(otp());
@@ -105,7 +113,7 @@ export default function SignInForm(props: { next?: string }) {
   });
 
   async function handleResend() {
-    if (timer() > 0) return;
+    if (resendTimer() > 0) return;
     setError(null);
     setSending(true);
     const { error: sendError } = await authClient.phoneNumber.sendOtp({
@@ -116,7 +124,7 @@ export default function SignInForm(props: { next?: string }) {
       setError(sendError.message ?? "Failed to resend code.");
       return;
     }
-    startTimer(60);
+    startTimer();
     setOtp("");
   }
 
@@ -258,7 +266,7 @@ export default function SignInForm(props: { next?: string }) {
               ← Back
             </button>
             <Show
-              when={timer() > 0}
+              when={resendTimer() > 0}
               fallback={
                 <button
                   type="button"
@@ -271,7 +279,7 @@ export default function SignInForm(props: { next?: string }) {
               }
             >
               <span class="font-mono text-xs font-black uppercase tracking-wider text-ink-muted">
-                Resend in: {timer()}s
+                Resend in: {resendTimer()}s
               </span>
             </Show>
           </div>

@@ -24,7 +24,7 @@ const { categories, brands, activeCategory, activeBrand } = Astro.props;
       </span>
       <nav class="flex flex-wrap gap-2" aria-label="Product categories">
         <a
-          href="/products"
+          href={activeBrand ? `/products?brand=${activeBrand}` : "/products"}
           class:list={[
             "border-2 border-ink px-3 py-1.5 text-caption font-black uppercase tracking-wide transition-all hover:shadow-hard-sm",
             !activeCategory
@@ -36,7 +36,11 @@ const { categories, brands, activeCategory, activeBrand } = Astro.props;
         </a>
         {categories.map((category) => (
           <a
-            href={`/products?category=${category.slug}`}
+            href={
+              activeBrand
+                ? `/products?category=${category.slug}&brand=${activeBrand}`
+                : `/products?category=${category.slug}`
+            }
             class:list={[
               "border-2 border-ink px-3 py-1.5 text-caption font-black uppercase tracking-wide transition-all hover:shadow-hard-sm",
               activeCategory === category.slug
@@ -84,8 +88,8 @@ const { categories, brands, activeCategory, activeBrand } = Astro.props;
 
 <script>
   function setupBrandFilter() {
-    const select = document.querySelector<HTMLSelectElement>("[data-brand-filter]");
-    if (!select) return;
+    const select = document.querySelector("[data-brand-filter]");
+    if (!(select instanceof HTMLSelectElement)) return;
 
     select.addEventListener("change", () => {
       const url = new URL(window.location.href);

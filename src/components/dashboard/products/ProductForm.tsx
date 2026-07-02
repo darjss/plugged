@@ -1,12 +1,17 @@
-import { useNavigate, useParams } from "@solidjs/router";
+import { useBeforeLeave, useNavigate, useParams } from "@solidjs/router";
 import { useMutation, useQueryClient } from "@tanstack/solid-query";
 import { ArrowLeft, Plus, Save, Trash2, Upload, X } from "lucide-solid";
 import { createStore, produce } from "solid-js/store";
 import {
+  createEffect,
   createMemo,
   createResource,
   createSignal,
+  createUniqueId,
   For,
+  on,
+  onCleanup,
+  onMount,
   Show,
   type Component,
   type JSX,
@@ -15,9 +20,18 @@ import { toast } from "solid-sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox, CheckboxLabel } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { cn, formatMnt } from "@/lib/utils";
 import {
@@ -127,6 +141,8 @@ const ProductForm: Component = () => {
   const [images, setImages] = createSignal<
     Array<{ id: string; url: string; isPrimary: boolean; sortOrder: number }>
   >([]);
+  const [archiveDialogOpen, setArchiveDialogOpen] = createSignal(false);
+  const [deleteImageId, setDeleteImageId] = createSignal<string | null>(null);
 
   const [brands] = createResource(() => adminProductsApi.listBrands());
   const [categories] = createResource(() => adminProductsApi.listCategories());
@@ -144,6 +160,50 @@ const ProductForm: Component = () => {
       })),
     );
     return detail;
+  });
+
+  // Dirty tracking — ~30 fields, so instead of flagging dirty at every
+  // individual setForm call site, deep-watch the whole store and flag on
+  // any change once a baseline is established. The baseline is "form is
+  // empty" for a new product (ready immediately) or "hydrateForm has run"
+  // for an edit (ready once productDetail() resolves) — otherwise the
+  // async hydrate's own setForm call would itself be flagged as a user
+  // edit.
+  const [baselineReady, setBaselineReady] = createSignal(false);
+  const [dirty, setDirty] = createSignal(false);
+
+  createEffect(() => {
+    if (!isEdit() || productDetail()) setBaselineReady(true);
+  });
+
+  createEffect(
+    on(
+      () => JSON.stringify(form),
+      () => {
+        if (baselineReady()) setDirty(true);
+      },
+      { defer: true },
+    ),
+  );
+
+  // Unsaved-changes protection: full page unload (tab close, hard
+  // navigation) and in-app route changes (solid-router navigation).
+  onMount(() => {
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!dirty()) return;
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    onCleanup(() => window.removeEventListener("beforeunload", onBeforeUnload));
+  });
+
+  useBeforeLeave((e) => {
+    if (!dirty() || e.defaultPrevented) return;
+    e.preventDefault();
+    if (window.confirm("You have unsaved changes. Leave without saving?")) {
+      e.retry(true);
+    }
   });
 
   const iemsCategoryId = createMemo(() => {
@@ -266,6 +326,7 @@ const ProductForm: Component = () => {
     onSuccess: (result) => {
       void queryClient.invalidateQueries({ queryKey: adminProductKeys.all });
       toast.success(isEdit() ? "Product updated" : "Product created");
+      setDirty(false);
       navigate(`/products/${result.id}`);
     },
     onError: (error: unknown) => {
@@ -278,6 +339,8 @@ const ProductForm: Component = () => {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: adminProductKeys.all });
       toast.success("Product archived");
+      setDirty(false);
+      setArchiveDialogOpen(false);
       navigate("/products");
     },
     onError: (error: unknown) => {
@@ -332,15 +395,21 @@ const ProductForm: Component = () => {
     }
   };
 
+  const [imageDeletePending, setImageDeletePending] = createSignal(false);
+
   const onDeleteImage = async (imageId: string) => {
     if (!isEdit()) return;
+    setImageDeletePending(true);
     try {
       await adminProductsApi.deleteImage(productId()!, imageId);
       setImages((prev) => prev.filter((i) => i.id !== imageId));
       void queryClient.invalidateQueries({ queryKey: adminProductKeys.detail(productId()!) });
       toast.success("Image removed");
+      setDeleteImageId(null);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Delete failed");
+    } finally {
+      setImageDeletePending(false);
     }
   };
 
@@ -367,7 +436,7 @@ const ProductForm: Component = () => {
           <Show when={isEdit()}>
             <Button
               variant="destructive"
-              onClick={() => archiveMutation.mutate()}
+              onClick={() => setArchiveDialogOpen(true)}
               disabled={archiveMutation.isPending}
               class="gap-2"
             >
@@ -399,78 +468,104 @@ const ProductForm: Component = () => {
               <Separator class="my-4 bg-ink" />
               <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Field label="Name" required>
-                  <Input
-                    value={form.name}
-                    onInput={(e) => onNameInput(e.currentTarget.value)}
-                    placeholder="Moondrop Chu II"
-                  />
+                  {(id) => (
+                    <Input
+                      id={id}
+                      value={form.name}
+                      onInput={(e) => onNameInput(e.currentTarget.value)}
+                      placeholder="Moondrop Chu II"
+                    />
+                  )}
                 </Field>
                 <Field label="Slug" required>
-                  <Input
-                    value={form.slug}
-                    onInput={(e) => {
-                      setSlugTouched(true);
-                      setForm("slug", slugify(e.currentTarget.value));
-                    }}
-                    placeholder="moondrop-chu-ii"
-                  />
+                  {(id) => (
+                    <Input
+                      id={id}
+                      value={form.slug}
+                      onInput={(e) => {
+                        setSlugTouched(true);
+                        setForm("slug", slugify(e.currentTarget.value));
+                      }}
+                      placeholder="moondrop-chu-ii"
+                    />
+                  )}
                 </Field>
                 <Field label="Brand">
-                  <select
-                    class={selectClass}
-                    value={form.brandId}
-                    onChange={(e) => setForm("brandId", e.currentTarget.value)}
-                  >
-                    <option value="">Select brand</option>
-                    <For each={brands() ?? []}>{(b) => <option value={b.id}>{b.name}</option>}</For>
-                  </select>
+                  {(id) => (
+                    <select
+                      id={id}
+                      class={selectClass}
+                      value={form.brandId}
+                      onChange={(e) => setForm("brandId", e.currentTarget.value)}
+                    >
+                      <option value="">Select brand</option>
+                      <For each={brands() ?? []}>
+                        {(b) => <option value={b.id}>{b.name}</option>}
+                      </For>
+                    </select>
+                  )}
                 </Field>
                 <Field label="Status">
-                  <select
-                    class={selectClass}
-                    value={form.status}
-                    onChange={(e) =>
-                      setForm("status", e.currentTarget.value as FormState["status"])
-                    }
-                  >
-                    <For each={STATUS_OPTIONS}>
-                      {(s) => <option value={s.value}>{s.label}</option>}
-                    </For>
-                  </select>
+                  {(id) => (
+                    <select
+                      id={id}
+                      class={selectClass}
+                      value={form.status}
+                      onChange={(e) =>
+                        setForm("status", e.currentTarget.value as FormState["status"])
+                      }
+                    >
+                      <For each={STATUS_OPTIONS}>
+                        {(s) => <option value={s.value}>{s.label}</option>}
+                      </For>
+                    </select>
+                  )}
                 </Field>
                 <Field label="Base price (MNT)" required>
-                  <Input
-                    type="number"
-                    min="0"
-                    step="1"
-                    value={form.basePriceMnt}
-                    onInput={(e) => setForm("basePriceMnt", Number(e.currentTarget.value) || 0)}
-                  />
+                  {(id) => (
+                    <Input
+                      id={id}
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={form.basePriceMnt}
+                      onInput={(e) => setForm("basePriceMnt", Number(e.currentTarget.value) || 0)}
+                    />
+                  )}
                 </Field>
                 <Field label="Compare-at price (MNT)">
-                  <Input
-                    type="number"
-                    min="0"
-                    step="1"
-                    value={form.compareAtPriceMnt}
-                    onInput={(e) => setForm("compareAtPriceMnt", e.currentTarget.value)}
-                    placeholder="Optional"
-                  />
+                  {(id) => (
+                    <Input
+                      id={id}
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={form.compareAtPriceMnt}
+                      onInput={(e) => setForm("compareAtPriceMnt", e.currentTarget.value)}
+                      placeholder="Optional"
+                    />
+                  )}
                 </Field>
                 <Field label="Short description" full>
-                  <Input
-                    value={form.shortDescription}
-                    onInput={(e) => setForm("shortDescription", e.currentTarget.value)}
-                    placeholder="One-line summary"
-                  />
+                  {(id) => (
+                    <Input
+                      id={id}
+                      value={form.shortDescription}
+                      onInput={(e) => setForm("shortDescription", e.currentTarget.value)}
+                      placeholder="One-line summary"
+                    />
+                  )}
                 </Field>
                 <Field label="Full description" full>
-                  <Textarea
-                    rows={5}
-                    value={form.description}
-                    onInput={(e) => setForm("description", e.currentTarget.value)}
-                    placeholder="Full product description…"
-                  />
+                  {(id) => (
+                    <Textarea
+                      id={id}
+                      rows={5}
+                      value={form.description}
+                      onInput={(e) => setForm("description", e.currentTarget.value)}
+                      placeholder="Full product description…"
+                    />
+                  )}
                 </Field>
                 <div class="flex items-center gap-3 md:col-span-2">
                   <Checkbox
@@ -528,99 +623,138 @@ const ProductForm: Component = () => {
                 <Separator class="my-4 bg-ink" />
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <Field label="Driver type">
-                    <Input
-                      value={form.iemSpec.driverType}
-                      onInput={(e) => setForm("iemSpec", "driverType", e.currentTarget.value)}
-                      placeholder="Dynamic"
-                    />
+                    {(id) => (
+                      <Input
+                        id={id}
+                        value={form.iemSpec.driverType}
+                        onInput={(e) => setForm("iemSpec", "driverType", e.currentTarget.value)}
+                        placeholder="Dynamic"
+                      />
+                    )}
                   </Field>
                   <Field label="Driver config">
-                    <Input
-                      value={form.iemSpec.driverConfig}
-                      onInput={(e) => setForm("iemSpec", "driverConfig", e.currentTarget.value)}
-                      placeholder="1DD"
-                    />
+                    {(id) => (
+                      <Input
+                        id={id}
+                        value={form.iemSpec.driverConfig}
+                        onInput={(e) => setForm("iemSpec", "driverConfig", e.currentTarget.value)}
+                        placeholder="1DD"
+                      />
+                    )}
                   </Field>
                   <Field label="Impedance (Ω)">
-                    <Input
-                      type="number"
-                      min="0"
-                      value={form.iemSpec.impedanceOhms}
-                      onInput={(e) => setForm("iemSpec", "impedanceOhms", e.currentTarget.value)}
-                      placeholder="32"
-                    />
+                    {(id) => (
+                      <Input
+                        id={id}
+                        type="number"
+                        min="0"
+                        value={form.iemSpec.impedanceOhms}
+                        onInput={(e) => setForm("iemSpec", "impedanceOhms", e.currentTarget.value)}
+                        placeholder="32"
+                      />
+                    )}
                   </Field>
                   <Field label="Sensitivity">
-                    <Input
-                      value={form.iemSpec.sensitivityDb}
-                      onInput={(e) => setForm("iemSpec", "sensitivityDb", e.currentTarget.value)}
-                      placeholder="110dB/mW"
-                    />
+                    {(id) => (
+                      <Input
+                        id={id}
+                        value={form.iemSpec.sensitivityDb}
+                        onInput={(e) => setForm("iemSpec", "sensitivityDb", e.currentTarget.value)}
+                        placeholder="110dB/mW"
+                      />
+                    )}
                   </Field>
                   <Field label="Frequency response">
-                    <Input
-                      value={form.iemSpec.frequencyResponse}
-                      onInput={(e) =>
-                        setForm("iemSpec", "frequencyResponse", e.currentTarget.value)
-                      }
-                      placeholder="20Hz-20kHz"
-                    />
+                    {(id) => (
+                      <Input
+                        id={id}
+                        value={form.iemSpec.frequencyResponse}
+                        onInput={(e) =>
+                          setForm("iemSpec", "frequencyResponse", e.currentTarget.value)
+                        }
+                        placeholder="20Hz-20kHz"
+                      />
+                    )}
                   </Field>
                   <Field label="Connector">
-                    <Input
-                      value={form.iemSpec.connector}
-                      onInput={(e) => setForm("iemSpec", "connector", e.currentTarget.value)}
-                      placeholder="0.78mm 2-pin"
-                    />
+                    {(id) => (
+                      <Input
+                        id={id}
+                        value={form.iemSpec.connector}
+                        onInput={(e) => setForm("iemSpec", "connector", e.currentTarget.value)}
+                        placeholder="0.78mm 2-pin"
+                      />
+                    )}
                   </Field>
                   <Field label="Cable">
-                    <Input
-                      value={form.iemSpec.cable}
-                      onInput={(e) => setForm("iemSpec", "cable", e.currentTarget.value)}
-                      placeholder="OFC, 1.2m"
-                    />
+                    {(id) => (
+                      <Input
+                        id={id}
+                        value={form.iemSpec.cable}
+                        onInput={(e) => setForm("iemSpec", "cable", e.currentTarget.value)}
+                        placeholder="OFC, 1.2m"
+                      />
+                    )}
                   </Field>
                   <Field label="Shell material">
-                    <Input
-                      value={form.iemSpec.shellMaterial}
-                      onInput={(e) => setForm("iemSpec", "shellMaterial", e.currentTarget.value)}
-                      placeholder="Resin"
-                    />
+                    {(id) => (
+                      <Input
+                        id={id}
+                        value={form.iemSpec.shellMaterial}
+                        onInput={(e) => setForm("iemSpec", "shellMaterial", e.currentTarget.value)}
+                        placeholder="Resin"
+                      />
+                    )}
                   </Field>
                   <Field label="Nozzle material">
-                    <Input
-                      value={form.iemSpec.nozzleMaterial}
-                      onInput={(e) => setForm("iemSpec", "nozzleMaterial", e.currentTarget.value)}
-                    />
+                    {(id) => (
+                      <Input
+                        id={id}
+                        value={form.iemSpec.nozzleMaterial}
+                        onInput={(e) => setForm("iemSpec", "nozzleMaterial", e.currentTarget.value)}
+                      />
+                    )}
                   </Field>
                   <Field label="Sound signature">
-                    <Input
-                      value={form.iemSpec.soundSignature}
-                      onInput={(e) => setForm("iemSpec", "soundSignature", e.currentTarget.value)}
-                      placeholder="V-shaped"
-                    />
+                    {(id) => (
+                      <Input
+                        id={id}
+                        value={form.iemSpec.soundSignature}
+                        onInput={(e) => setForm("iemSpec", "soundSignature", e.currentTarget.value)}
+                        placeholder="V-shaped"
+                      />
+                    )}
                   </Field>
                   <Field label="Fit">
-                    <Input
-                      value={form.iemSpec.fit}
-                      onInput={(e) => setForm("iemSpec", "fit", e.currentTarget.value)}
-                    />
+                    {(id) => (
+                      <Input
+                        id={id}
+                        value={form.iemSpec.fit}
+                        onInput={(e) => setForm("iemSpec", "fit", e.currentTarget.value)}
+                      />
+                    )}
                   </Field>
                   <Field label="Squiglink file">
-                    <Input
-                      value={form.iemSpec.squiglinkFile}
-                      onInput={(e) => setForm("iemSpec", "squiglinkFile", e.currentTarget.value)}
-                      placeholder="moondrop-chu-ii.txt"
-                    />
+                    {(id) => (
+                      <Input
+                        id={id}
+                        value={form.iemSpec.squiglinkFile}
+                        onInput={(e) => setForm("iemSpec", "squiglinkFile", e.currentTarget.value)}
+                        placeholder="moondrop-chu-ii.txt"
+                      />
+                    )}
                   </Field>
                   <Field label="Included accessories" full>
-                    <Textarea
-                      rows={2}
-                      value={form.iemSpec.includedAccessories}
-                      onInput={(e) =>
-                        setForm("iemSpec", "includedAccessories", e.currentTarget.value)
-                      }
-                    />
+                    {(id) => (
+                      <Textarea
+                        id={id}
+                        rows={2}
+                        value={form.iemSpec.includedAccessories}
+                        onInput={(e) =>
+                          setForm("iemSpec", "includedAccessories", e.currentTarget.value)
+                        }
+                      />
+                    )}
                   </Field>
                   <div class="flex items-center gap-3 md:col-span-2">
                     <Checkbox
@@ -651,50 +785,62 @@ const ProductForm: Component = () => {
                   {(variant, index) => (
                     <div class="grid grid-cols-1 gap-2 border-2 border-ink bg-newsprint-2 p-3 md:grid-cols-[1fr_1fr_1fr_1fr_auto]">
                       <Field label="SKU">
-                        <Input
-                          value={variant.sku}
-                          onInput={(e) =>
-                            setForm("variants", index(), "sku", e.currentTarget.value)
-                          }
-                        />
+                        {(id) => (
+                          <Input
+                            id={id}
+                            value={variant.sku}
+                            onInput={(e) =>
+                              setForm("variants", index(), "sku", e.currentTarget.value)
+                            }
+                          />
+                        )}
                       </Field>
                       <Field label="Name">
-                        <Input
-                          value={variant.name}
-                          onInput={(e) =>
-                            setForm("variants", index(), "name", e.currentTarget.value)
-                          }
-                        />
+                        {(id) => (
+                          <Input
+                            id={id}
+                            value={variant.name}
+                            onInput={(e) =>
+                              setForm("variants", index(), "name", e.currentTarget.value)
+                            }
+                          />
+                        )}
                       </Field>
                       <Field label="Price (MNT)">
-                        <Input
-                          type="number"
-                          min="0"
-                          value={variant.priceMnt}
-                          onInput={(e) =>
-                            setForm(
-                              "variants",
-                              index(),
-                              "priceMnt",
-                              Number(e.currentTarget.value) || 0,
-                            )
-                          }
-                        />
+                        {(id) => (
+                          <Input
+                            id={id}
+                            type="number"
+                            min="0"
+                            value={variant.priceMnt}
+                            onInput={(e) =>
+                              setForm(
+                                "variants",
+                                index(),
+                                "priceMnt",
+                                Number(e.currentTarget.value) || 0,
+                              )
+                            }
+                          />
+                        )}
                       </Field>
                       <Field label="Stock">
-                        <Input
-                          type="number"
-                          min="0"
-                          value={variant.stockQuantity}
-                          onInput={(e) =>
-                            setForm(
-                              "variants",
-                              index(),
-                              "stockQuantity",
-                              Number(e.currentTarget.value) || 0,
-                            )
-                          }
-                        />
+                        {(id) => (
+                          <Input
+                            id={id}
+                            type="number"
+                            min="0"
+                            value={variant.stockQuantity}
+                            onInput={(e) =>
+                              setForm(
+                                "variants",
+                                index(),
+                                "stockQuantity",
+                                Number(e.currentTarget.value) || 0,
+                              )
+                            }
+                          />
+                        )}
                       </Field>
                       <div class="flex items-end gap-2">
                         <Button
@@ -761,7 +907,7 @@ const ProductForm: Component = () => {
                         <Button
                           variant="ghost"
                           size="icon-sm"
-                          onClick={() => onDeleteImage(img.id)}
+                          onClick={() => setDeleteImageId(img.id)}
                         >
                           <X class="size-4" />
                         </Button>
@@ -789,25 +935,114 @@ const ProductForm: Component = () => {
           </aside>
         </div>
       </Show>
+
+      <ArchiveDialog
+        open={archiveDialogOpen()}
+        onOpenChange={setArchiveDialogOpen}
+        pending={archiveMutation.isPending}
+        onConfirm={() => archiveMutation.mutate()}
+      />
+
+      <DeleteImageDialog
+        open={deleteImageId() !== null}
+        onOpenChange={(v) => {
+          if (!v) setDeleteImageId(null);
+        }}
+        pending={imageDeletePending()}
+        onConfirm={() => {
+          const id = deleteImageId();
+          if (id) void onDeleteImage(id);
+        }}
+      />
     </div>
   );
 };
+
+function ArchiveDialog(props: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  pending: boolean;
+  onConfirm: () => void;
+}) {
+  return (
+    <Dialog open={props.open} onOpenChange={props.onOpenChange}>
+      <DialogContent showCloseButton={false}>
+        <DialogHeader>
+          <DialogTitle>Archive this product?</DialogTitle>
+          <DialogDescription>
+            Archived products are hidden from the storefront and can't be ordered. You can
+            reactivate it later by editing its status.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => props.onOpenChange(false)}
+            disabled={props.pending}
+          >
+            Keep product
+          </Button>
+          <Button variant="destructive" disabled={props.pending} onClick={props.onConfirm}>
+            <Show when={props.pending} fallback="Confirm archive">
+              <Spinner class="size-4" /> Archiving…
+            </Show>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function DeleteImageDialog(props: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  pending: boolean;
+  onConfirm: () => void;
+}) {
+  return (
+    <Dialog open={props.open} onOpenChange={props.onOpenChange}>
+      <DialogContent showCloseButton={false}>
+        <DialogHeader>
+          <DialogTitle>Remove this image?</DialogTitle>
+          <DialogDescription>
+            This deletes the image from the product permanently. This can't be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => props.onOpenChange(false)}
+            disabled={props.pending}
+          >
+            Keep image
+          </Button>
+          <Button variant="destructive" disabled={props.pending} onClick={props.onConfirm}>
+            <Show when={props.pending} fallback="Confirm remove">
+              <Spinner class="size-4" /> Removing…
+            </Show>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 function Field(props: {
   label: string;
   required?: boolean;
   full?: boolean;
-  children: JSX.Element;
+  children: (id: string) => JSX.Element;
 }) {
+  const id = createUniqueId();
   return (
     <div class={cn("flex flex-col gap-1.5", props.full && "md:col-span-2")}>
-      <Label>
+      <Label for={id}>
         {props.label}
         <Show when={props.required}>
           <span class="text-pink">*</span>
         </Show>
       </Label>
-      {props.children}
+      {props.children(id)}
     </div>
   );
 }

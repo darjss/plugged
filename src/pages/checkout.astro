@@ -7,7 +7,7 @@ export const prerender = false;
 // Middleware already resolves the session into Astro.locals. Guest checkout
 // is allowed, so a missing user just leaves the form fields blank.
 const user = Astro.locals.user
-  ? { phoneNumber: Astro.locals.user.phoneNumber, name: Astro.locals.user.name }
+  ? { phoneNumber: Astro.locals.user.phoneNumber ?? null, name: Astro.locals.user.name }
   : null;
 ---
 

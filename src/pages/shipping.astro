@@ -5,25 +5,29 @@
  */
 import StorefrontLayout from "../layouts/StorefrontLayout.astro";
 import InfoPageHeader from "../components/storefront/InfoPageHeader.astro";
+import { formatMnt } from "../lib/utils";
 
 export const prerender = true;
+
+const SHIPPING_FEE_MNT = 6000;
+const FREE_SHIPPING_THRESHOLD_MNT = 150000;
 
 const zones = [
   {
     name: "Ulaanbaatar",
-    fee: "6,000 MNT",
+    fee: formatMnt(SHIPPING_FEE_MNT),
     eta: "1–3 business days",
     note: "Courier hand-delivery or pickup at the nearest depot. COD available.",
   },
   {
     name: "Provincial capitals",
-    fee: "6,000 MNT",
+    fee: formatMnt(SHIPPING_FEE_MNT),
     eta: "3–5 business days",
     note: "Delivered to the aimag center. Pickup from the local post office if outside the center.",
   },
   {
     name: "Rural / soums",
-    fee: "6,000 MNT",
+    fee: formatMnt(SHIPPING_FEE_MNT),
     eta: "5–7 business days",
     note: "Routed via the national post network. Address must include the soum and bagh.",
   },
@@ -31,7 +35,7 @@ const zones = [
 
 const notes = [
   "Orders placed before 14:00 ship same day. After that, next business day.",
-  "Free shipping kicks in on orders over 150,000 MNT — automatically applied at checkout.",
+  `Free shipping kicks in on orders over ${formatMnt(FREE_SHIPPING_THRESHOLD_MNT)} — automatically applied at checkout.`,
   "We don't ship on weekends or public holidays. Plan accordingly.",
   "Tracking links are emailed the moment the parcel leaves the warehouse.",
   "Lost or damaged in transit? We reship at our cost — just send the tracking number.",
@@ -40,12 +44,12 @@ const notes = [
 
 <StorefrontLayout
   title="Shipping | Plugged"
-  description="Flat 6,000 MNT delivery anywhere in Mongolia. Delivery times and coverage areas."
+  description={`Flat ${formatMnt(SHIPPING_FEE_MNT)} delivery anywhere in Mongolia. Delivery times and coverage areas.`}
 >
   <InfoPageHeader
     kicker="Logistics / dispatch"
     title="Shipping"
-    tagline="Flat 6,000 MNT. Everywhere."
+    tagline={`Flat ${formatMnt(SHIPPING_FEE_MNT)}. Everywhere.`}
   />
 
   <section class="mx-auto max-w-screen-2xl px-4 py-14 lg:px-8 lg:py-20">
@@ -58,10 +62,10 @@ const notes = [
           Flat rate
         </span>
         <span class="font-display text-4xl font-black uppercase tracking-tight text-ink lg:text-5xl">
-          6,000 MNT
+          {formatMnt(SHIPPING_FEE_MNT)}
         </span>
         <span class="text-body font-bold text-ink-muted">
-          Anywhere in Mongolia · free over 150,000 MNT
+          Anywhere in Mongolia · free over {formatMnt(FREE_SHIPPING_THRESHOLD_MNT)}
         </span>
       </div>
 

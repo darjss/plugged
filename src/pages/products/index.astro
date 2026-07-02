@@ -5,7 +5,7 @@ import ProductsList from "../../components/storefront/ProductsList.tsx";
 import ProductCard from "../../components/storefront/ProductCard.tsx";
 import AnalyticsEvent from "../../components/storefront/AnalyticsEvent.tsx";
 import { api } from "../../lib/api-client";
-import type { StoreProduct } from "../../components/storefront/product-types";
+import type { StoreProduct } from "@/types/product-types";
 
 export const prerender = false;
 
@@ -21,15 +21,25 @@ const query: Record<string, string> = { limit: String(PAGE_SIZE), offset: "0" };
 if (categorySlug) query.category = categorySlug;
 if (brandSlug) query.brand = brandSlug;
 
-const [productsRes, categoriesRes, brandsRes] = await Promise.all([
-  api.products.get({ query }),
-  api.categories.get(),
-  api.brands.get(),
-]);
+let products: StoreProduct[] = [];
+let categories: Array<{ id: string; slug: string; name: string; description?: string | null }> =
+  [];
+let brands: Array<{ id: string; slug: string; name: string }> = [];
+let loadFailed = false;
 
-const products: StoreProduct[] = productsRes.data?.products ?? [];
-const categories = categoriesRes.data ?? [];
-const brands = brandsRes.data ?? [];
+try {
+  const [productsRes, categoriesRes, brandsRes] = await Promise.all([
+    api.products.get({ query }),
+    api.categories.get(),
+    api.brands.get(),
+  ]);
+  products = productsRes.data?.products ?? [];
+  categories = categoriesRes.data ?? [];
+  brands = brandsRes.data ?? [];
+} catch (error) {
+  loadFailed = true;
+  console.error("[products] failed to load products/categories/brands", { error: String(error) });
+}
 
 const title = categorySlug
   ? `${categories.find((c) => c.slug === categorySlug)?.name ?? "Products"} | Plugged`
@@ -51,51 +61,87 @@ const description = "Browse the wall — IEMs, DAC amps, and wireless earbuds.";
     <AnalyticsEvent client:load event="category_viewed" properties={{ category_slug: categorySlug }} />
   )}
   <section class="mx-auto max-w-screen-2xl px-4 py-8 lg:px-8 lg:py-12">
-    {/* Masthead */}
-    <div class="mb-6 flex flex-col gap-2 border-b-4 border-ink pb-6">
-      <p class="text-micro font-black uppercase tracking-widest text-orange">
-        The wall
-      </p>
-      <h1
-        class="font-display text-display font-black uppercase leading-none tracking-tight text-ink"
-      >
-        {categorySlug
-          ? (categories.find((c) => c.slug === categorySlug)?.name ?? "Products")
-          : "All products"}
-      </h1>
-      <p class="max-w-prose text-body-lg text-ink-muted">{description}</p>
-    </div>
-
-    {/* Filter bar */}
-    <div class="mb-8">
-      <FilterBar
-        categories={categories}
-        brands={brands}
-        activeCategory={categorySlug}
-        activeBrand={brandSlug}
-      />
-    </div>
-
-    {/* SSR grid — first 12 products rendered server-side for first paint.
-        No client directive: these are static HTML cards. The ProductsList
-        island removes this grid on mount and re-renders the same first
-        page from initialData (no flash) then appends infinite-scroll pages. */}
-    <div id="products-ssr" class="mb-4">
-      <div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
-        {products.map((product) => (
-          <ProductCard product={product} />
-        ))}
+    {loadFailed ? (
+      /* Branded inline error — same look/tone as ProductsList.tsx's
+         ErrorState so an SSR fetch failure doesn't fall through to
+         Astro's generic crash page. */
+      <div class="flex flex-col items-center gap-6 py-20 text-center">
+        <div
+          class="relative rotate-1 border-4 border-ink bg-pink px-8 py-10 shadow-hard"
+          style="clip-path: polygon(2% 0, 98% 3%, 100% 92%, 4% 100%);"
+        >
+          <div class="flex items-center justify-center gap-2">
+            <span class="rotate-[-3deg] border-2 border-ink bg-newsprint px-2 py-0.5 font-mono text-micro font-black uppercase tracking-wider text-pink shadow-hard-sm">
+              Error
+            </span>
+            <p class="text-micro font-black uppercase tracking-widest text-newsprint">
+              Network failure
+            </p>
+          </div>
+          <h2 class="mt-2 font-display text-display font-black uppercase leading-none tracking-tight text-newsprint">
+            The wall fell over
+          </h2>
+          <p class="mt-3 max-w-sm text-body text-newsprint/90">
+            Couldn't pull products from the warehouse. The connection dropped or the server's
+            splicing tape. Try again.
+          </p>
+          <a
+            href="/products"
+            class="mt-5 inline-flex items-center justify-center gap-2 border-2 border-ink bg-hazard-stripes px-6 py-3 font-display text-sm font-black uppercase tracking-wide text-ink shadow-hard-sm transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+          >
+            ↻ Reload
+          </a>
+        </div>
       </div>
-    </div>
+    ) : (
+      <>
+        {/* Masthead */}
+        <div class="mb-6 flex flex-col gap-2 border-b-4 border-ink pb-6">
+          <p class="text-micro font-black uppercase tracking-widest text-orange">
+            The wall
+          </p>
+          <h1
+            class="font-display text-display font-black uppercase leading-none tracking-tight text-ink"
+          >
+            {categorySlug
+              ? (categories.find((c) => c.slug === categorySlug)?.name ?? "Products")
+              : "All products"}
+          </h1>
+          <p class="max-w-prose text-body-lg text-ink-muted">{description}</p>
+        </div>
 
-    {/* Infinite-scroll island — client:only to read URL params on mount.
-        initialProducts matches the SSR grid above so hydration is seamless. */}
-    <ProductsList
-      client:only="solid-js"
-      initialProducts={products}
-      categorySlug={categorySlug}
-      brandSlug={brandSlug}
-      pageSize={PAGE_SIZE}
-    />
+        {/* Filter bar */}
+        <div class="mb-8">
+          <FilterBar
+            categories={categories}
+            brands={brands}
+            activeCategory={categorySlug}
+            activeBrand={brandSlug}
+          />
+        </div>
+
+        {/* SSR grid — first 12 products rendered server-side for first paint.
+            No client directive: these are static HTML cards. The ProductsList
+            island removes this grid on mount and re-renders the same first
+            page from initialData (no flash) then appends infinite-scroll pages. */}
+        <div id="products-ssr" class="mb-4">
+          <div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+            {products.map((product) => (
+              <ProductCard product={product} />
+            ))}
+          </div>
+        </div>
+
+        {/* Infinite-scroll island — client:only to read URL params on mount.
+            initialProducts matches the SSR grid above so hydration is seamless. */}
+        <ProductsList
+          client:only="solid-js"
+          initialProducts={products}
+          categorySlug={categorySlug}
+          brandSlug={brandSlug}
+          pageSize={PAGE_SIZE}
+        />
+      </>
+    )}
   </section>
 </StorefrontLayout>

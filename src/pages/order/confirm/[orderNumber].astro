@@ -1,4 +1,5 @@
 ---
+import type { Treaty } from "@elysiajs/eden";
 import StorefrontLayout from "../../../layouts/StorefrontLayout.astro";
 import ClearCart from "../../../components/storefront/ClearCart.tsx";
 import { api } from "../../../lib/api-client";
@@ -6,14 +7,35 @@ import { formatMnt } from "../../../lib/utils";
 
 export const prerender = false;
 
+type OrderDetail = Treaty.Data<ReturnType<ReturnType<typeof api.orders>["get"]>>;
+
 const { orderNumber } = Astro.params;
 
-// Missing or malformed order number → bounce to products. A real lookup
-// miss returns an Eden error response, which we turn into an empty state.
-const orderRes = orderNumber
-  ? await api.orders({ orderNumber }).get().catch(() => null)
-  : null;
-const order = orderRes?.data ?? null;
+// Distinguish a real 404 (typed "not-found" error envelope, or a missing
+// route param) from a transient failure (network blip, 5xx) at the
+// proof-of-payment moment — the latter must NOT read as "order not
+// found", since the payment already went through.
+let order: OrderDetail | null = null;
+let notFound = !orderNumber;
+let loadFailed = false;
+
+if (orderNumber) {
+  try {
+    const { data, error } = await api.orders({ orderNumber }).get();
+    if (error) {
+      if (error.status === 404) {
+        notFound = true;
+      } else {
+        loadFailed = true;
+      }
+    } else {
+      order = data;
+    }
+  } catch (error) {
+    loadFailed = true;
+    console.error("[order/confirm] failed to load order", { error: String(error) });
+  }
+}
 ---
 
 <StorefrontLayout title="Order confirmed | Plugged" description="Your order is confirmed.">
@@ -21,7 +43,28 @@ const order = orderRes?.data ?? null;
   <ClearCart client:only="solid-js" />
 
   <section class="relative mx-auto max-w-3xl px-4 py-12 lg:px-8">
-    {order === null ? (
+    {loadFailed ? (
+      /* Transient failure at the proof-of-payment moment — the order was
+         paid for, so this must not read as "not found". */
+      <div class="mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center gap-4 text-center">
+        <div class="flex size-20 items-center justify-center border-4 border-ink bg-pink shadow-hard">
+          <span class="font-display text-3xl font-black text-newsprint">!</span>
+        </div>
+        <h2 class="font-display text-2xl font-black uppercase tracking-tight text-ink">
+          Couldn't load your order right now
+        </h2>
+        <p class="text-sm font-bold text-muted-foreground">
+          Your payment is safe — we just couldn't reach the warehouse to pull up the receipt. Try
+          refreshing this page.
+        </p>
+        <a
+          href={`/order/confirm/${orderNumber}`}
+          class="border-2 border-ink bg-orange px-6 py-3 text-sm font-black uppercase tracking-wide text-ink shadow-hard-lg transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-hard"
+        >
+          ↻ Refresh
+        </a>
+      </div>
+    ) : notFound ? (
       <div class="mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center gap-4 text-center">
         <div class="flex size-20 items-center justify-center border-4 border-ink bg-pink shadow-hard">
           <span class="font-display text-3xl font-black text-newsprint">?</span>
@@ -39,7 +82,7 @@ const order = orderRes?.data ?? null;
           Browse products
         </a>
       </div>
-    ) : (
+    ) : order ? (
       <>
         {/* Masthead — stamped confirmation */}
         <div class="mb-8 flex flex-col gap-3">
@@ -152,6 +195,6 @@ const order = orderRes?.data ?? null;
           </a>
         </div>
       </>
-    )}
+    ) : null}
   </section>
 </StorefrontLayout>

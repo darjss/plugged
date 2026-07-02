@@ -5,90 +5,152 @@ import ProductsList from "../../../components/storefront/ProductsList.tsx";
 import ProductCard from "../../../components/storefront/ProductCard.tsx";
 import AnalyticsEvent from "../../../components/storefront/AnalyticsEvent.tsx";
 import { api } from "../../../lib/api-client";
-import type { StoreProduct } from "../../../components/storefront/product-types";
+import type { StoreProduct } from "@/types/product-types";
 
 export const prerender = false;
 
-const slug = Astro.params.slug;
+const { slug } = Astro.params;
 
-// Resolve the category; 404 if the slug doesn't match a known category.
-const categoriesRes = await api.categories.get();
-const categories = categoriesRes.data ?? [];
-const category = categories.find((c) => c.slug === slug);
-
-if (!category) {
+// Missing slug is unreachable for this dynamic route in practice, but
+// narrows `slug` from `string | undefined` for the query below.
+if (!slug) {
   return Astro.redirect("/404");
 }
 
 const url = new URL(Astro.request.url);
 const brandSlug = url.searchParams.get("brand") ?? undefined;
-
 const PAGE_SIZE = 12;
-const brandsRes = await api.brands.get();
-const brands = brandsRes.data ?? [];
 
-const query: Record<string, string> = { category: slug, limit: String(PAGE_SIZE), offset: "0" };
-if (brandSlug) query.brand = brandSlug;
-const productsRes = await api.products.get({ query });
-const products: StoreProduct[] = productsRes.data?.products ?? [];
+let categories: Array<{ id: string; slug: string; name: string; description?: string | null }> =
+  [];
+let brands: Array<{ id: string; slug: string; name: string }> = [];
+let products: StoreProduct[] = [];
+let category: { id: string; slug: string; name: string; description?: string | null } | undefined;
+let loadFailed = false;
 
-const title = `${category.name} | Plugged`;
-const description = `Browse ${category.name.toLowerCase()} — pocket audio from the wall.`;
+try {
+  // Resolve the category first — a real 404 (unknown slug) is a distinct
+  // outcome from an API failure and short-circuits before the other
+  // fetches below.
+  const categoriesRes = await api.categories.get();
+  categories = categoriesRes.data ?? [];
+  category = categories.find((c) => c.slug === slug);
+
+  if (!category) {
+    return Astro.redirect("/404");
+  }
+
+  const brandsRes = await api.brands.get();
+  brands = brandsRes.data ?? [];
+
+  const query: Record<string, string> = { category: slug, limit: String(PAGE_SIZE), offset: "0" };
+  if (brandSlug) query.brand = brandSlug;
+  const productsRes = await api.products.get({ query });
+  products = productsRes.data?.products ?? [];
+} catch (error) {
+  loadFailed = true;
+  console.error("[products/category] failed to load category page data", { error: String(error) });
+}
+
+const title = category ? `${category.name} | Plugged` : "Category | Plugged";
+const description = category
+  ? `Browse ${category.name.toLowerCase()} — pocket audio from the wall.`
+  : "Browse the wall — IEMs, DAC amps, and wireless earbuds.";
 ---
 
 <StorefrontLayout title={title} description={description}>
-  <AnalyticsEvent
-    client:load
-    event="category_viewed"
-    properties={{ category_slug: category.slug, category_name: category.name }}
-  />
-  <AnalyticsEvent
-    client:load
-    event="product_listed"
-    properties={{ category_slug: slug, brand_slug: brandSlug ?? null, result_count: products.length }}
-  />
-  <section class="mx-auto max-w-screen-2xl px-4 py-8 lg:px-8 lg:py-12">
-    {/* Masthead */}
-    <div class="mb-6 flex flex-col gap-2 border-b-4 border-ink pb-6">
-      <p class="text-micro font-black uppercase tracking-widest text-orange">
-        Category
-      </p>
-      <h1
-        class="font-display text-display font-black uppercase leading-none tracking-tight text-ink"
-      >
-        {category.name}
-      </h1>
-      {category.description && (
-        <p class="max-w-prose text-body-lg text-ink-muted">{category.description}</p>
-      )}
-    </div>
-
-    {/* Filter bar — category is pinned, brand filter still active */}
-    <div class="mb-8">
-      <FilterBar
-        categories={categories}
-        brands={brands}
-        activeCategory={slug}
-        activeBrand={brandSlug}
+  {!loadFailed && category && (
+    <>
+      <AnalyticsEvent
+        client:load
+        event="category_viewed"
+        properties={{ category_slug: category.slug, category_name: category.name }}
       />
-    </div>
-
-    {/* SSR grid — first 12 products for this category */}
-    <div id="products-ssr" class="mb-4">
-      <div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
-        {products.map((product) => (
-          <ProductCard product={product} />
-        ))}
+      <AnalyticsEvent
+        client:load
+        event="product_listed"
+        properties={{ category_slug: slug, brand_slug: brandSlug ?? null, result_count: products.length }}
+      />
+    </>
+  )}
+  <section class="mx-auto max-w-screen-2xl px-4 py-8 lg:px-8 lg:py-12">
+    {loadFailed || !category ? (
+      /* Branded inline error — same look/tone as ProductsList.tsx's
+         ErrorState so an SSR fetch failure doesn't fall through to
+         Astro's generic crash page. */
+      <div class="flex flex-col items-center gap-6 py-20 text-center">
+        <div
+          class="relative rotate-1 border-4 border-ink bg-pink px-8 py-10 shadow-hard"
+          style="clip-path: polygon(2% 0, 98% 3%, 100% 92%, 4% 100%);"
+        >
+          <div class="flex items-center justify-center gap-2">
+            <span class="rotate-[-3deg] border-2 border-ink bg-newsprint px-2 py-0.5 font-mono text-micro font-black uppercase tracking-wider text-pink shadow-hard-sm">
+              Error
+            </span>
+            <p class="text-micro font-black uppercase tracking-widest text-newsprint">
+              Network failure
+            </p>
+          </div>
+          <h2 class="mt-2 font-display text-display font-black uppercase leading-none tracking-tight text-newsprint">
+            The wall fell over
+          </h2>
+          <p class="mt-3 max-w-sm text-body text-newsprint/90">
+            Couldn't pull products from the warehouse. The connection dropped or the server's
+            splicing tape. Try again.
+          </p>
+          <a
+            href={`/products/category/${slug}`}
+            class="mt-5 inline-flex items-center justify-center gap-2 border-2 border-ink bg-hazard-stripes px-6 py-3 font-display text-sm font-black uppercase tracking-wide text-ink shadow-hard-sm transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+          >
+            ↻ Reload
+          </a>
+        </div>
       </div>
-    </div>
+    ) : (
+      <>
+        {/* Masthead */}
+        <div class="mb-6 flex flex-col gap-2 border-b-4 border-ink pb-6">
+          <p class="text-micro font-black uppercase tracking-widest text-orange">
+            Category
+          </p>
+          <h1
+            class="font-display text-display font-black uppercase leading-none tracking-tight text-ink"
+          >
+            {category.name}
+          </h1>
+          {category.description && (
+            <p class="max-w-prose text-body-lg text-ink-muted">{category.description}</p>
+          )}
+        </div>
 
-    {/* Infinite-scroll island — pinned to this category slug */}
-    <ProductsList
-      client:only="solid-js"
-      initialProducts={products}
-      categorySlug={slug}
-      brandSlug={brandSlug}
-      pageSize={PAGE_SIZE}
-    />
+        {/* Filter bar — category is pinned, brand filter still active */}
+        <div class="mb-8">
+          <FilterBar
+            categories={categories}
+            brands={brands}
+            activeCategory={slug}
+            activeBrand={brandSlug}
+          />
+        </div>
+
+        {/* SSR grid — first 12 products for this category */}
+        <div id="products-ssr" class="mb-4">
+          <div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+            {products.map((product) => (
+              <ProductCard product={product} />
+            ))}
+          </div>
+        </div>
+
+        {/* Infinite-scroll island — pinned to this category slug */}
+        <ProductsList
+          client:only="solid-js"
+          initialProducts={products}
+          categorySlug={slug}
+          brandSlug={brandSlug}
+          pageSize={PAGE_SIZE}
+        />
+      </>
+    )}
   </section>
 </StorefrontLayout>

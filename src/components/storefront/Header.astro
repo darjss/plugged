@@ -121,12 +121,16 @@ import { NAV_LINKS as navLinks } from "../../lib/nav-links";
     const { signal } = searchOverlayController;
 
     const overlay = document.getElementById("search-overlay");
-    const toggle = document.querySelector("[data-search-toggle]");
+    // Both the desktop header button and the mobile bottom-nav button
+    // carry [data-search-toggle], so query all of them and bind each —
+    // a single querySelector only ever wired the first one it found.
+    const toggles = document.querySelectorAll<HTMLElement>("[data-search-toggle]");
     const close = document.querySelector("[data-search-close]");
-    const input = document.querySelector("[data-search-input]");
-    if (!overlay || !toggle) return;
+    const input = document.querySelector<HTMLInputElement>("[data-search-input]");
+    if (!overlay || toggles.length === 0) return;
 
     function open() {
+      if (!overlay) return;
       overlay.classList.remove("hidden");
       overlay.classList.add("flex");
       document.body.style.overflow = "hidden";
@@ -134,12 +138,13 @@ import { NAV_LINKS as navLinks } from "../../lib/nav-links";
       requestAnimationFrame(() => input?.focus());
     }
     function closeSearch() {
+      if (!overlay) return;
       overlay.classList.add("hidden");
       overlay.classList.remove("flex");
       document.body.style.overflow = "";
     }
 
-    toggle.addEventListener("click", open, { signal });
+    toggles.forEach((toggle) => toggle.addEventListener("click", open, { signal }));
     close?.addEventListener("click", closeSearch, { signal });
     // Click on the backdrop (not the panel) closes the overlay.
     overlay.addEventListener("click", (e) => {
