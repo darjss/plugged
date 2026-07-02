@@ -1,9 +1,10 @@
 import { Elysia } from "elysia";
 import * as v from "valibot";
 import { adminStatsQueries } from "../../admin";
-import { commerceQueries } from "../../commerce/queries";
+import { commerceQueries } from "../../commerce";
 import { adminListOrdersSchema, adminUpdateOrderStatusSchema } from "../../commerce/validation";
 import { authPlugin } from "../plugins/auth";
+import { errorHandlerPlugin } from "../plugins/errors";
 import { parseInput, parseQuery } from "../validation";
 
 const recentOrdersQuerySchema = v.object({
@@ -24,6 +25,7 @@ const recentOrdersQuerySchema = v.object({
  * typechecks against the shape it expects.
  */
 export const adminOrderRoutes = new Elysia({ name: "admin-order-routes" })
+  .use(errorHandlerPlugin)
   .use(authPlugin)
   .get(
     "/admin/orders",

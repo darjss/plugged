@@ -1,15 +1,18 @@
 import { Elysia } from "elysia";
 import * as v from "valibot";
-import { commerceQueries } from "../../commerce/queries";
+import { commerceQueries } from "../../commerce";
 import {
   cartItemInputSchema,
   checkoutInputSchema,
   productListQuerySchema,
 } from "../../commerce/validation";
 import { getFrequencyResponse } from "../../integrations/squiglink";
+import { OutOfStockError } from "../../lib/errors";
+import { enforceIpRateLimit } from "../../lib/rate-limit";
 import { searchProducts } from "../../search/search";
 import { MONGOLIAN_PHONE_REGEX } from "../../../lib/utils";
 import { authPlugin } from "../plugins/auth";
+import { errorHandlerPlugin } from "../plugins/errors";
 import { parseInput, parseQuery } from "../validation";
 
 const ordersPhoneQuerySchema = v.object({
@@ -32,6 +35,7 @@ const searchQuerySchema = v.object({
  * `categorySlug`/`brandSlug` fields.
  */
 export const storefrontRoutes = new Elysia({ name: "storefront-routes" })
+  .use(errorHandlerPlugin)
   .use(authPlugin)
   .get("/products", async ({ query }) => {
     const raw = query as Record<string, string | undefined>;
@@ -92,9 +96,24 @@ export const storefrontRoutes = new Elysia({ name: "storefront-routes" })
   .delete("/cart/:cartToken/items/:itemId", async ({ params }) =>
     commerceQueries.store.removeCartItem(params.cartToken, params.itemId),
   )
-  .post("/checkout", async ({ body, user }) => {
+  .post("/checkout", async ({ body, user, status }) => {
     const input = parseInput(checkoutInputSchema, body);
-    return commerceQueries.store.createOrder(input, user?.id ?? null);
+    try {
+      return await commerceQueries.store.createOrder(input, user?.id ?? null);
+    } catch (error) {
+      if (error instanceof OutOfStockError) {
+        return status(409, {
+          error: {
+            code: "out-of-stock" as const,
+            message: error.message,
+            variantId: error.variantId,
+            requested: error.requested,
+            available: error.available,
+          },
+        });
+      }
+      throw error;
+    }
   })
   .get("/payments/:paymentNumber/status", async ({ params }) => {
     const result = await commerceQueries.payments.getPaymentByNumber(params.paymentNumber);
@@ -103,11 +122,13 @@ export const storefrontRoutes = new Elysia({ name: "storefront-routes" })
       status: result.status,
     };
   })
-  .get("/orders", async ({ query }) => {
+  .get("/orders", async ({ query, request }) => {
     // Public lookup by phone — the phone number is the access key. This
     // supports the /track page for guest checkouts (no login required).
     // The profile page reuses the same endpoint for the logged-in
-    // customer's own phone.
+    // customer's own phone. Rate-limited per IP because the phone number
+    // is enumerable and the response contains PII (name, address).
+    await enforceIpRateLimit(request, "orders-by-phone");
     const input = parseQuery(ordersPhoneQuerySchema, query);
     return { orders: await commerceQueries.orders.getOrdersByPhone(input.phone) };
   })

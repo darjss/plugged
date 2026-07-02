@@ -1,19 +1,22 @@
 import { relations } from "drizzle-orm";
 import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import {
+  deliveryFeeMnt,
+  deliveryProviders,
+  orderStatuses,
+  paymentProviders,
+  paymentStatuses,
+  productStatuses,
+} from "../../lib/constants";
 
-export const productStatuses = ["draft", "active", "archived"] as const;
-export const orderStatuses = [
-  "pending",
-  "paid",
-  "shipped",
-  "delivered",
-  "cancelled",
-  "refunded",
-] as const;
-export const paymentProviders = ["qpay", "transfer", "cash"] as const;
-export const paymentStatuses = ["pending", "customer_claimed_paid", "success", "failed"] as const;
-export const deliveryProviders = ["tu-delivery", "self", "avidaa", "pick-up"] as const;
-export const deliveryFeeMnt = 6000;
+export {
+  deliveryFeeMnt,
+  deliveryProviders,
+  orderStatuses,
+  paymentProviders,
+  paymentStatuses,
+  productStatuses,
+} from "../../lib/constants";
 
 export const user = sqliteTable("user", {
   id: text("id").primaryKey(),

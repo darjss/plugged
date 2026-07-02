@@ -1,4 +1,6 @@
+import { env as workerEnv } from "cloudflare:workers";
 import { desc, eq, like } from "drizzle-orm";
+import { ADMIN_CACHE_KEY } from "../auth/guards";
 import { db } from "../db";
 import { deliveryFeeMnt, user } from "../db/schema";
 import { env } from "../lib/env";
@@ -96,6 +98,10 @@ export const adminSettingsQueries = {
     if (!updated) {
       throw new NotFoundError("user", targetId);
     }
+
+    // Invalidate the cached isAdmin flag immediately — without this a
+    // revoked admin keeps privileges for up to ADMIN_CACHE_TTL (5 min).
+    await workerEnv.CACHE.delete(ADMIN_CACHE_KEY(targetId));
 
     return updated;
   },

@@ -1,4 +1,5 @@
 import { and, asc, desc, eq, inArray, like, or, sql } from "drizzle-orm";
+import type { BatchItem } from "drizzle-orm/batch";
 import { nanoid } from "nanoid";
 import * as v from "valibot";
 import { db } from "../db";
@@ -59,10 +60,14 @@ export const adminProductQueries = {
       );
     }
     if (filters.categoryId) {
+      // Raw identifiers on purpose: Drizzle's relational `where` remaps
+      // embedded Column refs onto the primary table alias
+      // ("product"."product_id"), which D1 rejects at runtime. Only the
+      // filter value is a bound param. Same fix as commerce/catalog.ts.
       conditions.push(
         sql`${product.id} IN (
-          SELECT ${productCategory.productId} FROM ${productCategory}
-          WHERE ${productCategory.categoryId} = ${filters.categoryId}
+          SELECT product_id FROM product_category
+          WHERE category_id = ${filters.categoryId}
         )`,
       );
     }
@@ -364,35 +369,41 @@ export const adminProductQueries = {
           );
       }
 
-      for (const variant of input.variants) {
-        if (variant.id) {
-          await db
-            .update(productVariant)
-            .set({
+      // All variant upserts in one D1 batch (one round trip) instead of
+      // a sequential awaited statement per variant.
+      const variantStmts = input.variants.map((variant) =>
+        variant.id
+          ? db
+              .update(productVariant)
+              .set({
+                sku: variant.sku,
+                name: variant.name,
+                priceMnt: variant.priceMnt,
+                compareAtPriceMnt: variant.compareAtPriceMnt ?? null,
+                stockQuantity: variant.stockQuantity,
+                active: variant.active ?? true,
+                updatedAt: date,
+              })
+              .where(eq(productVariant.id, variant.id))
+          : db.insert(productVariant).values({
+              id: nanoid(),
+              productId,
               sku: variant.sku,
               name: variant.name,
               priceMnt: variant.priceMnt,
               compareAtPriceMnt: variant.compareAtPriceMnt ?? null,
               stockQuantity: variant.stockQuantity,
+              reservedQuantity: 0,
               active: variant.active ?? true,
+              createdAt: date,
               updatedAt: date,
-            })
-            .where(eq(productVariant.id, variant.id));
-        } else {
-          await db.insert(productVariant).values({
-            id: nanoid(),
-            productId,
-            sku: variant.sku,
-            name: variant.name,
-            priceMnt: variant.priceMnt,
-            compareAtPriceMnt: variant.compareAtPriceMnt ?? null,
-            stockQuantity: variant.stockQuantity,
-            reservedQuantity: 0,
-            active: variant.active ?? true,
-            createdAt: date,
-            updatedAt: date,
-          });
-        }
+            }),
+      );
+
+      if (variantStmts.length > 0) {
+        await db.batch(
+          variantStmts as unknown as readonly [BatchItem<"sqlite">, ...BatchItem<"sqlite">[]],
+        );
       }
     }
   },

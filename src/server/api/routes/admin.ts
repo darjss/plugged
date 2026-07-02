@@ -12,6 +12,7 @@ import {
   removeProductFromIndex,
 } from "../../search/index-builder";
 import { authPlugin } from "../plugins/auth";
+import { errorHandlerPlugin } from "../plugins/errors";
 import { parseInput } from "../validation";
 
 /**
@@ -21,6 +22,7 @@ import { parseInput } from "../validation";
  * validates with Valibot via `parseInput`.
  */
 export const adminRoutes = new Elysia({ name: "admin-routes" })
+  .use(errorHandlerPlugin)
   .use(authPlugin)
   .get("/admin/brands", () => adminProductQueries.listBrands(), {
     requireAdmin: true,

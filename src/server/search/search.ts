@@ -1,7 +1,7 @@
 import { env } from "cloudflare:workers";
 import { and, desc, eq, or, sql } from "drizzle-orm";
 
-import { commerceQueries } from "../commerce/queries";
+import { commerceQueries } from "../commerce";
 import { db } from "../db";
 import { brand, category, iemSpec, product, productCategory } from "../db/schema";
 import { getEmbeddingData } from "./embedding";

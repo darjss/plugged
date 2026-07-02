@@ -4,6 +4,7 @@ import { adminSettingsQueries, adminStatsQueries } from "../../admin";
 import { adminUpdateUserSchema, adminUsersQuerySchema } from "../../admin/validation";
 import { getAnalyticsOverview } from "../../integrations/posthog";
 import { authPlugin } from "../plugins/auth";
+import { errorHandlerPlugin } from "../plugins/errors";
 import { parseInput, parseQuery } from "../validation";
 
 /**
@@ -19,13 +20,19 @@ const ANALYTICS_CACHE_KEY = "analytics:overview";
 const ANALYTICS_CACHE_TTL = 60;
 
 export const adminStatsRoutes = new Elysia({ name: "admin-stats-routes" })
+  .use(errorHandlerPlugin)
   .use(authPlugin)
   .get("/admin/stats", () => adminStatsQueries.getStats(), { requireAdmin: true })
   .get(
     "/admin/analytics/overview",
     async () => {
       const cached = await env.CACHE.get(ANALYTICS_CACHE_KEY);
-      if (cached) return JSON.parse(cached);
+      if (cached) {
+        // Cast at the serialization boundary: the KV value is the JSON
+        // round-trip of getAnalyticsOverview (all-JSON-safe fields), so
+        // the route keeps a single inferred return type instead of `any`.
+        return JSON.parse(cached) as Awaited<ReturnType<typeof getAnalyticsOverview>>;
+      }
 
       const result = await getAnalyticsOverview();
       await env.CACHE.put(ANALYTICS_CACHE_KEY, JSON.stringify(result), {

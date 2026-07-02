@@ -2,7 +2,18 @@ import { env } from "cloudflare:workers";
 
 const MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8";
 const MEMORY_CACHE = new Map<string, { expires: number; terms: string[] }>();
+const MEMORY_CACHE_MAX = 200;
 const TTL_SECONDS = 60 * 60 * 24;
+
+// Bounded insert: FIFO-evict the oldest entry once the cache is full
+// (Map preserves insertion order, so the first key is the oldest).
+function rememberInMemory(query: string, terms: string[]) {
+  if (!MEMORY_CACHE.has(query) && MEMORY_CACHE.size >= MEMORY_CACHE_MAX) {
+    const oldest = MEMORY_CACHE.keys().next().value;
+    if (oldest !== undefined) MEMORY_CACHE.delete(oldest);
+  }
+  MEMORY_CACHE.set(query, { expires: Date.now() + TTL_SECONDS * 1000, terms });
+}
 
 const IEM_SYNONYMS: Record<string, string[]> = {
   bass: ["bass-heavy", "low-frequency", "sub-bass", "warm"],
@@ -59,14 +70,14 @@ async function getCached(query: string) {
   const cache = (env as Env & { CACHE?: KVNamespace }).CACHE;
   const stored = await cache?.get(cacheKey(query), "json").catch(() => null);
   if (Array.isArray(stored) && stored.every((item) => typeof item === "string")) {
-    MEMORY_CACHE.set(query, { expires: Date.now() + TTL_SECONDS * 1000, terms: stored });
+    rememberInMemory(query, stored);
     return stored;
   }
   return null;
 }
 
 async function putCached(query: string, terms: string[]) {
-  MEMORY_CACHE.set(query, { expires: Date.now() + TTL_SECONDS * 1000, terms });
+  rememberInMemory(query, terms);
   const cache = (env as Env & { CACHE?: KVNamespace }).CACHE;
   await cache
     ?.put(cacheKey(query), JSON.stringify(terms), { expirationTtl: TTL_SECONDS })

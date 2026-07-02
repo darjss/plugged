@@ -7,6 +7,7 @@ import { getAuth } from "./server/lib/auth";
 function isCacheablePath(pathname: string): boolean {
   return (
     !pathname.startsWith("/api/") &&
+    !pathname.startsWith("/auth") &&
     !pathname.startsWith("/dashboard") &&
     !pathname.startsWith("/order/") &&
     !pathname.startsWith("/payment/") &&

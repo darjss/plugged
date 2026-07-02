@@ -1,8 +1,9 @@
 import { Elysia } from "elysia";
-import { commerceQueries } from "../../commerce/queries";
+import { commerceQueries } from "../../commerce";
 import { captureServerEvent } from "../../integrations/posthog";
 import { checkQpayInvoice, verifyQpayWebhook } from "../../integrations/qpay";
 import { authPlugin } from "../plugins/auth";
+import { errorHandlerPlugin } from "../plugins/errors";
 import { parseInput } from "../validation";
 import { createPaymentInputSchema } from "../../commerce/validation";
 
@@ -12,6 +13,7 @@ import { createPaymentInputSchema } from "../../commerce/validation";
  * `verifyQpayWebhook` in the qpay integration module.
  */
 export const paymentRoutes = new Elysia({ name: "payment-routes" })
+  .use(errorHandlerPlugin)
   .use(authPlugin)
   .post("/checkout/create-payment", async ({ body }) => {
     const input = parseInput(createPaymentInputSchema, body);

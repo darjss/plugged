@@ -1,9 +1,16 @@
+export type DomainErrorStatus = 400 | 401 | 403 | 404 | 409 | 429;
+
 export class DomainError extends Error {
-  readonly status: number;
+  readonly status: DomainErrorStatus;
   readonly code: string;
   readonly details?: Record<string, unknown>;
 
-  constructor(status: number, code: string, message: string, details?: Record<string, unknown>) {
+  constructor(
+    status: DomainErrorStatus,
+    code: string,
+    message: string,
+    details?: Record<string, unknown>,
+  ) {
     super(message);
     this.name = this.constructor.name;
     this.status = status;
@@ -25,6 +32,10 @@ export class ValidationError extends DomainError {
 }
 
 export class OutOfStockError extends DomainError {
+  readonly variantId: string;
+  readonly requested: number;
+  readonly available: number;
+
   constructor(variantId: string, requested: number, available: number) {
     super(
       409,
@@ -36,6 +47,9 @@ export class OutOfStockError extends DomainError {
         available,
       },
     );
+    this.variantId = variantId;
+    this.requested = requested;
+    this.available = available;
   }
 }
 
@@ -54,5 +68,11 @@ export class UnauthorizedError extends DomainError {
 export class ForbiddenError extends DomainError {
   constructor(message = "Forbidden") {
     super(403, "forbidden", message);
+  }
+}
+
+export class RateLimitError extends DomainError {
+  constructor(message = "Too many requests. Try again shortly.") {
+    super(429, "rate-limited", message);
   }
 }

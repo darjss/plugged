@@ -3,10 +3,9 @@
  * Drizzle relational rows to the flat API shapes Eden Treaty infers
  * for the admin dashboard client.
  *
- * Extracted from `commerce/queries.ts` to keep that file under 1k lines
- * and separate the "fetch from Drizzle" concern from the "project to
- * API shape" concern. These functions have no DB access — they are
- * pure mappers.
+ * Kept separate from `commerce/admin-orders.ts` to divide the "fetch
+ * from Drizzle" concern from the "project to API shape" concern. These
+ * functions have no DB access — they are pure mappers.
  *
  * Explicit return types use `T["status"]` etc. so the Drizzle-inferred
  * union types (e.g. `"pending" | "paid" | ...`) flow through to the

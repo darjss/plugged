@@ -4,7 +4,13 @@ import { db } from "../db";
 import { user } from "../db/schema";
 
 const ADMIN_CACHE_TTL = 300; // 5 minutes
-const ADMIN_CACHE_KEY = (userId: string) => `admin:${userId}`;
+
+/**
+ * KV key for the cached isAdmin flag. Exported so admin mutations
+ * (updateIsAdmin) can invalidate the exact same key — single source
+ * of the key format.
+ */
+export const ADMIN_CACHE_KEY = (userId: string) => `admin:${userId}`;
 
 export async function isAdminUser(userId: string) {
   const cached = await env.CACHE.get(ADMIN_CACHE_KEY(userId));
