@@ -4,8 +4,8 @@
  * iem_spec, and product_image.
  *
  * Data sources:
- *   - iem-yangkeduo-prices-en.json  (products, brands, variants, prices)
- *   - seed-images.json              (R2 image URLs already uploaded)
+ *   - scripts/data/iem-yangkeduo-prices-en.json  (products, brands, variants, prices)
+ *   - scripts/data/seed-images.json              (R2 image URLs already uploaded)
  *
  * Usage:
  *   node scripts/build-seed-sql.mjs > seed.sql
@@ -15,8 +15,12 @@ import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 
 const repoRoot = new URL("../", import.meta.url);
-const source = JSON.parse(readFileSync(new URL("iem-yangkeduo-prices-en.json", repoRoot), "utf8"));
-const imageMap = JSON.parse(readFileSync(new URL("seed-images.json", repoRoot), "utf8"));
+const source = JSON.parse(
+  readFileSync(new URL("scripts/data/iem-yangkeduo-prices-en.json", repoRoot), "utf8"),
+);
+const imageMap = JSON.parse(
+  readFileSync(new URL("scripts/data/seed-images.json", repoRoot), "utf8"),
+);
 
 // ── Pricing ──────────────────────────────────────────────────────────
 const YUAN_TO_MNT = 500;

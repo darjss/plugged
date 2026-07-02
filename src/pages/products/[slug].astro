@@ -6,7 +6,7 @@ import ProductBuyBox from "../../components/storefront/ProductBuyBox.tsx";
 import AnalyticsEvent from "../../components/storefront/AnalyticsEvent.tsx";
 import ProductSpecs from "../../components/storefront/ProductSpecs.astro";
 import FrequencyResponseChart from "../../components/storefront/FrequencyResponseChart.tsx";
-import { apiBase, absoluteUrl, safeJsonLd, SITE_ORIGIN } from "../../lib/site";
+import { apiBase, absoluteUrl, safeJsonLd } from "../../lib/site";
 import type { ProductImage, ProductVariant } from "@/types/product-types";
 
 export const prerender = false;
@@ -58,52 +58,13 @@ interface ProductDetail {
   variants: ProductVariant[];
 }
 
-export async function getStaticPaths() {
-  // Astro hoists getStaticPaths — frontmatter functions are not in scope,
-  // but module imports are. Use the shared apiBase (no Astro.site here).
-  const base = import.meta.env.DEV ? "http://[::1]:4321" : SITE_ORIGIN;
-
-  // Parse the comma-separated oldSlugs text field into a clean array.
-  const parseOldSlugs = (raw: string | null): string[] => {
-    if (!raw) return [];
-    return raw
-      .split(",")
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0);
-  };
-
-  let products: ProductSummary[] = [];
-  try {
-    const res = await fetch(`${base}/api/products`);
-    if (res.ok) {
-      const data = (await res.json()) as { products: ProductSummary[] };
-      products = data.products ?? [];
-    }
-  } catch (error) {
-    console.warn("[products/[slug]] getStaticPaths: fetch failed, 0 pages", error);
-  }
-
-  const paths: Array<{
-    params: { slug: string };
-    props: { redirectTo: string | null };
-  }> = [];
-
-  for (const product of products) {
-    // Canonical slug path
-    paths.push({ params: { slug: product.slug }, props: { redirectTo: null } });
-
-    // Old slug redirect paths — 301 to canonical
-    for (const oldSlug of parseOldSlugs(product.oldSlugs)) {
-      if (oldSlug && oldSlug !== product.slug) {
-        paths.push({
-          params: { slug: oldSlug },
-          props: { redirectTo: product.slug },
-        });
-      }
-    }
-  }
-
-  return paths;
+// Parse the comma-separated oldSlugs text field into a clean array.
+function parseOldSlugs(raw: string | null): string[] {
+  if (!raw) return [];
+  return raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
 }
 
 const { slug } = Astro.params;

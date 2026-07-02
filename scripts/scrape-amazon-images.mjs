@@ -1,13 +1,30 @@
 import Firecrawl from "@mendable/firecrawl-js";
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { execSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 
-const env = readFileSync("/home/darjs/dev/vit-store/.env", "utf8");
-const key = env
-  .split(/\r?\n/)
-  .find((l) => l.startsWith("FIRECRAWL_API_KEY="))
-  ?.split("=")[1]
-  ?.trim();
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const projectEnvPath = join(__dirname, "..", ".env");
+
+function readKeyFromEnvFile(path) {
+  if (!existsSync(path)) return undefined;
+  const env = readFileSync(path, "utf8");
+  return env
+    .split(/\r?\n/)
+    .find((l) => l.startsWith("FIRECRAWL_API_KEY="))
+    ?.split("=")[1]
+    ?.trim();
+}
+
+const key = process.env.FIRECRAWL_API_KEY ?? readKeyFromEnvFile(projectEnvPath);
+
+if (!key) {
+  throw new Error(
+    `FIRECRAWL_API_KEY not found. Set it in the environment or in ${projectEnvPath}.`,
+  );
+}
+
 const fc = new Firecrawl({ apiKey: key });
 
 const CDN_BASE = "https://cdn.pluggedaudio.store";

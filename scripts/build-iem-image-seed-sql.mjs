@@ -2,18 +2,20 @@ import { readFileSync } from "node:fs";
 import Firecrawl from "@mendable/firecrawl-js";
 
 const repoRoot = new URL("../", import.meta.url);
-const sourcePath = new URL("iem-yangkeduo-prices-en.json", repoRoot);
+const sourcePath = new URL("scripts/data/iem-yangkeduo-prices-en.json", repoRoot);
 const source = JSON.parse(readFileSync(sourcePath, "utf8"));
 
-const vitStoreEnvPath = "/home/darjs/dev/vit-store/.env";
-const apiKey = process.env.FIRECRAWL_API_KEY || readEnvValue(vitStoreEnvPath, "FIRECRAWL_API_KEY");
+const projectEnvPath = new URL(".env", repoRoot).pathname;
+const apiKey = process.env.FIRECRAWL_API_KEY || readEnvValue(projectEnvPath, "FIRECRAWL_API_KEY");
 const limit = Number.parseInt(
   process.argv.find((arg) => arg.startsWith("--limit="))?.split("=")[1] ?? "20",
   10,
 );
 
 if (!apiKey) {
-  throw new Error("FIRECRAWL_API_KEY is missing. Set it or keep vit-store .env available.");
+  throw new Error(
+    `FIRECRAWL_API_KEY not found. Set it in the environment or in ${projectEnvPath}.`,
+  );
 }
 
 const firecrawl = new Firecrawl({ apiKey });

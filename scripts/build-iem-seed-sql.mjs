@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 
-const sourcePath = new URL("../iem-yangkeduo-prices-en.json", import.meta.url);
+const sourcePath = new URL("data/iem-yangkeduo-prices-en.json", import.meta.url);
 const source = JSON.parse(readFileSync(sourcePath, "utf8"));
 const yuanToMnt = 500;
 
@@ -43,7 +43,8 @@ function titleCase(value) {
 function moneyMnt(yuan) {
   const parsed = Number.parseFloat(String(yuan ?? "").replace(/[^\d.]/g, ""));
   if (!Number.isFinite(parsed)) return 0;
-  return Math.round(parsed * yuanToMnt);
+  // Round up to the nearest 5000 MNT to keep prices tidy.
+  return Math.ceil((parsed * yuanToMnt) / 5000) * 5000;
 }
 
 function brandNameFor(result) {

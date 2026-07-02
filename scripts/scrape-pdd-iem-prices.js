@@ -1,8 +1,9 @@
 const fs = require("node:fs");
+const path = require("node:path");
 
-const SOURCE_FILE = "./iem-list.md";
-const OUT_MD = "./iem-yangkeduo-prices.md";
-const OUT_JSON = "./iem-yangkeduo-prices.json";
+const SOURCE_FILE = path.join(__dirname, "data", "iem-list.md");
+const OUT_MD = path.join(__dirname, "data", "iem-yangkeduo-prices.md");
+const OUT_JSON = path.join(__dirname, "data", "iem-yangkeduo-prices.json");
 
 const rawList = fs.readFileSync(SOURCE_FILE, "utf8");
 const lines = rawList
