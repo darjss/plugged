@@ -1,61 +1,16 @@
-// Hand-written because Eden infers the success body as `unknown` due to the
-// server's dynamic `.onError()` status codes (see src/lib/api-client.ts).
-// The shapes mirror the public columns returned by `GET /orders?phone=` so
-// the order-history and order-tracking islands share one type.
+import type { Treaty } from "@elysiajs/eden";
+import type { api } from "@/lib/api-client";
 
-export interface OrderItem {
-  id: string;
-  orderId: string;
-  productId: string;
-  variantId: string;
-  productName: string;
-  variantName: string;
-  sku: string;
-  unitPriceMnt: number;
-  quantity: number;
-  lineTotalMnt: number;
-  createdAt: Date;
-}
+// Derived from the Eden Treaty response for `GET /orders?phone=` so the
+// order-history and order-tracking islands share the server's inferred
+// shape (Drizzle relational rows) without hand-maintained DTOs. Timestamp
+// fields are `Date`: Eden's default `parseDate` revives ISO strings on
+// the client, matching the server-side Drizzle types.
 
-export interface OrderPayment {
-  id: string;
-  orderId: string;
-  paymentNumber: string;
-  provider: string;
-  status: string;
-  amountMnt: number;
-  qpayInvoiceId: string | null;
-  qpayQrText: string | null;
-  qpayQrImage: string | null;
-  qpayUrlsJson: string | null;
-  paidAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface OrderRow {
-  id: string;
-  orderNumber: string;
-  userId: string | null;
-  customerPhone: string;
-  customerName: string | null;
-  status: string;
-  subtotalMnt: number;
-  deliveryFeeMnt: number;
-  totalMnt: number;
-  address: string;
-  deliveryProvider: string;
-  notes: string | null;
-  checkoutToken: string;
-  orderedAt: Date;
-  createdAt: Date;
-  updatedAt: Date;
-  cancelledAt: Date | null;
-  items: OrderItem[];
-  payments: OrderPayment[];
-}
-
-export type OrdersResponse = { orders: OrderRow[] };
+export type OrdersResponse = Treaty.Data<typeof api.orders.get>;
+export type OrderRow = OrdersResponse["orders"][number];
+export type OrderItem = OrderRow["items"][number];
+export type OrderPayment = OrderRow["payments"][number];
 
 export const statusVariant: Record<
   string,

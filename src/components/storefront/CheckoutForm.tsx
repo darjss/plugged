@@ -12,7 +12,7 @@ import { cart } from "@/store/cart";
 import { api, edErrorMessage } from "@/lib/api-client";
 import { formatMnt, MONGOLIAN_PHONE_REGEX } from "@/lib/utils";
 import { cartAnalyticsProperties, trackAnalytics } from "@/lib/analytics";
-import { deliveryFeeMnt } from "@/server/db/schema";
+import { deliveryFeeMnt } from "@/lib/constants";
 import QpayQR from "./QpayQR";
 
 interface CheckoutUser {
@@ -33,23 +33,6 @@ interface QpayData {
   qrImage: string;
   shortUrl: string;
   totalMnt: number;
-}
-
-// Eden infers the 200 type as the error envelope for these routes because the
-// server's `.onError()` uses a dynamic status code (see server/api/app.ts).
-// The runtime shapes are correct, so we cast to these minimal local types.
-interface CheckoutOrder {
-  orderNumber: string;
-  totalMnt: number;
-  payments: { provider: string; paymentNumber: string }[];
-}
-
-interface QpayInvoice {
-  invoiceId: string;
-  paymentNumber: string;
-  qrImage: string;
-  qrText: string;
-  shortUrl: string;
 }
 
 // Client-side form schema — mirrors the customer-facing fields of
@@ -83,6 +66,13 @@ export default function CheckoutForm(props: { user: CheckoutUser | null }) {
   const [submitting, setSubmitting] = createSignal(false);
   const [qpay, setQpay] = createSignal<QpayData | null>(null);
   const [submitError, setSubmitError] = createSignal<string | null>(null);
+  // Set as soon as /checkout succeeds. If the invoice step then fails,
+  // re-submitting retries the invoice for THIS order instead of creating
+  // a duplicate order (which would double-decrement stock).
+  const [createdOrder, setCreatedOrder] = createSignal<{
+    orderNumber: string;
+    totalMnt: number;
+  } | null>(null);
 
   const items = createMemo(() => cart.items());
   const isEmpty = createMemo(() => cart.isHydrated() && items().length === 0);
@@ -126,12 +116,88 @@ export default function CheckoutForm(props: { user: CheckoutUser | null }) {
     window.location.href = "/products";
   };
 
+  type CheckoutError = NonNullable<Awaited<ReturnType<typeof api.checkout.post>>["error"]>;
+
+  /**
+   * Human message for a failed /checkout call. The typed 409 out-of-stock
+   * envelope maps the offending variant back to the cart item's name; the
+   * raw server message is the fallback when the variant isn't in the cart.
+   */
+  const checkoutErrorMessage = (error: CheckoutError): string => {
+    if (error.status === 409) {
+      const details = (
+        error.value as {
+          error?: { code?: string; message?: string; variantId?: string; available?: number };
+        }
+      ).error;
+      if (details?.code === "out-of-stock") {
+        const item = items().find((i) => i.variantId === details.variantId);
+        if (item && typeof details.available === "number") {
+          return `Only ${details.available} left of ${item.name}`;
+        }
+        if (details.message) return details.message;
+      }
+    }
+    return edErrorMessage(error, "Could not create your order.");
+  };
+
+  /**
+   * Request a (fresh) QPay invoice for an existing order and swap the QR
+   * data in place. Shared by the post-checkout invoice step, the submit
+   * button's "Retry payment" mode, and QpayQR's retry action.
+   */
+  const requestInvoice = async (order: {
+    orderNumber: string;
+    totalMnt: number;
+  }): Promise<boolean> => {
+    const { data: invoice, error } = await api.checkout["create-payment"].post({
+      orderNumber: order.orderNumber,
+    });
+    if (error || !invoice) {
+      const message = edErrorMessage(error, "Could not create QPay invoice.");
+      setSubmitError(message);
+      toast.error("QPay invoice failed", { description: message });
+      return false;
+    }
+    setQpay({
+      orderNumber: order.orderNumber,
+      paymentNumber: invoice.paymentNumber,
+      qrImage: invoice.qrImage,
+      shortUrl: invoice.shortUrl,
+      totalMnt: order.totalMnt,
+    });
+    return true;
+  };
+
+  const handleRetry = async () => {
+    const order = createdOrder();
+    if (!order) return;
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      await requestInvoice(order);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Something went wrong.";
+      setSubmitError(message);
+      toast.error("Retry failed", { description: message });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
     setSubmitError(null);
 
     if (items().length === 0) {
       redirectToProducts();
+      return;
+    }
+
+    // An order already exists for this cart (creation succeeded, invoice
+    // failed): retry the invoice — never create a duplicate order.
+    if (createdOrder()) {
+      await handleRetry();
       return;
     }
 
@@ -152,14 +218,17 @@ export default function CheckoutForm(props: { user: CheckoutUser | null }) {
         paymentProvider: "qpay" as const,
       };
 
-      const { data: orderData, error: orderError } = await api.checkout.post(payload);
-      if (orderError || !orderData) {
-        const message = edErrorMessage(orderError, "Could not create your order.");
+      const { data: order, error: orderError } = await api.checkout.post(payload);
+      if (orderError || !order) {
+        const message = orderError
+          ? checkoutErrorMessage(orderError)
+          : "Could not create your order.";
         setSubmitError(message);
         toast.error("Order failed", { description: message });
         return;
       }
-      const order = orderData as unknown as CheckoutOrder;
+
+      setCreatedOrder({ orderNumber: order.orderNumber, totalMnt: order.totalMnt });
 
       const qpayPayment = order.payments.find((p) => p.provider === "qpay");
       if (!qpayPayment) {
@@ -167,24 +236,11 @@ export default function CheckoutForm(props: { user: CheckoutUser | null }) {
         return;
       }
 
-      const { data: invoiceData, error: invoiceError } = await api.checkout["create-payment"].post({
+      const invoiced = await requestInvoice({
         orderNumber: order.orderNumber,
-      });
-      if (invoiceError || !invoiceData) {
-        const message = edErrorMessage(invoiceError, "Could not create QPay invoice.");
-        setSubmitError(message);
-        toast.error("QPay invoice failed", { description: message });
-        return;
-      }
-      const invoice = invoiceData as unknown as QpayInvoice;
-
-      setQpay({
-        orderNumber: order.orderNumber,
-        paymentNumber: invoice.paymentNumber,
-        qrImage: invoice.qrImage,
-        shortUrl: invoice.shortUrl,
         totalMnt: order.totalMnt,
       });
+      if (!invoiced) return;
 
       toast.success("Order placed", {
         description: "Scan the QR to pay with QPay.",
@@ -201,37 +257,6 @@ export default function CheckoutForm(props: { user: CheckoutUser | null }) {
 
   const handleSuccess = () => {
     window.location.href = `/order/confirm/${qpay()?.orderNumber}`;
-  };
-
-  const handleRetry = () => {
-    // Re-request an invoice for the same order. The server creates a fresh
-    // QPay invoice and returns new QR data.
-    setSubmitting(true);
-    setSubmitError(null);
-    const orderNumber = qpay()?.orderNumber;
-    if (!orderNumber) return;
-    void api.checkout["create-payment"]
-      .post({ orderNumber })
-      .then(({ data, error }) => {
-        if (error || !data) {
-          const message = edErrorMessage(error, "Could not create a new invoice.");
-          setSubmitError(message);
-          toast.error("Retry failed", { description: message });
-          return;
-        }
-        const invoice = data as unknown as QpayInvoice;
-        setQpay((prev) =>
-          prev
-            ? {
-                ...prev,
-                qrImage: invoice.qrImage,
-                shortUrl: invoice.shortUrl,
-                paymentNumber: invoice.paymentNumber,
-              }
-            : prev,
-        );
-      })
-      .finally(() => setSubmitting(false));
   };
 
   return (
@@ -336,9 +361,14 @@ export default function CheckoutForm(props: { user: CheckoutUser | null }) {
             </Field>
 
             <Show when={submitError()}>
-              <p class="border-2 border-ink bg-pink px-3 py-2 text-sm font-bold text-newsprint shadow-hard-sm">
-                {submitError()}
-              </p>
+              <div class="border-2 border-ink bg-pink px-3 py-2 shadow-hard-sm">
+                <p class="text-sm font-bold text-newsprint">{submitError()}</p>
+                <Show when={createdOrder()}>
+                  <p class="mt-1 text-xs font-bold uppercase text-newsprint/80">
+                    Your order {createdOrder()!.orderNumber} was created — retry the payment below.
+                  </p>
+                </Show>
+              </div>
             </Show>
 
             <Button
@@ -348,9 +378,16 @@ export default function CheckoutForm(props: { user: CheckoutUser | null }) {
               class="mt-2 w-full"
               disabled={submitting()}
             >
-              <Show when={submitting()} fallback={<>Place order → pay</>}>
+              <Show
+                when={submitting()}
+                fallback={
+                  <Show when={createdOrder()} fallback={<>Place order → pay</>}>
+                    Retry payment
+                  </Show>
+                }
+              >
                 <Loader2 class="size-4 animate-spin" />
-                Placing order…
+                {createdOrder() ? "Retrying payment…" : "Placing order…"}
               </Show>
             </Button>
           </form>

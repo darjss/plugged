@@ -1,5 +1,5 @@
 import { makePersisted } from "@solid-primitives/storage";
-import { createEffect, createMemo, createRoot, createSignal } from "solid-js";
+import { createMemo, createRoot, createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
 import { cartAnalyticsProperties, trackAnalytics } from "@/lib/analytics";
 
@@ -12,6 +12,23 @@ export interface CartItem {
   slug: string;
   variantName?: string;
   quantity: number;
+  /**
+   * Available units (stock minus reservations) at the time the item was
+   * added — caps add/increment. Optional: carts persisted before this
+   * field existed have no cap.
+   */
+  stockQuantity?: number;
+}
+
+function trackCartItemEvent(event: "cart_add" | "cart_remove", item: CartItem) {
+  trackAnalytics(event, {
+    ...cartAnalyticsProperties(),
+    product_slug: item.slug,
+    variant: item.variantName ?? item.variantId,
+    variant_id: item.variantId,
+    quantity: item.quantity,
+    price: item.price,
+  });
 }
 
 interface CartState {
@@ -86,18 +103,25 @@ export const cart = createRoot(() => {
     storage: safeStorage,
   });
 
-  // createEffect runs in the browser only (no-op during SSR). The
-  // microtask delay pushes isHydrated past the first paint so the
-  // initial client render matches the server output.
-  createEffect(() => {
+  // Client-only hydration flip. This module also evaluates during SSR
+  // (isHydrated stays false there), so guard on `window`; the microtask
+  // defers the flip past the first synchronous client render so hydrated
+  // islands initially match the server output — no SSR mismatch.
+  if (typeof window !== "undefined") {
     queueMicrotask(() => setIsHydrated(true));
-  });
+  }
 
   const total = createMemo(() =>
     cartStore.items.reduce((acc, item) => acc + item.price * item.quantity, 0),
   );
 
   const count = createMemo(() => cartStore.items.reduce((acc, item) => acc + item.quantity, 0));
+
+  const remove = (variantId: string) => {
+    const item = cartStore.items.find((i) => i.variantId === variantId);
+    if (item) trackCartItemEvent("cart_remove", item);
+    setCart("items", (items) => items.filter((i) => i.variantId !== variantId));
+  };
 
   return {
     items: () => cartStore.items,
@@ -110,53 +134,39 @@ export const cart = createRoot(() => {
     add: (item: CartItem) => {
       const index = cartStore.items.findIndex((i) => i.variantId === item.variantId);
       if (index !== -1) {
-        setCart("items", index, "quantity", (q) => q + item.quantity);
+        // Merge into the existing line, capped at the freshest known
+        // available stock for the variant.
+        const cap = item.stockQuantity ?? cartStore.items[index]!.stockQuantity;
+        setCart("items", index, (existing) => ({
+          ...existing,
+          quantity:
+            cap !== undefined
+              ? Math.min(existing.quantity + item.quantity, cap)
+              : existing.quantity + item.quantity,
+          stockQuantity: item.stockQuantity ?? existing.stockQuantity,
+        }));
       } else {
-        setCart("items", cartStore.items.length, item);
+        const quantity =
+          item.stockQuantity !== undefined
+            ? Math.min(item.quantity, item.stockQuantity)
+            : item.quantity;
+        setCart("items", cartStore.items.length, { ...item, quantity });
       }
-      trackAnalytics("cart_add", {
-        ...cartAnalyticsProperties(),
-        product_slug: item.slug,
-        variant: item.variantName ?? item.variantId,
-        variant_id: item.variantId,
-        quantity: item.quantity,
-        price: item.price,
-      });
+      trackCartItemEvent("cart_add", item);
       setIsDrawerOpen(true);
     },
 
-    remove: (variantId: string) => {
-      const item = cartStore.items.find((i) => i.variantId === variantId);
-      if (item) {
-        trackAnalytics("cart_remove", {
-          ...cartAnalyticsProperties(),
-          product_slug: item.slug,
-          variant: item.variantName ?? item.variantId,
-          variant_id: item.variantId,
-          quantity: item.quantity,
-          price: item.price,
-        });
-      }
-      setCart("items", (items) => items.filter((i) => i.variantId !== variantId));
-    },
+    remove,
 
     updateQuantity: (variantId: string, quantity: number) => {
       if (quantity <= 0) {
-        const item = cartStore.items.find((i) => i.variantId === variantId);
-        if (item) {
-          trackAnalytics("cart_remove", {
-            ...cartAnalyticsProperties(),
-            product_slug: item.slug,
-            variant: item.variantName ?? item.variantId,
-            variant_id: item.variantId,
-            quantity: item.quantity,
-            price: item.price,
-          });
-        }
-        setCart("items", (items) => items.filter((i) => i.variantId !== variantId));
+        remove(variantId);
         return;
       }
-      setCart("items", (item) => item.variantId === variantId, "quantity", quantity);
+      const item = cartStore.items.find((i) => i.variantId === variantId);
+      const next =
+        item?.stockQuantity !== undefined ? Math.min(quantity, item.stockQuantity) : quantity;
+      setCart("items", (i) => i.variantId === variantId, "quantity", next);
     },
 
     clearCart: () => setCart("items", []),

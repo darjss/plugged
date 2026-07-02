@@ -2,7 +2,7 @@ import { createQuery } from "@tanstack/solid-query";
 import { A } from "@solidjs/router";
 import { AlertTriangle, Box, Clock, TrendingUp } from "lucide-solid";
 import { For, Match, Show, Switch, type Component, type JSX } from "solid-js";
-import { api } from "@/lib/api-client";
+import { api, unwrap } from "@/lib/api-client";
 import { cn, formatMnt } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { paymentStatuses } from "@/server/db/schema";
+import type { paymentStatuses } from "@/lib/constants";
 import { orderStatusBadgeVariant, paymentStatusBadgeVariant } from "@/lib/order-badges";
 
 type PaymentStatus = (typeof paymentStatuses)[number];
@@ -107,31 +107,22 @@ function SectionShell(props: { title: string; href?: string; children: JSX.Eleme
 const DashboardHome: Component = () => {
   const stats = createQuery(() => ({
     queryKey: ["admin", "stats"],
-    queryFn: async () => {
-      const { data, error } = await api.admin.stats.get();
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => unwrap(api.admin.stats.get()),
   }));
 
   const recentOrders = createQuery(() => ({
     queryKey: ["admin", "orders", "recent", 10],
     queryFn: async () => {
-      const { data, error } = await api.admin.orders.get({ query: { limit: "10" } });
-      if (error) throw error;
       // The admin orders list endpoint returns `{ orders, total }` with
       // each order carrying a singular `payment` object.
+      const data = await unwrap(api.admin.orders.get({ query: { limit: "10" } }));
       return data.orders;
     },
   }));
 
   const lowStock = createQuery(() => ({
     queryKey: ["admin", "products", "low-stock"],
-    queryFn: async () => {
-      const { data, error } = await api.admin.products["low-stock"].get();
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => unwrap(api.admin.products["low-stock"].get()),
   }));
 
   // The flat admin order list attaches a single primary `payment` object

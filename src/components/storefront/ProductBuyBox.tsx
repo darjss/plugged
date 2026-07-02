@@ -79,6 +79,7 @@ export default function ProductBuyBox(props: Props) {
       slug: props.productSlug,
       variantName: variant?.name,
       quantity: quantity(),
+      stockQuantity: availableStock(),
     };
 
     cart.add(item);

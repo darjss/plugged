@@ -1,5 +1,6 @@
 import { createSignal } from "solid-js";
 import { authClient } from "@/lib/auth-client";
+import { cart } from "@/store/cart";
 import { cn } from "@/lib/utils";
 
 // `client:only` to avoid SSR/localStorage session mismatch.
@@ -9,6 +10,7 @@ export default function LogoutButton() {
   async function handleSignOut() {
     setPending(true);
     await authClient.signOut();
+    cart.clearCart();
     window.location.assign("/");
   }
 

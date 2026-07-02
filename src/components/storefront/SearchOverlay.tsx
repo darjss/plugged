@@ -1,6 +1,7 @@
 import { For, Show, createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import { Search, X } from "lucide-solid";
 
+import { api, unwrap } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 import { RECENT_SEARCHES_KEY as RECENT_KEY, readRecentSearches } from "@/lib/recent-searches";
 import ProductCard from "./ProductCard";
@@ -13,6 +14,7 @@ export default function SearchOverlay() {
   const [recent, setRecent] = createSignal<string[]>([]);
   const [loading, setLoading] = createSignal(false);
   const [searched, setSearched] = createSignal(false);
+  const [failed, setFailed] = createSignal(false);
   const [inputRef, setInputRef] = createSignal<HTMLInputElement | null>(null);
   let controller: AbortController | undefined;
   let debounce: ReturnType<typeof setTimeout> | undefined;
@@ -63,6 +65,7 @@ export default function SearchOverlay() {
       setResults([]);
       setSearched(false);
       setLoading(false);
+      setFailed(false);
       return;
     }
     debounce = setTimeout(() => void runSearch(q, false), 300);
@@ -77,20 +80,21 @@ export default function SearchOverlay() {
   async function runSearch(q: string, remember = true) {
     controller?.abort();
     controller = new AbortController();
+    const signal = controller.signal;
     setLoading(true);
     setSearched(true);
+    setFailed(false);
     try {
-      const response = await fetch(`/api/search?q=${encodeURIComponent(q)}&limit=8`, {
-        signal: controller.signal,
-      });
-      if (!response.ok) throw new Error("Search failed");
-      const data = (await response.json()) as { products: StoreProduct[] };
+      const data = await unwrap(api.search.get({ query: { q, limit: 8 }, fetch: { signal } }));
       setResults(data.products);
       if (remember) setRecent((items) => [q, ...items.filter((item) => item !== q)].slice(0, 6));
     } catch (error) {
-      if ((error as Error).name !== "AbortError") setResults([]);
+      if ((error as Error).name === "AbortError" || signal.aborted) return;
+      // Network/server failure — show the retry state, not "no results".
+      setResults([]);
+      setFailed(true);
     } finally {
-      setLoading(false);
+      if (!signal.aborted) setLoading(false);
     }
   }
 
@@ -177,28 +181,56 @@ export default function SearchOverlay() {
             </div>
 
             <Show
-              when={results().length > 0}
-              fallback={<EmptySearch searched={searched()} query={query()} />}
+              when={!failed()}
+              fallback={
+                <SearchError onRetry={() => void runSearch(query().trim())} loading={loading()} />
+              }
             >
-              <div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
-                <For each={results()}>{(product) => <ProductCard product={product} />}</For>
-              </div>
+              <Show
+                when={results().length > 0}
+                fallback={<EmptySearch searched={searched()} query={query()} />}
+              >
+                <div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
+                  <For each={results()}>{(product) => <ProductCard product={product} />}</For>
+                </div>
+              </Show>
             </Show>
 
             {/* Screen-reader status announcement */}
             <p class="sr-only" aria-live="polite">
               {loading()
                 ? "Searching…"
-                : searched() && results().length === 0
-                  ? `No results found for "${query()}"`
-                  : results().length > 0
-                    ? `${results().length} result${results().length === 1 ? "" : "s"} found`
-                    : ""}
+                : failed()
+                  ? "Search failed. Try again."
+                  : searched() && results().length === 0
+                    ? `No results found for "${query()}"`
+                    : results().length > 0
+                      ? `${results().length} result${results().length === 1 ? "" : "s"} found`
+                      : ""}
             </p>
           </section>
         </div>
       </div>
     </Show>
+  );
+}
+
+function SearchError(props: { onRetry: () => void; loading: boolean }) {
+  return (
+    <div class="rotate-[-1deg] border-4 border-ink bg-pink px-6 py-10 shadow-hard">
+      <p class="text-micro font-black uppercase tracking-widest text-newsprint">Search failed</p>
+      <p class="mt-2 max-w-prose text-body-lg font-bold text-newsprint/90">
+        Couldn't reach the search desk. The connection dropped or the server's out back. Try again.
+      </p>
+      <button
+        type="button"
+        onClick={() => props.onRetry()}
+        disabled={props.loading}
+        class="mt-5 inline-flex items-center justify-center gap-2 border-2 border-ink bg-hazard-stripes px-6 py-3 font-display text-sm font-black uppercase tracking-wide text-ink shadow-hard-sm transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none disabled:opacity-50"
+      >
+        {props.loading ? "Searching…" : "↻ Retry"}
+      </button>
+    </div>
   );
 }
 

@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "@solidjs/router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
 import { createSignal, For, Show } from "solid-js";
 import { toast } from "solid-sonner";
-import { api } from "@/lib/api-client";
+import { api, queryErrorMessage, unwrap } from "@/lib/api-client";
 import { cn, formatDate, formatMnt } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,70 +24,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { orderStatusBadgeVariant, paymentStatusBadgeVariant } from "@/lib/order-badges";
-import type { orderStatuses, paymentStatuses } from "@/server/db/schema";
+import type { Treaty } from "@elysiajs/eden";
 
-/**
- * Eden treaty type inference for parametrized routes (`/admin/orders/:id`)
- * falls back to the error shape — the success body is too complex for
- * Elysia's route-tree inference at this depth. We define the response
- * shape explicitly to match the flat mapping in app.ts and cast at the
- * fetch boundary. This is the documented escape hatch (AGENTS.md:
- * "unless inference cannot express the boundary clearly").
- */
-type OrderStatus = (typeof orderStatuses)[number];
-type PaymentStatus = (typeof paymentStatuses)[number];
+// Response shapes derived from Eden Treaty inference for
+// `GET /admin/orders/:id` and `PATCH /admin/orders/:id`.
+type AdminOrderDetail = Treaty.Data<ReturnType<typeof api.admin.orders>["get"]>;
 
-type AdminOrderDetail = {
-  id: string;
-  orderNumber: string;
-  customerPhone: string;
-  customerName: string | null;
-  status: OrderStatus;
-  subtotalMnt: number;
-  deliveryFeeMnt: number;
-  totalMnt: number;
-  address: string;
-  deliveryProvider: string;
-  notes: string | null;
-  orderedAt: Date;
-  createdAt: Date;
-  cancelledAt: Date | null;
-  user: { email: string; name: string; phoneNumber: string | null } | null;
-  items: Array<{
-    id: string;
-    productName: string;
-    variantName: string;
-    sku: string;
-    unitPriceMnt: number;
-    quantity: number;
-    lineTotalMnt: number;
-    product: {
-      slug: string;
-      image: { url: string; alt: string | null } | null;
-    };
-  }>;
-  payments: Array<{
-    id: string;
-    paymentNumber: string;
-    provider: string;
-    status: PaymentStatus;
-    amountMnt: number;
-    qpayInvoiceId: string | null;
-    paidAt: Date | null;
-  }>;
-};
-
-type AdminOrderStatusUpdate = {
-  id: string;
-  status: OrderStatus;
-  cancelledAt: Date | null;
-  updatedAt: Date;
-};
-
-async function fetchOrder(id: string): Promise<AdminOrderDetail> {
-  const { data, error } = await api.admin.orders({ id }).get();
-  if (error) throw error;
-  return data as unknown as AdminOrderDetail;
+function fetchOrder(id: string): Promise<AdminOrderDetail> {
+  return unwrap(api.admin.orders({ id }).get());
 }
 
 type OrderData = AdminOrderDetail;
@@ -104,20 +48,14 @@ export default function OrderDetail() {
   }));
 
   const statusMutation = useMutation(() => ({
-    mutationFn: async (nextStatus: "shipped" | "delivered" | "cancelled") => {
-      const { data, error } = await api.admin
-        .orders({ id: params.id! })
-        .patch({ status: nextStatus });
-      if (error) throw error;
-      return data as unknown as AdminOrderStatusUpdate;
-    },
+    mutationFn: (nextStatus: "shipped" | "delivered" | "cancelled") =>
+      unwrap(api.admin.orders({ id: params.id! }).patch({ status: nextStatus })),
     onSuccess: (data) => {
       toast.success(`Order marked as ${data.status}`);
       void queryClient.invalidateQueries({ queryKey: ["admin", "orders"] });
     },
     onError: (err: unknown) => {
-      const message = extractErrorMessage(err);
-      toast.error(message);
+      toast.error(queryErrorMessage(err, "Failed to update order status"));
     },
   }));
 
@@ -136,8 +74,16 @@ export default function OrderDetail() {
       </Show>
 
       <Show when={orderQuery.error}>
-        <div class="border-2 border-destructive bg-destructive/10 p-4 font-mono text-sm text-destructive-foreground">
-          Failed to load order: {String(orderQuery.error)}
+        <div class="flex flex-wrap items-center justify-between gap-3 border-2 border-destructive bg-destructive/10 p-4 font-mono text-sm text-destructive-foreground">
+          <span>Failed to load order: {queryErrorMessage(orderQuery.error)}</span>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={orderQuery.isFetching}
+            onClick={() => void orderQuery.refetch()}
+          >
+            {orderQuery.isFetching ? "Retrying…" : "Retry"}
+          </Button>
         </div>
       </Show>
 
@@ -193,14 +139,6 @@ export default function OrderDetail() {
       />
     </div>
   );
-}
-
-function extractErrorMessage(err: unknown): string {
-  if (err && typeof err === "object" && "value" in err) {
-    const value = (err as { value?: { error?: { message?: string } } }).value;
-    if (value?.error?.message) return value.error.message;
-  }
-  return String(err);
 }
 
 function StatusActions(props: {

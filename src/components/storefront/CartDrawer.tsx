@@ -127,11 +127,25 @@ export default function CartDrawer() {
                           <button
                             type="button"
                             onClick={() => cart.updateQuantity(item.variantId, item.quantity + 1)}
+                            disabled={
+                              item.stockQuantity !== undefined &&
+                              item.quantity >= item.stockQuantity
+                            }
                             aria-label={`Increase ${item.name} quantity`}
-                            class="flex size-7 items-center justify-center border-2 border-ink bg-newsprint shadow-hard-sm transition-all hover:bg-orange active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+                            class="flex size-7 items-center justify-center border-2 border-ink bg-newsprint shadow-hard-sm transition-all hover:bg-orange active:translate-x-[1px] active:translate-y-[1px] active:shadow-none disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-newsprint"
                           >
                             <Plus class="size-3" />
                           </button>
+                          <Show
+                            when={
+                              item.stockQuantity !== undefined &&
+                              item.quantity >= item.stockQuantity
+                            }
+                          >
+                            <span class="font-mono text-micro font-black uppercase text-ink-muted">
+                              max
+                            </span>
+                          </Show>
                           <button
                             type="button"
                             onClick={() => cart.remove(item.variantId)}

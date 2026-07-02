@@ -1,46 +1,31 @@
-import { useQuery } from "@tanstack/solid-query";
 import { createMemo, createSignal, For, Show } from "solid-js";
-import { api } from "@/lib/api-client";
-import { queryClient } from "@/lib/query-client";
-import { cn, formatMnt, formatDate, MONGOLIAN_PHONE_REGEX } from "@/lib/utils";
+import { cn, MONGOLIAN_PHONE_REGEX } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import type { OrderItem, OrderPayment, OrderRow, OrdersResponse } from "@/types/order-types";
-import { paymentStatusLabel, statusLabel, statusVariant } from "@/types/order-types";
+import type { OrderRow } from "@/types/order-types";
+import OrderCard from "./orders/OrderCard";
+import { createOrdersByPhoneQuery } from "./orders/orders-query";
+import { OrdersEmpty, OrdersError, OrdersLoading } from "./orders/query-states";
 
 /**
  * Public order tracking by phone number. No login required — works for
  * guest checkouts. The user enters their 8-digit Mongolian phone, we
- * prepend `+976` and fetch `/orders?phone=`. Supports a `?phone=`
- * query-param prefill for deep links from the profile page.
+ * prepend `+976` and fetch `/orders?phone=` via the shared orders-by-phone
+ * query. Supports a `?phone=` query-param prefill for deep links.
  */
 export default function OrderTracking(props: { initialPhone?: string }) {
   const initial = props.initialPhone ?? "";
   const initialFull =
-    initial && MONGOLIAN_PHONE_REGEX.test(`+976${initial}`) ? `+976${initial}` : null;
+    initial && MONGOLIAN_PHONE_REGEX.test(`+976${initial}`) ? `+976${initial}` : undefined;
 
   const [phoneDigits, setPhoneDigits] = createSignal(initial);
-  const [submittedPhone, setSubmittedPhone] = createSignal<string | null>(initialFull);
+  const [submittedPhone, setSubmittedPhone] = createSignal<string | undefined>(initialFull);
 
   const fullPhone = () => `+976${phoneDigits()}`;
   const phoneValid = () => MONGOLIAN_PHONE_REGEX.test(fullPhone());
 
-  const ordersQuery = useQuery(
-    () => ({
-      queryKey: ["track-orders", submittedPhone()],
-      queryFn: async (): Promise<OrdersResponse> => {
-        const p = submittedPhone();
-        if (!p) return { orders: [] };
-        const { data, error } = await api.orders.get({ query: { phone: p } });
-        if (error) throw error;
-        return data as unknown as OrdersResponse;
-      },
-      enabled: Boolean(submittedPhone()),
-    }),
-    () => queryClient,
-  );
+  const ordersQuery = createOrdersByPhoneQuery(submittedPhone);
 
   const orders = createMemo<OrderRow[]>(() => ordersQuery.data?.orders ?? []);
 
@@ -110,151 +95,23 @@ export default function OrderTracking(props: { initialPhone?: string }) {
           </div>
 
           <Show when={ordersQuery.isPending}>
-            <div class="border-2 border-ink bg-newsprint-2 p-8 text-center shadow-hard-sm">
-              <p class="font-mono text-xs font-black uppercase tracking-widest text-ink-muted">
-                Searching…
-              </p>
-            </div>
+            <OrdersLoading label="Searching…" />
           </Show>
 
           <Show when={ordersQuery.isError}>
-            <div class="flex flex-col gap-3 border-2 border-ink bg-pink p-4 shadow-hard-sm">
-              <div class="flex items-center gap-2">
-                <span class="rotate-[-2deg] border-2 border-ink bg-newsprint px-2 py-0.5 font-mono text-micro font-black uppercase tracking-wider text-pink shadow-hard-sm">
-                  Error
-                </span>
-                <span class="font-display text-lg font-black uppercase tracking-tight text-newsprint">
-                  Fetch error
-                </span>
-              </div>
-              <p class="font-mono text-xs font-bold text-newsprint/90">
-                Something went wrong while fetching your orders. Might be a network issue — please
-                try again.
-              </p>
-              <button
-                type="button"
-                onClick={() => void ordersQuery.refetch()}
-                disabled={ordersQuery.isFetching}
-                class="inline-flex items-center justify-center gap-2 border-2 border-ink bg-hazard-stripes px-5 py-3 font-display text-sm font-black uppercase tracking-wide text-ink shadow-hard-sm transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none disabled:opacity-50"
-              >
-                {ordersQuery.isFetching ? "LOADING…" : "↻ Retry"}
-              </button>
-            </div>
+            <OrdersError
+              onRetry={() => void ordersQuery.refetch()}
+              isFetching={ordersQuery.isFetching}
+            />
           </Show>
 
           <Show when={ordersQuery.isSuccess && orders().length === 0}>
-            <div class="border-2 border-ink bg-newsprint-2 p-8 text-center shadow-hard-sm">
-              <p class="font-display text-2xl uppercase text-ink">No orders found</p>
-              <p class="mt-2 font-mono text-xs uppercase tracking-wider text-ink-muted">
-                No orders match this phone number
-              </p>
-            </div>
+            <OrdersEmpty title="No orders found" description="No orders match this phone number" />
           </Show>
 
           <Show when={orders().length > 0}>
             <ul class="space-y-4">
-              <For each={orders()}>
-                {(order) => {
-                  const itemCount = order.items.reduce(
-                    (sum: number, item: OrderItem) => sum + item.quantity,
-                    0,
-                  );
-                  const qpayPayment = order.payments.find(
-                    (p: OrderPayment) => p.provider === "qpay",
-                  );
-                  return (
-                    <li class="border-2 border-ink bg-newsprint-2 shadow-hard-sm">
-                      {/* Order header */}
-                      <div class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-ink bg-newsprint-dark px-4 py-3">
-                        <div class="flex items-center gap-3">
-                          <span class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
-                            No.
-                          </span>
-                          <span class="font-mono text-sm font-black text-ink">
-                            {order.orderNumber}
-                          </span>
-                        </div>
-                        <Badge
-                          variant={statusVariant[order.status] ?? "default"}
-                          class="rotate-[-1deg]"
-                        >
-                          {statusLabel[order.status] ?? order.status}
-                        </Badge>
-                      </div>
-
-                      {/* Order meta */}
-                      <div class="grid grid-cols-2 gap-3 px-4 py-3 sm:grid-cols-3">
-                        <div>
-                          <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
-                            Date
-                          </p>
-                          <p class="font-mono text-xs font-bold text-ink">
-                            {formatDate(order.orderedAt)}
-                          </p>
-                        </div>
-                        <div>
-                          <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
-                            Total
-                          </p>
-                          <p class="font-mono text-xs font-black text-orange">
-                            {formatMnt(order.totalMnt)}
-                          </p>
-                        </div>
-                        <div>
-                          <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
-                            Items
-                          </p>
-                          <p class="font-mono text-xs font-bold text-ink">{itemCount}ш</p>
-                        </div>
-                      </div>
-
-                      {/* Delivery address */}
-                      <div class="border-t-2 border-ink/30 px-4 py-3">
-                        <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
-                          Delivery address
-                        </p>
-                        <p class="mt-1 font-mono text-xs font-bold text-ink">{order.address}</p>
-                      </div>
-
-                      {/* Payment status */}
-                      <Show when={qpayPayment}>
-                        <div class="border-t-2 border-ink/30 px-4 py-3">
-                          <p class="font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
-                            Payment (QPay)
-                          </p>
-                          <p class="mt-1 font-mono text-xs font-bold text-ink">
-                            {paymentStatusLabel[qpayPayment!.status] ?? qpayPayment!.status}
-                          </p>
-                        </div>
-                      </Show>
-
-                      {/* Items */}
-                      <Show when={order.items.length > 0}>
-                        <div class="border-t-2 border-ink/30 bg-newsprint px-4 py-3">
-                          <p class="mb-2 font-mono text-micro font-black uppercase tracking-widest text-ink-muted">
-                            Items
-                          </p>
-                          <ul class="space-y-1.5">
-                            <For each={order.items}>
-                              {(item) => (
-                                <li class="flex items-center justify-between gap-2 font-mono text-xs text-ink">
-                                  <span class="truncate">
-                                    {item.productName}{" "}
-                                    <span class="text-ink-muted">({item.variantName})</span>
-                                  </span>
-                                  <span class="shrink-0 font-black">
-                                    {item.quantity}× {formatMnt(item.unitPriceMnt)}
-                                  </span>
-                                </li>
-                              )}
-                            </For>
-                          </ul>
-                        </div>
-                      </Show>
-                    </li>
-                  );
-                }}
-              </For>
+              <For each={orders()}>{(order) => <OrderCard order={order} />}</For>
             </ul>
           </Show>
         </div>

@@ -4,7 +4,13 @@ import { toast } from "solid-sonner";
 import { cart } from "@/store/cart";
 import { cn, formatMnt } from "@/lib/utils";
 import { scrollReveal } from "@/lib/scroll-reveal";
-import { firstVariant, primaryImage, type StoreProduct } from "@/types/product-types";
+import {
+  firstInStockVariant,
+  isSoldOut,
+  primaryImage,
+  variantAvailableStock,
+  type StoreProduct,
+} from "@/types/product-types";
 
 interface ProductCardProps {
   product: StoreProduct;
@@ -21,15 +27,18 @@ interface ProductCardProps {
 export default function ProductCard(props: ProductCardProps) {
   const product = () => props.product;
   const image = () => primaryImage(product());
-  const variant = () => firstVariant(product());
+  // Quick-add targets the first IN-STOCK variant (falls back to the
+  // first variant), mirroring ProductBuyBox's auto-select.
+  const variant = () => firstInStockVariant(product());
   const href = () => `/products/${product().slug}`;
   const price = () => variant()?.priceMnt ?? product().basePriceMnt;
   const compareAt = () => variant()?.compareAtPriceMnt ?? product().compareAtPriceMnt;
   const onSale = () => compareAt() !== null && compareAt()! > price();
-  const soldOut = () => {
-    const v = variant();
-    return v ? v.stockQuantity - v.reservedQuantity <= 0 : true;
-  };
+  // Sold out only when EVERY variant is out of stock.
+  const soldOut = () => isSoldOut(product());
+
+  // Broken image URL → fall back to the halftone placeholder.
+  const [imageFailed, setImageFailed] = createSignal(false);
 
   // Stamp-press animation flag — flipped true on click, reset after the
   // keyframe completes so the button can be pressed again.
@@ -48,6 +57,7 @@ export default function ProductCard(props: ProductCardProps) {
       image: image(),
       slug: product().slug,
       quantity: 1,
+      stockQuantity: variantAvailableStock(v),
     });
     // Stamp-press keyframe (CSS) — motion-one not needed for a one-shot
     // transform; the keyframe in global.css handles it. Reset after 400ms.
@@ -92,7 +102,7 @@ export default function ProductCard(props: ProductCardProps) {
           aria-hidden="true"
         />
         <Show
-          when={image()}
+          when={image() && !imageFailed()}
           fallback={
             <div class="flex h-full w-full items-center justify-center bg-halftone">
               <span class="font-display text-4xl font-black uppercase text-ink-muted/40">
@@ -113,6 +123,7 @@ export default function ProductCard(props: ProductCardProps) {
             }}
             onMouseEnter={(e) => (e.currentTarget.style.filter = "grayscale(0) contrast(1)")}
             onMouseLeave={(e) => (e.currentTarget.style.filter = "grayscale(1) contrast(1.15)")}
+            onError={() => setImageFailed(true)}
           />
         </Show>
 

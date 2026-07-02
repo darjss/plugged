@@ -1,7 +1,7 @@
 import { useNavigate } from "@solidjs/router";
 import { keepPreviousData, useQuery } from "@tanstack/solid-query";
 import { createSignal, For, Show, createMemo } from "solid-js";
-import { api } from "@/lib/api-client";
+import { api, queryErrorMessage, unwrap } from "@/lib/api-client";
 import { cn, formatDate, formatMnt } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { orderStatuses, paymentStatuses } from "@/server/db/schema";
+import { orderStatuses, paymentStatuses } from "@/lib/constants";
 import { orderStatusBadgeVariant, paymentStatusBadgeVariant } from "@/lib/order-badges";
 
 const PAGE_SIZE = 25;
@@ -75,11 +75,7 @@ export default function OrdersList() {
 
   const query = useQuery(() => ({
     queryKey: ["admin", "orders", filters()],
-    queryFn: async () => {
-      const { data, error } = await api.admin.orders.get({ query: filters() });
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => unwrap(api.admin.orders.get({ query: filters() })),
     placeholderData: keepPreviousData,
   }));
 
@@ -133,8 +129,16 @@ export default function OrdersList() {
       </Show>
 
       <Show when={query.error}>
-        <div class="border-2 border-destructive bg-destructive/10 p-4 font-mono text-sm text-destructive-foreground">
-          Failed to load orders: {String(query.error)}
+        <div class="flex flex-wrap items-center justify-between gap-3 border-2 border-destructive bg-destructive/10 p-4 font-mono text-sm text-destructive-foreground">
+          <span>Failed to load orders: {queryErrorMessage(query.error)}</span>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={query.isFetching}
+            onClick={() => void query.refetch()}
+          >
+            {query.isFetching ? "Retrying…" : "Retry"}
+          </Button>
         </div>
       </Show>
 

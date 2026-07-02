@@ -1,5 +1,6 @@
 import { Show } from "solid-js";
 import { authClient } from "@/lib/auth-client";
+import { cart } from "@/store/cart";
 import { cn } from "@/lib/utils";
 
 /**
@@ -17,6 +18,7 @@ export default function HeaderAuth() {
 
   async function handleSignOut() {
     await authClient.signOut();
+    cart.clearCart();
     window.location.assign("/");
   }
 

@@ -50,10 +50,7 @@ export default function QpayQR(props: QpayQRProps) {
       return;
     }
 
-    // Eden infers the 200 type as the error envelope because the server's
-    // `.onError()` uses a dynamic status code. The runtime shape is correct,
-    // so we cast to the expected payment-status body.
-    const status = (data as unknown as { status: string } | null)?.status;
+    const status = data?.status;
     if (status === "success") {
       stopPolling();
       setState("success");

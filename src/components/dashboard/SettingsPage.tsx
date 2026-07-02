@@ -1,12 +1,22 @@
 import { createMutation, createQuery } from "@tanstack/solid-query";
 import { createSignal, createMemo, For, Show, onCleanup } from "solid-js";
 import { toast } from "solid-sonner";
-import { api } from "@/lib/api-client";
+import { api, queryErrorMessage, unwrap } from "@/lib/api-client";
+import type { AdminSessionUser as SessionUser } from "@/lib/admin-api";
 import { cn, formatMnt } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
 import {
   Table,
@@ -17,29 +27,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-
-type SettingsStatus = {
-  deliveryFee: number;
-  qpayConfigured: boolean;
-  smsConfigured: boolean;
-  posthogConfigured: boolean;
-  aiSearchConfigured: boolean;
-};
-
-type AdminUser = {
-  id: string;
-  email: string;
-  name: string;
-  isAdmin: boolean;
-};
-
-type SessionUser = {
-  id: string;
-  name: string;
-  email: string;
-  image: string | null;
-  phoneNumber: string | null;
-};
 
 function StatusBadge(props: { configured: boolean }) {
   return (
@@ -52,11 +39,7 @@ function StatusBadge(props: { configured: boolean }) {
 function SettingsSection() {
   const settings = createQuery(() => ({
     queryKey: ["admin", "settings"],
-    queryFn: async () => {
-      const { data, error } = await api.admin.settings.get();
-      if (error) throw error;
-      return data as SettingsStatus;
-    },
+    queryFn: () => unwrap(api.admin.settings.get()),
   }));
 
   return (
@@ -129,31 +112,31 @@ function AdminUsersSection(props: { currentUser: SessionUser | null }) {
     queryKey: ["admin", "users", { search: debouncedSearch() }],
     queryFn: async () => {
       const query = debouncedSearch() ? { search: debouncedSearch() } : undefined;
-      const { data, error } = await api.admin.users.get({ query });
-      if (error) throw error;
-      return (data as { users: AdminUser[] }).users;
+      const data = await unwrap(api.admin.users.get({ query }));
+      return data.users;
     },
   }));
 
+  // Pending grant/revoke awaiting confirmation. The Switch is controlled
+  // by server data (`user.isAdmin`), so cancelling simply discards the
+  // request and the toggle stays in its original visual state.
+  const [pendingToggle, setPendingToggle] = createSignal<{
+    id: string;
+    email: string;
+    next: boolean;
+  } | null>(null);
+
   const toggleMutation = createMutation(() => ({
-    mutationFn: async (args: { id: string; next: boolean }) => {
-      const { data, error } = await api.admin.users({ id: args.id }).patch({
-        body: { isAdmin: args.next },
-      });
-      if (error) throw error;
-      return data as unknown as AdminUser;
-    },
+    mutationFn: (args: { id: string; next: boolean }) =>
+      unwrap(api.admin.users({ id: args.id }).patch({ isAdmin: args.next })),
     onSuccess: (updated) => {
       toast.success(`${updated.email} admin ${updated.isAdmin ? "granted" : "revoked"}`);
     },
     onError: (err: unknown) => {
-      const message =
-        err && typeof err === "object" && "message" in err
-          ? String((err as { message: unknown }).message)
-          : "Failed to update admin flag";
-      toast.error(message);
+      toast.error(queryErrorMessage(err, "Failed to update admin flag"));
     },
     onSettled: () => {
+      setPendingToggle(null);
       void users.refetch();
     },
   }));
@@ -237,8 +220,9 @@ function AdminUsersSection(props: { currentUser: SessionUser | null }) {
                                   checked={user.isAdmin}
                                   disabled={pending()}
                                   onChange={(checked) =>
-                                    toggleMutation.mutate({
+                                    setPendingToggle({
                                       id: user.id,
+                                      email: user.email,
                                       next: checked,
                                     })
                                   }
@@ -266,18 +250,70 @@ function AdminUsersSection(props: { currentUser: SessionUser | null }) {
           )}
         </Show>
       </CardContent>
+
+      <ConfirmAdminToggleDialog
+        request={pendingToggle()}
+        pending={toggleMutation.isPending}
+        onCancel={() => setPendingToggle(null)}
+        onConfirm={() => {
+          const request = pendingToggle();
+          if (request) toggleMutation.mutate({ id: request.id, next: request.next });
+        }}
+      />
     </Card>
+  );
+}
+
+function ConfirmAdminToggleDialog(props: {
+  request: { id: string; email: string; next: boolean } | null;
+  pending: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <Dialog
+      open={Boolean(props.request)}
+      onOpenChange={(open) => {
+        if (!open && !props.pending) props.onCancel();
+      }}
+    >
+      <DialogContent showCloseButton={false}>
+        <DialogHeader>
+          <DialogTitle>
+            {props.request?.next ? "Grant admin access?" : "Revoke admin access?"}
+          </DialogTitle>
+          <DialogDescription>
+            {props.request?.next
+              ? `${props.request.email} will get full access to the dashboard, including orders, products, and admin management.`
+              : `${props.request?.email} will immediately lose access to the dashboard.`}
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" onClick={props.onCancel} disabled={props.pending}>
+            Cancel
+          </Button>
+          <Button
+            variant={props.request?.next ? "default" : "destructive"}
+            disabled={props.pending}
+            onClick={props.onConfirm}
+          >
+            <Show
+              when={props.pending}
+              fallback={props.request?.next ? "Grant admin" : "Revoke admin"}
+            >
+              <Spinner class="size-4" /> Saving…
+            </Show>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
 export default function SettingsPage() {
   const session = createQuery(() => ({
     queryKey: ["dashboard", "session"],
-    queryFn: async () => {
-      const { data, error } = await api.dashboard.session.get();
-      if (error) throw error;
-      return data as { user: SessionUser } | null;
-    },
+    queryFn: () => unwrap(api.dashboard.session.get()),
   }));
 
   return (

@@ -1,7 +1,7 @@
 import { useInfiniteQuery, type InfiniteData } from "@tanstack/solid-query";
 import { For, Show, createMemo, createSignal, onCleanup, onMount } from "solid-js";
 
-import { api } from "@/lib/api-client";
+import { api, unwrap } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 import ProductCard from "./ProductCard";
 import type { StoreProduct } from "@/types/product-types";
@@ -59,12 +59,8 @@ function ProductsListInner(props: ProductsListProps) {
       if (cat) params.category = cat;
       if (brand) params.brand = brand;
 
-      const { data, error } = await api.products.get({ query: params });
-      if (error) throw error;
-      // Eden can't infer the success body for this route because the
-      // Drizzle relational return type is too deep for Elysia's type
-      // inference. The runtime shape is `{ products: StoreProduct[] }`.
-      return (data as unknown as { products: StoreProduct[] }).products;
+      const data = await unwrap(api.products.get({ query: params }));
+      return data.products;
     },
     initialData: {
       pages: [props.initialProducts],

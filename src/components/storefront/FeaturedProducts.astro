@@ -5,7 +5,8 @@
  * (B&W by default, color on hover). 4–8 products.
  */
 import { formatMnt } from "../../lib/utils";
-import type { StoreProduct } from "./product-types";
+import { isSoldOut } from "@/types/product-types";
+import type { StoreProduct } from "@/types/product-types";
 
 interface Props {
   products: StoreProduct[];
@@ -97,13 +98,21 @@ function hasComparePrice(product: StoreProduct) {
                     transition:name={`product-image-${product.slug}`}
                   >
                     {image ? (
-                      <img
-                        src={image.url}
-                        alt={image.alt ?? `${product.name} product photo`}
-                        loading={i < 4 ? "eager" : "lazy"}
-                        decoding="async"
-                        class="absolute inset-0 size-full object-cover grayscale contrast-125 brightness-95 transition-all duration-300 group-hover:grayscale-0 group-hover:contrast-100 group-hover:scale-105"
-                      />
+                      <>
+                        {/* Hidden halftone fallback — revealed if the image 404s. */}
+                        <div
+                          class="absolute inset-0 hidden bg-halftone-lg opacity-40"
+                          aria-hidden="true"
+                        />
+                        <img
+                          src={image.url}
+                          alt={image.alt ?? `${product.name} product photo`}
+                          loading={i < 4 ? "eager" : "lazy"}
+                          decoding="async"
+                          class="absolute inset-0 size-full object-cover grayscale contrast-125 brightness-95 transition-all duration-300 group-hover:grayscale-0 group-hover:contrast-100 group-hover:scale-105"
+                          onerror="this.style.display='none';this.previousElementSibling.classList.remove('hidden');"
+                        />
+                      </>
                     ) : (
                       <div class="absolute inset-0 bg-halftone-lg opacity-40" aria-hidden="true" />
                     )}
@@ -117,6 +126,14 @@ function hasComparePrice(product: StoreProduct) {
                     {product.featured && (
                       <span class="absolute right-2 top-2 -rotate-3 border-2 border-ink bg-orange px-2 py-0.5 text-micro font-black uppercase tracking-widest text-ink shadow-hard-sm">
                         Pick
+                      </span>
+                    )}
+                    {/* Sold-out stamp — same treatment as ProductCard */}
+                    {isSoldOut(product) && (
+                      <span class="absolute inset-0 flex items-center justify-center">
+                        <span class="rotate-[-8deg] border-4 border-ink bg-pink px-4 py-1.5 font-display text-2xl font-black uppercase text-newsprint shadow-hard">
+                          Sold out
+                        </span>
                       </span>
                     )}
                   </div>

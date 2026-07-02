@@ -1,51 +1,17 @@
+import type { Treaty } from "@elysiajs/eden";
+import type { api } from "@/lib/api-client";
+
 /**
- * Storefront-facing product shape. Mirrors the public columns returned by
- * `commerceQueries.store.getProducts` / `GET /products` so SSR (Astro) and
- * client (SolidJS island) share one type without hand-maintained DTOs.
- *
- * Kept as a structural interface (not imported from the server) so the
- * client bundle stays decoupled from Drizzle/Elysia inference.
+ * Storefront-facing product shape, derived from the Eden Treaty response
+ * for `GET /products` so SSR (Astro) and client (SolidJS islands) share
+ * the server's inferred shape (Drizzle relational rows) without a
+ * hand-maintained DTO. Type-only import — no server code reaches the
+ * client bundle.
  */
-export interface ProductImage {
-  id: string;
-  url: string;
-  alt: string | null;
-  isPrimary: boolean;
-  sortOrder: number;
-}
-
-export interface ProductVariant {
-  id: string;
-  sku: string;
-  name: string;
-  priceMnt: number;
-  compareAtPriceMnt: number | null;
-  stockQuantity: number;
-  reservedQuantity: number;
-  active: boolean;
-}
-
-export interface ProductBrand {
-  id: string;
-  slug: string;
-  name: string;
-}
-
-export interface StoreProduct {
-  id: string;
-  slug: string;
-  name: string;
-  shortDescription: string | null;
-  description: string | null;
-  status: string;
-  basePriceMnt: number;
-  compareAtPriceMnt: number | null;
-  currency: string;
-  featured: boolean;
-  brand: ProductBrand | null;
-  images: ProductImage[];
-  variants: ProductVariant[];
-}
+export type StoreProduct = Treaty.Data<typeof api.products.get>["products"][number];
+export type ProductImage = StoreProduct["images"][number];
+export type ProductVariant = StoreProduct["variants"][number];
+export type ProductBrand = NonNullable<StoreProduct["brand"]>;
 
 /**
  * Pick the primary image URL (or first available) for a product card.
@@ -56,11 +22,28 @@ export function primaryImage(product: StoreProduct): string {
   return product.images[0]?.url ?? "";
 }
 
+/** Units actually available for a variant (stock minus reservations). */
+export function variantAvailableStock(variant: ProductVariant): number {
+  return Math.max(0, variant.stockQuantity - variant.reservedQuantity);
+}
+
 /**
- * Pick the first active variant for add-to-cart. Falls back to the first
- * variant if none are explicitly active so the button still works on
- * under-seeded data.
+ * A product is sold out only when EVERY variant is out of stock (the
+ * storefront API already filters variants to active ones). Products with
+ * no variants at all are treated as sold out.
  */
-export function firstVariant(product: StoreProduct): ProductVariant | null {
-  return product.variants[0] ?? null;
+export function isSoldOut(product: StoreProduct): boolean {
+  return product.variants.every((variant) => variantAvailableStock(variant) <= 0);
+}
+
+/**
+ * Variant to target for quick add-to-cart: the first IN-STOCK variant,
+ * falling back to the first variant (mirrors ProductBuyBox auto-select).
+ */
+export function firstInStockVariant(product: StoreProduct): ProductVariant | null {
+  return (
+    product.variants.find((variant) => variantAvailableStock(variant) > 0) ??
+    product.variants[0] ??
+    null
+  );
 }
